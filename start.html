@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RezurX | Access Gate</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --tangerine: #ff8c00;
+            --tangerine-glow: rgba(255, 140, 0, 0.5);
+            --bg-dark: #050505;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 50%, #1a1000 0%, #050505 100%);
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            overflow: hidden;
+        }
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.25) 50%);
+            background-size: 100% 2px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .container {
+            background: rgba(15,15,15,0.85);
+            border: 1px solid rgba(255,140,0,0.3);
+            padding: 40px;
+            width: 90%;
+            max-width: 420px;
+            border-radius: 4px;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.9);
+        }
+        .container::after {
+            content: "";
+            position: absolute;
+            top: -2px; left: -2px;
+            width: 20px; height: 20px;
+            border-top: 2px solid var(--tangerine);
+            border-left: 2px solid var(--tangerine);
+        }
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 4px;
+            color: var(--tangerine);
+            text-shadow: 0 0 10px var(--tangerine-glow);
+            margin-bottom: 25px;
+            font-size: 1.6rem;
+        }
+        .loader {
+            border: 4px solid #1a1a1a;
+            border-top: 4px solid var(--tangerine);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 25px;
+            display: none;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .btn {
+            background: transparent;
+            border: 1px solid var(--tangerine);
+            color: var(--tangerine);
+            padding: 14px 28px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.25s;
+            display: inline-block;
+            width: 100%;
+            margin-top: 15px;
+        }
+        .btn:hover {
+            background: var(--tangerine);
+            color: #000;
+            box-shadow: 0 0 20px var(--tangerine-glow);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        #status-text {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-top: 15px;
+            min-height: 1.5em;
+        }
+        .small-hint {
+            font-size: 0.6rem;
+            color: #555;
+            margin-top: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>REZURX</h1>
+        <div class="loader" id="loader"></div>
+        <button class="btn" id="start-btn">START KEY RETRIEVAL</button>
+        <div id="status-text"></div>
+        <div class="small-hint">AUTHENTICATION GATE · HWID LOCKED</div>
+    </div>
+
+    <script>
+        const API_BASE = "https://rezurx-backend.onrender.com";
+        const LINKVERTISE_URL = "https://linkvertise.com/5011888/rezurxlab"; // ← your real link
+
+        const loader = document.getElementById('loader');
+        const btn = document.getElementById('start-btn');
+        const statusDiv = document.getElementById('status-text');
+
+        function showLoader(show) {
+            loader.style.display = show ? 'block' : 'none';
+        }
+
+        function setStatus(msg, color = '#aaa') {
+            statusDiv.innerText = msg;
+            statusDiv.style.color = color;
+        }
+
+        async function startHandshake() {
+            btn.disabled = true;
+            showLoader(true);
+            setStatus('CONTACTING SECURE SERVER...');
+
+            try {
+                const res = await fetch(`${API_BASE}/api/initiate-session`, { method: 'POST' });
+                if (!res.ok) throw new Error('Server returned ' + res.status);
+
+                const data = await res.json();
+                if (data.token) {
+                    setStatus('SPLICE CONFIRMED — REDIRECTING', '#ff8c00');
+                    // Brief pause so the user sees the success message
+                    setTimeout(() => {
+                        window.location.href = `${LINKVERTISE_URL}?token=${data.token}`;
+                    }, 800);
+                } else {
+                    throw new Error('No token in response');
+                }
+            } catch (err) {
+                console.error(err);
+                setStatus('SERVER UNAVAILABLE — RETRY', '#ff4444');
+                btn.disabled = false;
+                showLoader(false);
+                // The user can click the button again manually
+            }
+        }
+
+        // Manual retry via button
+        btn.addEventListener('click', startHandshake);
+
+        // Optional: auto-fire after a short delay if you prefer a "loading" impression
+        // window.onload = () => { setTimeout(startHandshake, 1200); };
+        // But manual click gives the user control; remove the comment above if you want auto.
+    </script>
+</body>
+</html>
