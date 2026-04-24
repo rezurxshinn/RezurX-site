@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RezurX | Authenticator</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --tangerine: #ff8c00;
+            --tangerine-glow: rgba(255, 140, 0, 0.5);
+            --bg-dark: #050505;
+            --panel-bg: rgba(15, 15, 15, 0.85);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 50%, #1a1000 0%, #050505 100%);
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Scanline effect */
+        body::before {
+            content: " ";
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 2px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 140, 0, 0.3);
+            padding: 40px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.9);
+            border-radius: 4px;
+        }
+
+        .panel::after {
+            content: "";
+            position: absolute;
+            top: -2px; left: -2px; width: 20px; height: 20px;
+            border-top: 2px solid var(--tangerine);
+            border-left: 2px solid var(--tangerine);
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 4px;
+            color: var(--tangerine);
+            text-shadow: 0 0 10px var(--tangerine-glow);
+            margin-bottom: 5px;
+        }
+
+        /* --- LOADER UI --- */
+        #loader-ui { display: block; }
+        
+        .pulse-ring {
+            width: 50px; height: 50px;
+            border: 3px solid var(--tangerine);
+            border-radius: 50%;
+            margin: 20px auto;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite, glow 2s ease-in-out infinite;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes glow { 50% { box-shadow: 0 0 15px var(--tangerine); } }
+
+        .loading-text {
+            color: #888;
+            font-size: 0.85rem;
+            animation: blink 1.5s infinite;
+        }
+        @keyframes blink { 50% { opacity: 0.5; } }
+
+        /* --- MAIN UI (Hidden by default) --- */
+        #main-ui { display: none; }
+
+        .status-box {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid var(--tangerine);
+            color: var(--tangerine);
+            padding: 15px 30px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            background: var(--tangerine);
+            color: #000;
+            box-shadow: 0 0 20px var(--tangerine-glow);
+        }
+
+        #key-output {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.8);
+            border-left: 3px solid #00ff88;
+            display: none;
+        }
+
+        .key-text {
+            color: #00ff88;
+            font-size: 1.2rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            word-break: break-all;
+        }
+
+        .footer { margin-top: 20px; font-size: 0.65rem; color: #444; }
+    </style>
+</head>
+<body>
+
+    <div class="panel">
+        <h1>REZURX</h1>
+
+        <div id="loader-ui">
+            <div class="pulse-ring"></div>
+            <div class="loading-text" id="loader-status">ESTABLISHING UPLINK TO SERVER...</div>
+        </div>
+
+        <div id="main-ui">
+            <div class="status-box" id="status">SYSTEM: READY</div>
+            <button class="btn" id="action-btn" onclick="startSession()">Initialize Handshake</button>
+            
+            <div id="key-output">
+                <div style="font-size: 0.7rem; color: #888; margin-bottom: 5px;">DECRYPTED_KEY:</div>
+                <div class="key-text" id="display-key"></div>
+            </div>
+        </div>
+
+        <div class="footer">V4.0 | AES-256 SECURED | HWID_LOCK: ON</div>
+    </div>
+
+    <script>
+        const API_BASE = "https://rezurx-backend.onrender.com";
+        const LINKVERTISE_URL = "YOUR_LINKVERTISE_LINK_HERE"; // 👈 CHANGE THIS
+
+        const loaderUI = document.getElementById('loader-ui');
+        const mainUI = document.getElementById('main-ui');
+        const loaderStatus = document.getElementById('loader-status');
+        const statusText = document.getElementById('status');
+        const actionBtn = document.getElementById('action-btn');
+        const keyOutput = document.getElementById('key-output');
+        const displayKey = document.getElementById('display-key');
+
+        // 1. PING THE SERVER ON LOAD
+        async function bootSequence() {
+            try {
+                // If it takes 30s, the UI keeps spinning nicely
+                await fetch(`${API_BASE}/health`);
+                
+                // Server is awake, check if they are returning with a token
+                const urlParams = new URLSearchParams(window.location.search);
+                const token = urlParams.get('token');
+
+                loaderUI.style.display = "none";
+                mainUI.style.display = "block";
+
+                if (token) {
+                    processReturningUser(token);
+                }
+
+            } catch (err) {
+                loaderStatus.innerText = "CRITICAL ERROR: UPLINK FAILED";
+                loaderStatus.style.color = "red";
+            }
+        }
+
+        // 2. FIRST TIME VISITOR - GET TOKEN & REDIRECT
+        async function startSession() {
+            actionBtn.innerText = "GENERATING TOKEN...";
+            actionBtn.style.pointerEvents = "none";
+
+            try {
+                const res = await fetch(`${API_BASE}/api/initiate-session`, { method: 'POST' });
+                const data = await res.json();
+                
+                if (data.token) {
+                    window.location.href = `${LINKVERTISE_URL}?token=${data.token}`;
+                }
+            } catch (e) {
+                statusText.innerText = "SYSTEM: ERROR_GENERATING_SESSION";
+                actionBtn.innerText = "TRY AGAIN";
+                actionBtn.style.pointerEvents = "auto";
+            }
+        }
+
+        // 3. RETURNING VISITOR - FETCH KEY
+        async function processReturningUser(token) {
+            statusText.innerText = "SYSTEM: VALIDATING_TOKEN...";
+            actionBtn.style.display = "none"; // Hide button since it's auto-fetching
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/retrieve-key?token=${token}`);
+                const data = await res.json();
+
+                if (data.key) {
+                    statusText.innerText = "SYSTEM: ACCESS_GRANTED";
+                    statusText.style.color = "#00ff88";
+                    keyOutput.style.display = "block";
+                    displayKey.innerText = data.key;
+                } else {
+                    statusText.innerText = "SYSTEM: AUTH_FAILED_NO_COMPLETION";
+                    actionBtn.style.display = "block";
+                    actionBtn.innerText = "RE-INITIALIZE";
+                }
+            } catch (e) {
+                statusText.innerText = "SYSTEM: DATABASE_ERROR";
+                actionBtn.style.display = "block";
+                actionBtn.innerText = "RETRY";
+            }
+        }
+
+        // Start the boot sequence automatically
+        window.onload = bootSequence;
+    </script>
+</body>
+</html>
+
