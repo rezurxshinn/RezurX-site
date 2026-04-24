@@ -3,246 +3,423 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RezurX | Authenticator</title>
+    <meta name="theme-color" content="#050505">
+    <title>RezurX | Key Vault</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --tangerine: #ff8c00;
-            --tangerine-glow: rgba(255, 140, 0, 0.5);
-            --bg-dark: #050505;
-            --panel-bg: rgba(15, 15, 15, 0.85);
+            --orange:      #ff8c00;
+            --orange-glow: rgba(255,140,0,0.4);
+            --green:       #00ff88;
+            --green-glow:  rgba(0,255,136,0.2);
+            --red:         #ff4444;
+            --bg:          #050505;
+            --panel:       rgba(15,15,15,0.9);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: var(--bg-dark);
-            background-image: radial-gradient(circle at 50% 50%, #1a1000 0%, #050505 100%);
+            background: var(--bg);
+            background-image: radial-gradient(circle at 50% 40%, #1a1000, #050505 70%);
             color: #fff;
             font-family: 'JetBrains Mono', monospace;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             overflow: hidden;
         }
 
-        /* Scanline effect */
+        /* CRT scanlines */
         body::before {
-            content: " ";
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-            background-size: 100% 2px;
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 1px,
+                rgba(0,0,0,0.15) 1px,
+                rgba(0,0,0,0.15) 2px
+            );
             pointer-events: none;
-            z-index: 10;
+            z-index: 100;
         }
 
         .panel {
-            background: var(--panel-bg);
-            border: 1px solid rgba(255, 140, 0, 0.3);
-            padding: 40px;
+            background: var(--panel);
+            border: 1px solid rgba(255,140,0,0.25);
+            border-radius: 4px;
+            padding: 40px 35px;
             width: 90%;
-            max-width: 450px;
+            max-width: 460px;
             text-align: center;
             position: relative;
-            box-shadow: 0 0 30px rgba(0,0,0,0.9);
-            border-radius: 4px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.95), 0 0 0 1px rgba(255,140,0,0.05);
         }
 
-        .panel::after {
+        /* Corner accents */
+        .panel::before, .panel::after {
             content: "";
             position: absolute;
-            top: -2px; left: -2px; width: 20px; height: 20px;
-            border-top: 2px solid var(--tangerine);
-            border-left: 2px solid var(--tangerine);
+            width: 18px; height: 18px;
+        }
+        .panel::before {
+            top: -1px; left: -1px;
+            border-top: 2px solid var(--orange);
+            border-left: 2px solid var(--orange);
+        }
+        .panel::after {
+            bottom: -1px; right: -1px;
+            border-bottom: 2px solid var(--orange);
+            border-right: 2px solid var(--orange);
         }
 
         h1 {
             font-family: 'Orbitron', sans-serif;
-            letter-spacing: 4px;
-            color: var(--tangerine);
-            text-shadow: 0 0 10px var(--tangerine-glow);
-            margin-bottom: 5px;
+            letter-spacing: 6px;
+            font-size: 1.6rem;
+            color: var(--orange);
+            text-shadow: 0 0 12px var(--orange-glow);
+            margin-bottom: 30px;
         }
 
-        /* --- LOADER UI --- */
-        #loader-ui { display: block; }
-        
-        .pulse-ring {
-            width: 50px; height: 50px;
-            border: 3px solid var(--tangerine);
+        /* ── SPINNER ── */
+        .spinner {
+            width: 48px; height: 48px;
+            border: 3px solid rgba(255,140,0,0.15);
+            border-top-color: var(--orange);
             border-radius: 50%;
-            margin: 20px auto;
-            border-top-color: transparent;
-            animation: spin 1s linear infinite, glow 2s ease-in-out infinite;
+            margin: 0 auto 20px;
+            animation: spin 0.9s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── STATUS ── */
+        #status {
+            font-size: 0.78rem;
+            color: #666;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            min-height: 1.2em;
+            transition: color 0.3s;
         }
 
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes glow { 50% { box-shadow: 0 0 15px var(--tangerine); } }
-
-        .loading-text {
-            color: #888;
-            font-size: 0.85rem;
-            animation: blink 1.5s infinite;
-        }
-        @keyframes blink { 50% { opacity: 0.5; } }
-
-        /* --- MAIN UI (Hidden by default) --- */
-        #main-ui { display: none; }
-
-        .status-box {
-            font-size: 0.8rem;
-            color: #aaa;
-            margin-bottom: 25px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 10px;
+        /* ── KEY BOX ── */
+        #key-box {
+            display: none;
+            margin-top: 20px;
+            padding: 20px 16px 16px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--green);
+            box-shadow: 0 0 20px var(--green-glow);
+            border-radius: 2px;
         }
 
-        .btn {
-            background: transparent;
-            border: 1px solid var(--tangerine);
-            color: var(--tangerine);
-            padding: 15px 30px;
+        .key-label {
+            font-size: 0.62rem;
+            color: rgba(0,255,136,0.5);
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        #key-value {
             font-family: 'Orbitron', sans-serif;
-            font-weight: bold;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--green);
+            letter-spacing: 3px;
+            word-break: break-all;
+            text-shadow: 0 0 8px var(--green-glow);
+        }
+
+        /* ── COPY BUTTON ── */
+        #copy-btn {
+            margin-top: 14px;
+            background: transparent;
+            border: 1px solid rgba(0,255,136,0.3);
+            color: rgba(0,255,136,0.6);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            padding: 8px 16px;
             cursor: pointer;
             width: 100%;
-            transition: all 0.3s;
-            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+            border-radius: 2px;
+        }
+        #copy-btn:hover {
+            background: rgba(0,255,136,0.08);
+            border-color: var(--green);
+            color: var(--green);
+        }
+        #copy-btn.copied {
+            border-color: var(--green);
+            color: var(--green);
+            background: rgba(0,255,136,0.1);
         }
 
-        .btn:hover {
-            background: var(--tangerine);
-            color: #000;
-            box-shadow: 0 0 20px var(--tangerine-glow);
-        }
-
-        #key-output {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(0,0,0,0.8);
-            border-left: 3px solid #00ff88;
+        /* ── COUNTDOWN BAR ── */
+        #countdown-wrap {
             display: none;
+            margin-top: 16px;
+        }
+        #countdown-label {
+            font-size: 0.62rem;
+            color: #444;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+        #countdown-bar-bg {
+            height: 3px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        #countdown-bar {
+            height: 100%;
+            width: 100%;
+            background: var(--orange);
+            transition: width 1s linear, background 1s;
         }
 
-        .key-text {
-            color: #00ff88;
-            font-size: 1.2rem;
-            font-weight: bold;
-            letter-spacing: 2px;
-            word-break: break-all;
+        /* ── PAUSE BUTTON ── */
+        #pause-btn {
+            margin-top: 8px;
+            background: transparent;
+            border: none;
+            color: #444;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.62rem;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        #pause-btn:hover { color: #888; }
+
+        /* ── ERROR STATE ── */
+        #retry-btn {
+            display: none;
+            margin-top: 20px;
+            background: transparent;
+            border: 1px solid var(--red);
+            color: var(--red);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            padding: 12px;
+            width: 100%;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+            border-radius: 2px;
+        }
+        #retry-btn:hover {
+            background: rgba(255,68,68,0.08);
         }
 
-        .footer { margin-top: 20px; font-size: 0.65rem; color: #444; }
+        .footer {
+            margin-top: 28px;
+            font-size: 0.58rem;
+            color: #2a2a2a;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
+<div class="panel">
+    <h1>REZURX</h1>
 
-    <div class="panel">
-        <h1>REZURX</h1>
+    <div class="spinner" id="spinner"></div>
+    <div id="status">INITIATING DECRYPTION...</div>
 
-        <div id="loader-ui">
-            <div class="pulse-ring"></div>
-            <div class="loading-text" id="loader-status">ESTABLISHING UPLINK TO SERVER...</div>
-        </div>
-
-        <div id="main-ui">
-            <div class="status-box" id="status">SYSTEM: READY</div>
-            <button class="btn" id="action-btn" onclick="startSession()">Initialize Handshake</button>
-            
-            <div id="key-output">
-                <div style="font-size: 0.7rem; color: #888; margin-bottom: 5px;">DECRYPTED_KEY:</div>
-                <div class="key-text" id="display-key"></div>
-            </div>
-        </div>
-
-        <div class="footer">V4.0 | AES-256 SECURED | HWID_LOCK: ON</div>
+    <div id="key-box">
+        <div class="key-label">ACCESS KEY GENERATED</div>
+        <div id="key-value"></div>
+        <button id="copy-btn" onclick="copyKey()">[ CLICK TO COPY ]</button>
     </div>
 
-    <script>
-        const API_BASE = "https://rezurx-backend.onrender.com";
-        const LINKVERTISE_URL = "YOUR_LINKVERTISE_LINK_HERE"; // 👈 CHANGE THIS
+    <div id="countdown-wrap">
+        <div id="countdown-label">RETURNING TO GATE IN 10s</div>
+        <div id="countdown-bar-bg">
+            <div id="countdown-bar"></div>
+        </div>
+        <button id="pause-btn" onclick="togglePause()">[ PAUSE REDIRECT ]</button>
+    </div>
 
-        const loaderUI = document.getElementById('loader-ui');
-        const mainUI = document.getElementById('main-ui');
-        const loaderStatus = document.getElementById('loader-status');
-        const statusText = document.getElementById('status');
-        const actionBtn = document.getElementById('action-btn');
-        const keyOutput = document.getElementById('key-output');
-        const displayKey = document.getElementById('display-key');
+    <button id="retry-btn" onclick="goBack()">↩ RETURN TO START</button>
 
-        // 1. PING THE SERVER ON LOAD
-        async function bootSequence() {
-            try {
-                // If it takes 30s, the UI keeps spinning nicely
-                await fetch(`${API_BASE}/health`);
-                
-                // Server is awake, check if they are returning with a token
-                const urlParams = new URLSearchParams(window.location.search);
-                const token = urlParams.get('token');
+    <div class="footer">ENCRYPTION: AES-256 &nbsp;|&nbsp; HWID_LOCK: ON &nbsp;|&nbsp; V4.1</div>
+</div>
 
-                loaderUI.style.display = "none";
-                mainUI.style.display = "block";
+<script>
+    const API_BASE = "https://rezurx-backend.onrender.com";
 
-                if (token) {
-                    processReturningUser(token);
-                }
+    const spinner      = document.getElementById('spinner');
+    const statusEl     = document.getElementById('status');
+    const keyBox       = document.getElementById('key-box');
+    const keyValue     = document.getElementById('key-value');
+    const copyBtn      = document.getElementById('copy-btn');
+    const countdownWrap = document.getElementById('countdown-wrap');
+    const countdownLabel = document.getElementById('countdown-label');
+    const countdownBar = document.getElementById('countdown-bar');
+    const pauseBtn     = document.getElementById('pause-btn');
+    const retryBtn     = document.getElementById('retry-btn');
 
-            } catch (err) {
-                loaderStatus.innerText = "CRITICAL ERROR: UPLINK FAILED";
-                loaderStatus.style.color = "red";
-            }
+    const COUNTDOWN_SECONDS = 15; // Give user enough time to copy
+    let countdownTimer = null;
+    let isPaused = false;
+    let secondsLeft = COUNTDOWN_SECONDS;
+    let keyToCopy = "";
+
+    // ── BOOT ──────────────────────────────────────
+    window.onload = async function () {
+        const params = new URLSearchParams(window.location.search);
+        const token  = params.get('token');
+        const hash   = params.get('hash');
+
+        if (!token || !hash) {
+            showError("INVALID HANDSHAKE — NO TOKEN OR HASH FOUND");
+            return;
         }
 
-        // 2. FIRST TIME VISITOR - GET TOKEN & REDIRECT
-        async function startSession() {
-            actionBtn.innerText = "GENERATING TOKEN...";
-            actionBtn.style.pointerEvents = "none";
+        try {
+            const res = await fetch(`${API_BASE}/api/verify-linkvertise`, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ token, hash })
+            });
 
-            try {
-                const res = await fetch(`${API_BASE}/api/initiate-session`, { method: 'POST' });
-                const data = await res.json();
-                
-                if (data.token) {
-                    window.location.href = `${LINKVERTISE_URL}?token=${data.token}`;
-                }
-            } catch (e) {
-                statusText.innerText = "SYSTEM: ERROR_GENERATING_SESSION";
-                actionBtn.innerText = "TRY AGAIN";
-                actionBtn.style.pointerEvents = "auto";
+            // Handle non-OK HTTP before trying to parse JSON
+            if (!res.ok) {
+                const msg = res.status === 403 ? "AD NOT COMPLETED"
+                          : res.status === 400 ? "TOKEN ALREADY USED"
+                          : res.status === 404 ? "SESSION EXPIRED"
+                          : `SERVER ERROR (${res.status})`;
+                showError(msg);
+                return;
             }
-        }
 
-        // 3. RETURNING VISITOR - FETCH KEY
-        async function processReturningUser(token) {
-            statusText.innerText = "SYSTEM: VALIDATING_TOKEN...";
-            actionBtn.style.display = "none"; // Hide button since it's auto-fetching
-            
-            try {
-                const res = await fetch(`${API_BASE}/api/retrieve-key?token=${token}`);
-                const data = await res.json();
+            const data = await res.json();
 
-                if (data.key) {
-                    statusText.innerText = "SYSTEM: ACCESS_GRANTED";
-                    statusText.style.color = "#00ff88";
-                    keyOutput.style.display = "block";
-                    displayKey.innerText = data.key;
-                } else {
-                    statusText.innerText = "SYSTEM: AUTH_FAILED_NO_COMPLETION";
-                    actionBtn.style.display = "block";
-                    actionBtn.innerText = "RE-INITIALIZE";
-                }
-            } catch (e) {
-                statusText.innerText = "SYSTEM: DATABASE_ERROR";
-                actionBtn.style.display = "block";
-                actionBtn.innerText = "RETRY";
+            if (data.key) {
+                showSuccess(data.key);
+            } else {
+                showError(data.error ? data.error.toUpperCase() : "VERIFICATION FAILED");
             }
-        }
 
-        // Start the boot sequence automatically
-        window.onload = bootSequence;
-    </script>
+        } catch {
+            // Network failure — don't expose raw error
+            showError("CONNECTION LOST — CHECK YOUR NETWORK");
+        }
+    };
+
+    // ── SUCCESS STATE ──────────────────────────────
+    function showSuccess(key) {
+        keyToCopy = key;
+
+        spinner.style.display = "none";
+        statusEl.innerText    = "DECRYPTION COMPLETE";
+        statusEl.style.color  = "var(--green)";
+
+        keyValue.innerText    = key;
+        keyBox.style.display  = "block";
+
+        // Clean URL so token/hash aren't visible or bookmarkable
+        window.history.replaceState({}, '', window.location.pathname);
+
+        startCountdown();
+    }
+
+    // ── ERROR STATE ────────────────────────────────
+    function showError(message) {
+        spinner.style.display   = "none";
+        statusEl.innerText      = "ERROR: " + message;
+        statusEl.style.color    = "var(--red)";
+        retryBtn.style.display  = "block";
+    }
+
+    // ── COUNTDOWN ──────────────────────────────────
+    function startCountdown() {
+        secondsLeft = COUNTDOWN_SECONDS;
+        countdownWrap.style.display = "block";
+        updateCountdownUI();
+
+        countdownTimer = setInterval(() => {
+            if (isPaused) return;
+            secondsLeft--;
+            updateCountdownUI();
+            if (secondsLeft <= 0) {
+                clearInterval(countdownTimer);
+                window.location.href = "start.html";
+            }
+        }, 1000);
+    }
+
+    function updateCountdownUI() {
+        const pct = (secondsLeft / COUNTDOWN_SECONDS) * 100;
+        countdownBar.style.width = pct + "%";
+        // Bar turns red in last 5 seconds
+        countdownBar.style.background = secondsLeft <= 5 ? "var(--red)" : "var(--orange)";
+        countdownLabel.innerText = isPaused
+            ? "REDIRECT PAUSED"
+            : `RETURNING TO GATE IN ${secondsLeft}s`;
+    }
+
+    function togglePause() {
+        isPaused = !isPaused;
+        pauseBtn.innerText = isPaused ? "[ RESUME REDIRECT ]" : "[ PAUSE REDIRECT ]";
+        updateCountdownUI();
+    }
+
+    // ── COPY KEY ───────────────────────────────────
+    function copyKey() {
+        if (!keyToCopy) return;
+
+        // Modern clipboard API with fallback for older mobile browsers
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(keyToCopy).then(flashCopied).catch(fallbackCopy);
+        } else {
+            fallbackCopy();
+        }
+    }
+
+    function fallbackCopy() {
+        // execCommand fallback for browsers without clipboard API
+        const ta = document.createElement('textarea');
+        ta.value = keyToCopy;
+        ta.style.cssText = "position:fixed;opacity:0;";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try {
+            document.execCommand('copy');
+            flashCopied();
+        } catch {
+            copyBtn.innerText = "[ COPY FAILED — COPY MANUALLY ]";
+        }
+        document.body.removeChild(ta);
+    }
+
+    function flashCopied() {
+        copyBtn.innerText = "[ ✓ COPIED! ]";
+        copyBtn.classList.add('copied');
+        // Pause countdown so user isn't rushed
+        isPaused = true;
+        pauseBtn.innerText = "[ RESUME REDIRECT ]";
+        updateCountdownUI();
+
+        setTimeout(() => {
+            copyBtn.innerText = "[ CLICK TO COPY ]";
+            copyBtn.classList.remove('copied');
+        }, 2500);
+    }
+
+    // ── RETRY ──────────────────────────────────────
+    function goBack() {
+        window.location.href = "start.html";
+    }
+</script>
 </body>
 </html>
-
