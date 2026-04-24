@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#050505">
-    <title>RezurX | Key Vault</title>
+    <title>RezurX | Key System</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -28,20 +27,15 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            overflow: hidden;
         }
 
-        /* CRT scanlines */
         body::before {
             content: "";
             position: fixed;
             inset: 0;
             background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 1px,
-                rgba(0,0,0,0.15) 1px,
-                rgba(0,0,0,0.15) 2px
+                0deg, transparent, transparent 1px,
+                rgba(0,0,0,0.12) 1px, rgba(0,0,0,0.12) 2px
             );
             pointer-events: none;
             z-index: 100;
@@ -56,24 +50,16 @@
             max-width: 460px;
             text-align: center;
             position: relative;
-            box-shadow: 0 0 40px rgba(0,0,0,0.95), 0 0 0 1px rgba(255,140,0,0.05);
+            box-shadow: 0 0 40px rgba(0,0,0,0.95);
         }
 
-        /* Corner accents */
-        .panel::before, .panel::after {
+        .panel::before {
             content: "";
             position: absolute;
-            width: 18px; height: 18px;
-        }
-        .panel::before {
             top: -1px; left: -1px;
+            width: 18px; height: 18px;
             border-top: 2px solid var(--orange);
             border-left: 2px solid var(--orange);
-        }
-        .panel::after {
-            bottom: -1px; right: -1px;
-            border-bottom: 2px solid var(--orange);
-            border-right: 2px solid var(--orange);
         }
 
         h1 {
@@ -85,9 +71,9 @@
             margin-bottom: 30px;
         }
 
-        /* ── SPINNER ── */
+        /* SPINNER */
         .spinner {
-            width: 48px; height: 48px;
+            width: 44px; height: 44px;
             border: 3px solid rgba(255,140,0,0.15);
             border-top-color: var(--orange);
             border-radius: 50%;
@@ -96,18 +82,43 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── STATUS ── */
+        /* STATUS */
         #status {
             font-size: 0.78rem;
             color: #666;
             letter-spacing: 1px;
             text-transform: uppercase;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             min-height: 1.2em;
-            transition: color 0.3s;
         }
 
-        /* ── KEY BOX ── */
+        /* GET KEY BUTTON */
+        #get-key-btn {
+            background: transparent;
+            border: 1px solid var(--orange);
+            color: var(--orange);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 16px 24px;
+            width: 100%;
+            cursor: pointer;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.25s;
+            border-radius: 2px;
+        }
+        #get-key-btn:hover:not(:disabled) {
+            background: var(--orange);
+            color: #000;
+            box-shadow: 0 0 20px var(--orange-glow);
+        }
+        #get-key-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        /* KEY BOX */
         #key-box {
             display: none;
             margin-top: 20px;
@@ -117,14 +128,12 @@
             box-shadow: 0 0 20px var(--green-glow);
             border-radius: 2px;
         }
-
         .key-label {
             font-size: 0.62rem;
             color: rgba(0,255,136,0.5);
             letter-spacing: 2px;
             margin-bottom: 10px;
         }
-
         #key-value {
             font-family: 'Orbitron', sans-serif;
             font-size: 1.15rem;
@@ -134,8 +143,6 @@
             word-break: break-all;
             text-shadow: 0 0 8px var(--green-glow);
         }
-
-        /* ── COPY BUTTON ── */
         #copy-btn {
             margin-top: 14px;
             background: transparent;
@@ -143,86 +150,68 @@
             color: rgba(0,255,136,0.6);
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.68rem;
-            padding: 8px 16px;
+            padding: 9px 16px;
             cursor: pointer;
             width: 100%;
             letter-spacing: 1px;
             transition: all 0.2s;
             border-radius: 2px;
         }
-        #copy-btn:hover {
-            background: rgba(0,255,136,0.08);
-            border-color: var(--green);
-            color: var(--green);
-        }
-        #copy-btn.copied {
-            border-color: var(--green);
-            color: var(--green);
-            background: rgba(0,255,136,0.1);
-        }
+        #copy-btn:hover { background: rgba(0,255,136,0.08); color: var(--green); }
+        #copy-btn.copied { color: var(--green); background: rgba(0,255,136,0.1); }
 
-        /* ── COUNTDOWN BAR ── */
-        #countdown-wrap {
+        /* GET ANOTHER KEY BUTTON */
+        #reset-btn {
+            display: none;
+            margin-top: 12px;
+            background: transparent;
+            border: 1px solid #333;
+            color: #555;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            padding: 9px 16px;
+            cursor: pointer;
+            width: 100%;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+            border-radius: 2px;
+        }
+        #reset-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+        /* ERROR STATE */
+        #error-box {
             display: none;
             margin-top: 16px;
-        }
-        #countdown-label {
-            font-size: 0.62rem;
-            color: #444;
-            margin-bottom: 6px;
-            letter-spacing: 1px;
-        }
-        #countdown-bar-bg {
-            height: 3px;
-            background: rgba(255,255,255,0.05);
+            padding: 14px;
+            border: 1px solid rgba(255,68,68,0.3);
+            background: rgba(255,68,68,0.05);
             border-radius: 2px;
-            overflow: hidden;
         }
-        #countdown-bar {
-            height: 100%;
-            width: 100%;
-            background: var(--orange);
-            transition: width 1s linear, background 1s;
+        #error-msg {
+            font-size: 0.72rem;
+            color: var(--red);
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
         }
-
-        /* ── PAUSE BUTTON ── */
-        #pause-btn {
-            margin-top: 8px;
-            background: transparent;
-            border: none;
-            color: #444;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.62rem;
-            cursor: pointer;
-            letter-spacing: 1px;
-            transition: color 0.2s;
-        }
-        #pause-btn:hover { color: #888; }
-
-        /* ── ERROR STATE ── */
-        #retry-btn {
-            display: none;
-            margin-top: 20px;
+        #try-again-btn {
             background: transparent;
             border: 1px solid var(--red);
             color: var(--red);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-            padding: 12px;
+            font-size: 0.72rem;
+            padding: 10px;
             width: 100%;
             cursor: pointer;
             letter-spacing: 1px;
             transition: all 0.2s;
             border-radius: 2px;
         }
-        #retry-btn:hover {
-            background: rgba(255,68,68,0.08);
-        }
+        #try-again-btn:hover { background: rgba(255,68,68,0.08); }
 
         .footer {
             margin-top: 28px;
             font-size: 0.58rem;
-            color: #2a2a2a;
+            color: #222;
             letter-spacing: 1px;
         }
     </style>
@@ -232,57 +221,86 @@
     <h1>REZURX</h1>
 
     <div class="spinner" id="spinner"></div>
-    <div id="status">INITIATING DECRYPTION...</div>
+    <div id="status">SYSTEM: READY</div>
 
+    <!-- Default state: fresh visitor -->
+    <button id="get-key-btn" onclick="startSession()">⚡ Get Key</button>
+
+    <!-- Success state: key shown here on same page -->
     <div id="key-box">
         <div class="key-label">ACCESS KEY GENERATED</div>
         <div id="key-value"></div>
         <button id="copy-btn" onclick="copyKey()">[ CLICK TO COPY ]</button>
     </div>
+    <button id="reset-btn" onclick="resetPage()">↩ Get Another Key</button>
 
-    <div id="countdown-wrap">
-        <div id="countdown-label">RETURNING TO GATE IN 10s</div>
-        <div id="countdown-bar-bg">
-            <div id="countdown-bar"></div>
-        </div>
-        <button id="pause-btn" onclick="togglePause()">[ PAUSE REDIRECT ]</button>
+    <!-- Error state -->
+    <div id="error-box">
+        <div id="error-msg"></div>
+        <button id="try-again-btn" onclick="resetPage()">↩ TRY AGAIN</button>
     </div>
 
-    <button id="retry-btn" onclick="goBack()">↩ RETURN TO START</button>
-
-    <div class="footer">ENCRYPTION: AES-256 &nbsp;|&nbsp; HWID_LOCK: ON &nbsp;|&nbsp; V4.1</div>
+    <div class="footer">AES-256 SECURED &nbsp;|&nbsp; HWID_LOCK: ON &nbsp;|&nbsp; V4.2</div>
 </div>
 
 <script>
-    const API_BASE = "https://rezurx-backend.onrender.com";
+    const API_BASE        = "https://rezurx-backend.onrender.com";
+    const LINKVERTISE_URL = "https://linkvertise.com/5011888/rezurxlab"; // 👈 your link
 
-    const spinner      = document.getElementById('spinner');
-    const statusEl     = document.getElementById('status');
-    const keyBox       = document.getElementById('key-box');
-    const keyValue     = document.getElementById('key-value');
-    const copyBtn      = document.getElementById('copy-btn');
-    const countdownWrap = document.getElementById('countdown-wrap');
-    const countdownLabel = document.getElementById('countdown-label');
-    const countdownBar = document.getElementById('countdown-bar');
-    const pauseBtn     = document.getElementById('pause-btn');
-    const retryBtn     = document.getElementById('retry-btn');
+    const spinner     = document.getElementById('spinner');
+    const statusEl    = document.getElementById('status');
+    const getKeyBtn   = document.getElementById('get-key-btn');
+    const keyBox      = document.getElementById('key-box');
+    const keyValue    = document.getElementById('key-value');
+    const copyBtn     = document.getElementById('copy-btn');
+    const resetBtn    = document.getElementById('reset-btn');
+    const errorBox    = document.getElementById('error-box');
+    const errorMsg    = document.getElementById('error-msg');
 
-    const COUNTDOWN_SECONDS = 15; // Give user enough time to copy
-    let countdownTimer = null;
-    let isPaused = false;
-    let secondsLeft = COUNTDOWN_SECONDS;
     let keyToCopy = "";
 
-    // ── BOOT ──────────────────────────────────────
+    // ── BOOT: detect which state we're in ─────────────
     window.onload = async function () {
         const params = new URLSearchParams(window.location.search);
         const token  = params.get('token');
         const hash   = params.get('hash');
 
-        if (!token || !hash) {
-            showError("INVALID HANDSHAKE — NO TOKEN OR HASH FOUND");
-            return;
+        if (token && hash) {
+            // Returning from Linkvertise — verify automatically
+            setLoading("VERIFYING AD COMPLETION...");
+            await verifyKey(token, hash);
+        } else {
+            // Fresh visitor — show Get Key button
+            setIdle();
         }
+    };
+
+    // ── STEP 1: Generate session → redirect to Linkvertise ──
+    async function startSession() {
+        getKeyBtn.disabled = true;
+        setLoading("GENERATING SECURE TOKEN...");
+
+        try {
+            const res  = await fetch(`${API_BASE}/api/initiate-session`, { method: 'POST' });
+
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+
+            if (!data.token) throw new Error("No token returned");
+
+            statusEl.innerText = "REDIRECTING TO VERIFICATION...";
+            // Linkvertise will append ?hash=... and preserve ?token= when it redirects back
+            window.location.href = `${LINKVERTISE_URL}?token=${data.token}`;
+
+        } catch {
+            showError("SERVER UNREACHABLE — Is Render awake? Wait 30s and try again.");
+        }
+    }
+
+    // ── STEP 2: Verify with backend → show key on this page ──
+    async function verifyKey(token, hash) {
+        // Clean URL immediately so token/hash aren't visible
+        window.history.replaceState({}, '', window.location.pathname);
 
         try {
             const res = await fetch(`${API_BASE}/api/verify-linkvertise`, {
@@ -291,93 +309,77 @@
                 body:    JSON.stringify({ token, hash })
             });
 
-            // Handle non-OK HTTP before trying to parse JSON
-            if (!res.ok) {
-                const msg = res.status === 403 ? "AD NOT COMPLETED"
-                          : res.status === 400 ? "TOKEN ALREADY USED"
-                          : res.status === 404 ? "SESSION EXPIRED"
-                          : `SERVER ERROR (${res.status})`;
-                showError(msg);
-                return;
-            }
-
             const data = await res.json();
+
+            if (res.status === 400) { showError("TOKEN ALREADY USED — Each ad completion gives one key."); return; }
+            if (res.status === 403) { showError("AD NOT COMPLETED — Please finish the full Linkvertise offer."); return; }
+            if (res.status === 404) { showError("SESSION EXPIRED — Please start over."); return; }
+            if (!res.ok)            { showError(`SERVER ERROR (${res.status}) — Try again shortly.`); return; }
 
             if (data.key) {
                 showSuccess(data.key);
             } else {
-                showError(data.error ? data.error.toUpperCase() : "VERIFICATION FAILED");
+                showError(data.error ? data.error.toUpperCase() : "VERIFICATION FAILED — UNKNOWN REASON");
             }
 
         } catch {
-            // Network failure — don't expose raw error
-            showError("CONNECTION LOST — CHECK YOUR NETWORK");
+            showError("CONNECTION LOST — Check your network and try again.");
         }
-    };
+    }
 
-    // ── SUCCESS STATE ──────────────────────────────
+    // ── UI STATES ──────────────────────────────────────
+    function setLoading(msg) {
+        spinner.style.display  = "block";
+        statusEl.innerText     = msg;
+        statusEl.style.color   = "#666";
+        getKeyBtn.style.display = "none";
+        keyBox.style.display   = "none";
+        resetBtn.style.display = "none";
+        errorBox.style.display = "none";
+    }
+
+    function setIdle() {
+        spinner.style.display   = "none";
+        statusEl.innerText      = "SYSTEM: READY";
+        statusEl.style.color    = "#666";
+        getKeyBtn.style.display = "block";
+        getKeyBtn.disabled      = false;
+        keyBox.style.display    = "none";
+        resetBtn.style.display  = "none";
+        errorBox.style.display  = "none";
+    }
+
     function showSuccess(key) {
         keyToCopy = key;
-
-        spinner.style.display = "none";
-        statusEl.innerText    = "DECRYPTION COMPLETE";
-        statusEl.style.color  = "var(--green)";
-
-        keyValue.innerText    = key;
-        keyBox.style.display  = "block";
-
-        // Clean URL so token/hash aren't visible or bookmarkable
-        window.history.replaceState({}, '', window.location.pathname);
-
-        startCountdown();
-    }
-
-    // ── ERROR STATE ────────────────────────────────
-    function showError(message) {
         spinner.style.display   = "none";
-        statusEl.innerText      = "ERROR: " + message;
+        statusEl.innerText      = "ACCESS GRANTED";
+        statusEl.style.color    = "var(--green)";
+        getKeyBtn.style.display = "none";
+        errorBox.style.display  = "none";
+        keyValue.innerText      = key;
+        keyBox.style.display    = "block";
+        resetBtn.style.display  = "block";
+    }
+
+    function showError(msg) {
+        spinner.style.display   = "none";
+        statusEl.innerText      = "SYSTEM: ERROR";
         statusEl.style.color    = "var(--red)";
-        retryBtn.style.display  = "block";
+        getKeyBtn.style.display = "none";
+        keyBox.style.display    = "none";
+        resetBtn.style.display  = "none";
+        errorMsg.innerText      = msg;
+        errorBox.style.display  = "block";
     }
 
-    // ── COUNTDOWN ──────────────────────────────────
-    function startCountdown() {
-        secondsLeft = COUNTDOWN_SECONDS;
-        countdownWrap.style.display = "block";
-        updateCountdownUI();
-
-        countdownTimer = setInterval(() => {
-            if (isPaused) return;
-            secondsLeft--;
-            updateCountdownUI();
-            if (secondsLeft <= 0) {
-                clearInterval(countdownTimer);
-                window.location.href = "start.html";
-            }
-        }, 1000);
+    function resetPage() {
+        keyToCopy = "";
+        setIdle();
     }
 
-    function updateCountdownUI() {
-        const pct = (secondsLeft / COUNTDOWN_SECONDS) * 100;
-        countdownBar.style.width = pct + "%";
-        // Bar turns red in last 5 seconds
-        countdownBar.style.background = secondsLeft <= 5 ? "var(--red)" : "var(--orange)";
-        countdownLabel.innerText = isPaused
-            ? "REDIRECT PAUSED"
-            : `RETURNING TO GATE IN ${secondsLeft}s`;
-    }
-
-    function togglePause() {
-        isPaused = !isPaused;
-        pauseBtn.innerText = isPaused ? "[ RESUME REDIRECT ]" : "[ PAUSE REDIRECT ]";
-        updateCountdownUI();
-    }
-
-    // ── COPY KEY ───────────────────────────────────
+    // ── COPY KEY ───────────────────────────────────────
     function copyKey() {
         if (!keyToCopy) return;
-
-        // Modern clipboard API with fallback for older mobile browsers
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(keyToCopy).then(flashCopied).catch(fallbackCopy);
         } else {
@@ -386,39 +388,23 @@
     }
 
     function fallbackCopy() {
-        // execCommand fallback for browsers without clipboard API
         const ta = document.createElement('textarea');
         ta.value = keyToCopy;
         ta.style.cssText = "position:fixed;opacity:0;";
         document.body.appendChild(ta);
-        ta.focus();
-        ta.select();
-        try {
-            document.execCommand('copy');
-            flashCopied();
-        } catch {
-            copyBtn.innerText = "[ COPY FAILED — COPY MANUALLY ]";
-        }
+        ta.focus(); ta.select();
+        try { document.execCommand('copy'); flashCopied(); }
+        catch { copyBtn.innerText = "[ COPY MANUALLY ]"; }
         document.body.removeChild(ta);
     }
 
     function flashCopied() {
         copyBtn.innerText = "[ ✓ COPIED! ]";
         copyBtn.classList.add('copied');
-        // Pause countdown so user isn't rushed
-        isPaused = true;
-        pauseBtn.innerText = "[ RESUME REDIRECT ]";
-        updateCountdownUI();
-
         setTimeout(() => {
             copyBtn.innerText = "[ CLICK TO COPY ]";
             copyBtn.classList.remove('copied');
         }, 2500);
-    }
-
-    // ── RETRY ──────────────────────────────────────
-    function goBack() {
-        window.location.href = "start.html";
     }
 </script>
 </body>
