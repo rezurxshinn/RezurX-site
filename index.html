@@ -206,8 +206,9 @@
 </div>
 
 <script>
-const API_BASE        = "https://rezurx-backend.onrender.com";
-const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT"; // your actual Linkvertise link
+const API_BASE = "https://rezurx-backend.onrender.com";
+// ⚠️ Replace with the actual URL of your ad.html page
+const AD_PAGE_URL = "https://rezurxshinn.github.io/Rezurx-Site/ad.html";
 
 const params     = new URLSearchParams(window.location.search);
 const PAGE_TOKEN = params.get('token') || sessionStorage.getItem('rezurx_token') || null;
@@ -232,7 +233,7 @@ const errorMsg  = document.getElementById('error-msg');
 
 let keyToCopy = "";
 
-// On page load: update button text based on completed ad
+// On page load: update button text if ad already completed
 window.onload = function () {
     if (PAGE_HASH && PAGE_TOKEN) {
         mainBtn.innerText = "⚡ Claim Your Key";
@@ -242,43 +243,11 @@ window.onload = function () {
 
 /* ═══ ONE BUTTON HANDLER ═══ */
 async function handleButtonClick() {
-    // If we have both token and hash (returned from ad), claim the key
     if (PAGE_HASH && PAGE_TOKEN) {
         await claimKey();
     } else {
-        // Otherwise, start the ad flow
-        await startAdFlow();
-    }
-}
-
-/* ═══ START AD FLOW ═══ */
-async function startAdFlow() {
-    mainBtn.disabled = true;
-    spinRow.classList.add('on');
-    spinTxt.innerText = "CREATING SESSION...";
-    setStatus("Connecting to server...", "default");
-
-    try {
-        const res = await fetch(`${API_BASE}/api/initiate-session`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        if (!res.ok) throw new Error('Server unreachable');
-        const data = await res.json();
-        if (!data.token) throw new Error('No token');
-
-        sessionStorage.setItem('rezurx_token', data.token);
-        setStatus("Redirecting to verification...", "default");
-
-        // ✅ Correct: pass token as query param to Linkvertise
-        // Linkvertise will use the Destination URL with {token} and {hash} placeholders
-        window.location.href = `${LINKVERTISE_URL}?token=${encodeURIComponent(data.token)}`;
-    } catch {
-        spinRow.classList.remove('on');
-        setStatus("ERROR", "red");
-        mainBtn.disabled = false;
-        errorMsg.innerText = "SERVER UNREACHABLE\n\nThe key server is waking up. Please wait 30 seconds and refresh the page.";
-        errorBox.style.display = "block";
+        // Send the user to the ad wall
+        window.location.href = AD_PAGE_URL;
     }
 }
 
