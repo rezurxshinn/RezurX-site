@@ -107,7 +107,6 @@
         @keyframes spin { to{transform:rotate(360deg);} }
         .spin-txt { font-size:0.63rem; color:var(--dim); letter-spacing:2px; text-transform:uppercase; }
 
-        /* ── SINGLE BUTTON ── */
         #main-btn {
             position:relative; overflow:hidden; z-index:2;
             background:transparent;
@@ -178,13 +177,12 @@
 
     <div class="spin-row" id="spin-row">
         <div class="spinner"></div>
-        <div class="spin-txt" id="spin-txt">Connecting...</div>
+        <div class="spin-txt" id="spin-txt">Verifying...</div>
     </div>
 
-    <div id="status"><span class="sdot"></span><span id="status-txt">Ready</span></div>
+    <div id="status"><span class="sdot"></span><span id="status-txt">Ad completed — claim your key below</span></div>
 
-    <!-- Single button that handles everything -->
-    <button id="main-btn" onclick="handleButtonClick()">⚡ Get Access Key</button>
+    <button id="main-btn" onclick="claimKey()">⚡ Get Access Key</button>
 
     <div id="key-box">
         <div class="key-label">▸ Access Key Generated</div>
@@ -207,22 +205,20 @@
 
 <script>
 const API_BASE = "https://rezurx-backend.onrender.com";
-// ⚠️ Replace with the actual URL of your ad.html page
-const AD_PAGE_URL = "https://rezurxshinn.github.io/Rezurx-Site/ad.html";
 
+// Read token & hash from URL (added by Linkvertise embed redirect)
 const params     = new URLSearchParams(window.location.search);
-const PAGE_TOKEN = params.get('token') || sessionStorage.getItem('rezurx_token') || null;
-const PAGE_HASH  = params.get('hash')  || null;
+const PAGE_TOKEN = params.get('token');
+const PAGE_HASH  = params.get('hash');
 
+// Clean URL so refresh doesn't reuse the same token/hash
 if (PAGE_TOKEN || PAGE_HASH) {
     window.history.replaceState({}, '', window.location.pathname);
-    if (PAGE_TOKEN) sessionStorage.removeItem('rezurx_token');
 }
 
 const statusEl  = document.getElementById('status');
 const statusTxt = document.getElementById('status-txt');
 const spinRow   = document.getElementById('spin-row');
-const spinTxt   = document.getElementById('spin-txt');
 const mainBtn   = document.getElementById('main-btn');
 const keyBox    = document.getElementById('key-box');
 const keyValue  = document.getElementById('key-value');
@@ -233,41 +229,23 @@ const errorMsg  = document.getElementById('error-msg');
 
 let keyToCopy = "";
 
-// On page load: update button text if ad already completed
-window.onload = function () {
-    if (PAGE_HASH && PAGE_TOKEN) {
-        mainBtn.innerText = "⚡ Claim Your Key";
-        setStatus("Ad completed – click to get your key", "default");
-    }
-};
-
-/* ═══ ONE BUTTON HANDLER ═══ */
-async function handleButtonClick() {
-    if (PAGE_HASH && PAGE_TOKEN) {
-        await claimKey();
-    } else {
-        // Send the user to the ad wall
-        window.location.href = AD_PAGE_URL;
-    }
+// If no token/hash, button does nothing (should never happen if user came from ad)
+if (!PAGE_TOKEN || !PAGE_HASH) {
+    mainBtn.disabled = true;
+    setStatus("Complete the ad first to get your key.", "default");
 }
 
-/* ═══ CLAIM KEY ═══ */
 async function claimKey() {
     mainBtn.disabled = true;
     spinRow.classList.add('on');
-    spinTxt.innerText = "VERIFYING...";
     errorBox.style.display = "none";
     setStatus("Verifying & generating key...", "default");
 
     try {
-        const payload = {};
-        if (PAGE_TOKEN) payload.token = PAGE_TOKEN;
-        if (PAGE_HASH)  payload.hash  = PAGE_HASH;
-
         const res = await fetch(`${API_BASE}/api/verify-linkvertise`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
+            body: JSON.stringify({ token: PAGE_TOKEN, hash: PAGE_HASH }),
         });
 
         spinRow.classList.remove('on');
@@ -275,11 +253,9 @@ async function claimKey() {
         if (res.status === 400) { showError("KEY ALREADY CLAIMED – This session was already used."); return; }
         if (res.status === 403) { showError("AD NOT COMPLETED – Please finish the offer."); return; }
         if (res.status === 404) { showError("SESSION EXPIRED – Please start over."); return; }
-        if (!res.ok) { showError(`SERVER ERROR (${res.status})`); mainBtn.disabled = false; return; }
+        if (!res.ok) { showError(`SERVER ERROR (${res.status}) – Try again shortly.`); mainBtn.disabled = false; return; }
 
-        let data;
-        try { data = await res.json(); } catch { showError("INVALID RESPONSE"); mainBtn.disabled = false; return; }
-
+        const data = await res.json();
         if (data.key) {
             showSuccess(data.key);
         } else {
@@ -293,7 +269,6 @@ async function claimKey() {
     }
 }
 
-/* ═══ UI HELPERS ═══ */
 function showSuccess(key) {
     keyToCopy = key;
     spinRow.classList.remove('on');
@@ -318,7 +293,6 @@ function setStatus(msg, type) {
     statusEl.className  = type === "green" ? "green" : type === "red" ? "red" : "";
 }
 
-/* ═══ COPY ═══ */
 function copyKey() {
     if (!keyToCopy) return;
     const done = () => {
@@ -338,12 +312,12 @@ function fallbackCopy(cb) {
     document.body.removeChild(ta);
 }
 
-/* ═══ CONFETTI ═══ */
+/* Confetti (unchanged) */
 function launchConfetti() {
     const canvas = document.getElementById('confetti-canvas');
     const ctx    = canvas.getContext('2d');
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    const pal    = ['#ff8c00','#ffb347','#ffd700','#00ff88','#fff','#ff6644','#ffcc33'];
+    const pal = ['#ff8c00','#ffb347','#ffd700','#00ff88','#fff','#ff6644','#ffcc33'];
     const shapes = ['rect','circle','line'];
     const pieces = Array.from({length:200}, () => ({
         x: canvas.width*0.5+(Math.random()-0.5)*160, y: canvas.height*0.38,
@@ -374,7 +348,7 @@ window.addEventListener('resize', () => {
     c.width = window.innerWidth; c.height = window.innerHeight;
 });
 
-/* ═══ LAVA BACKGROUND (unchanged) ═══ */
+/* Lava background (unchanged) */
 (function initLava() {
     const canvas = document.getElementById('lava-canvas');
     const ctx    = canvas.getContext('2d');
