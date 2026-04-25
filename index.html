@@ -7,177 +7,220 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --orange: #ff8c00; --orange-glow: rgba(255,140,0,0.45);
-            --green: #00ff88; --green-glow: rgba(0,255,136,0.3); --green-soft: rgba(0,255,136,0.07);
-            --red: #ff4455; --red-soft: rgba(255,68,85,0.08);
-            --bg: #0a0200; --panel: rgba(10,4,0,0.93); --muted: #3a3028; --dim: #6a5848;
+            --orange:      #ff8c00;
+            --orange-dim:  #cc6600;
+            --orange-glow: rgba(255,140,0,0.45);
+            --green:       #00ff88;
+            --green-glow:  rgba(0,255,136,0.3);
+            --green-soft:  rgba(0,255,136,0.07);
+            --red:         #ff4455;
+            --red-soft:    rgba(255,68,85,0.08);
+            --bg:          #0a0200;
+            --panel:       rgba(10,4,0,0.93);
+            --muted:       #3a3028;
+            --dim:         #6a5848;
         }
+
         *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
-        html, body { height:100%; }
+        html,body { height:100%; }
         body {
-            background:var(--bg); color:#fff; font-family:'JetBrains Mono',monospace;
-            display:flex; flex-direction:column; justify-content:center; align-items:center;
+            background:var(--bg); color:#fff;
+            font-family:'JetBrains Mono',monospace;
+            display:flex; flex-direction:column;
+            justify-content:center; align-items:center;
             min-height:100vh; overflow:hidden; position:relative;
         }
-        #lava-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+
+        /* ── BACKGROUND ── */
+        #lava-canvas  { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
         .atmos {
             position:fixed; inset:0; z-index:1; pointer-events:none;
             background:
-                radial-gradient(ellipse 90% 50% at 50% 0%, rgba(255,90,0,0.20) 0%, transparent 65%),
+                radial-gradient(ellipse 90% 50% at 50% 0%,  rgba(255,90,0,0.20) 0%, transparent 65%),
                 radial-gradient(ellipse 100% 100% at 50% 50%, transparent 35%, rgba(0,0,0,0.72) 100%);
         }
         .scanlines {
             position:fixed; inset:0; z-index:2; pointer-events:none;
-            background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.045) 3px,rgba(0,0,0,0.045) 4px);
+            background:repeating-linear-gradient(
+                0deg,transparent,transparent 3px,rgba(0,0,0,0.045) 3px,rgba(0,0,0,0.045) 4px
+            );
         }
         #confetti-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:999; pointer-events:none; }
 
+        /* ── PANEL ── */
         .panel {
-            position:relative; z-index:10; background:var(--panel);
-            border:1px solid rgba(255,140,0,0.22); border-radius:6px;
-            padding:42px 38px 34px; width:92%; max-width:480px; text-align:center;
-            box-shadow:0 0 0 1px rgba(0,0,0,0.9),0 8px 40px rgba(0,0,0,0.85),
-                       0 0 100px rgba(255,80,0,0.10),inset 0 1px 0 rgba(255,180,80,0.09);
+            position:relative; z-index:10;
+            background:var(--panel);
+            border:1px solid rgba(255,140,0,0.22);
+            border-radius:6px;
+            padding:42px 38px 34px;
+            width:92%; max-width:480px;
+            text-align:center;
+            box-shadow:
+                0 0 0 1px rgba(0,0,0,0.9),
+                0 8px 40px rgba(0,0,0,0.85),
+                0 0 100px rgba(255,80,0,0.10),
+                inset 0 1px 0 rgba(255,180,80,0.09);
             backdrop-filter:blur(3px);
-            animation:panelIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+            animation:panelIn .5s cubic-bezier(0.22,1,0.36,1) both;
         }
-        @keyframes panelIn { from{opacity:0;transform:translateY(18px) scale(0.97);} to{opacity:1;transform:none;} }
+        @keyframes panelIn {
+            from { opacity:0; transform:translateY(18px) scale(0.97); }
+            to   { opacity:1; transform:none; }
+        }
 
+        /* Corner brackets */
         .c { position:absolute; width:14px; height:14px; }
-        .c-tl { top:-1px; left:-1px;  border-top:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:3px 0 0 0; }
-        .c-tr { top:-1px; right:-1px; border-top:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 3px 0 0; }
+        .c-tl { top:-1px;    left:-1px;  border-top:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:3px 0 0 0; }
+        .c-tr { top:-1px;    right:-1px; border-top:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 3px 0 0; }
         .c-bl { bottom:-1px; left:-1px;  border-bottom:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:0 0 0 3px; }
         .c-br { bottom:-1px; right:-1px; border-bottom:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 0 3px 0; }
 
-        .logo-eyebrow { font-size:0.52rem; letter-spacing:4px; color:var(--muted); text-transform:uppercase; margin-bottom:10px; }
+        /* ── LOGO ── */
+        .logo-eyebrow { font-size:.52rem; letter-spacing:4px; color:var(--muted); text-transform:uppercase; margin-bottom:10px; }
         h1 {
-            font-family:'Orbitron',sans-serif; font-size:1.75rem; font-weight:900; letter-spacing:5px;
+            font-family:'Orbitron',sans-serif;
+            font-size:1.75rem; font-weight:900; letter-spacing:5px;
             background:linear-gradient(180deg,#ffd080 0%,#ff9c20 35%,#ff6600 70%,#cc4400 100%);
             -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-            filter:drop-shadow(0 0 20px rgba(255,140,0,0.55)); line-height:1.1;
+            filter:drop-shadow(0 0 20px rgba(255,140,0,0.55));
+            line-height:1.1;
         }
-        .logo-sub { font-size:0.5rem; letter-spacing:5px; color:var(--muted); text-transform:uppercase; margin-top:9px; margin-bottom:28px; }
-        .divider { width:100%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,140,0,0.22),transparent); margin-bottom:22px; }
+        .logo-sub { font-size:.5rem; letter-spacing:5px; color:var(--muted); text-transform:uppercase; margin-top:9px; margin-bottom:28px; }
+        .divider  { width:100%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,140,0,0.22),transparent); margin-bottom:22px; }
 
-        /* ── WARMUP BAR ── */
+        /* ── WARMUP BAR (shown while server wakes up) ── */
         #warmup-wrap {
-            display:none; margin-bottom:16px;
+            display:none;
+            margin-bottom:16px;
             background:rgba(255,140,0,0.04);
             border:1px solid rgba(255,140,0,0.12);
             border-radius:3px; padding:12px 14px;
-            transition:opacity .5s;
         }
-        #warmup-wrap.visible { display:block; }
+        #warmup-wrap.show { display:block; }
         .wh { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
-        .wl { font-size:0.55rem; letter-spacing:2px; color:var(--orange); opacity:.7; text-transform:uppercase; }
-        #wpct { font-size:0.55rem; color:var(--orange); letter-spacing:1px; font-variant-numeric:tabular-nums; }
-        .wt { width:100%; height:3px; background:rgba(255,140,0,0.1); border-radius:2px; overflow:hidden; }
-        #wf {
+        .wl { font-size:.55rem; letter-spacing:2px; color:var(--orange); opacity:.7; text-transform:uppercase; }
+        #wpct { font-size:.55rem; color:var(--orange); letter-spacing:1px; font-variant-numeric:tabular-nums; }
+        .wtrack { width:100%; height:3px; background:rgba(255,140,0,0.1); border-radius:2px; overflow:hidden; }
+        #wbar {
             height:100%; width:0%;
-            background:linear-gradient(90deg,#cc7000,var(--orange),#ffb347);
-            border-radius:2px; transition:width .6s ease;
+            background:linear-gradient(90deg, var(--orange-dim), var(--orange), #ffb347);
+            border-radius:2px; transition:width .5s ease;
             box-shadow:0 0 10px var(--orange-glow);
         }
-        /* Stripes animate while loading, solid when done */
-        #wf.loading {
-            background-size:20px 100%;
-            animation:wstripe .8s linear infinite;
-        }
-        @keyframes wstripe {
-            0%   { background-position:0 0; }
-            100% { background-position:20px 0; }
-        }
-        #wm { font-size:0.52rem; color:var(--dim); letter-spacing:1px; margin-top:7px; text-align:right; transition:color .3s; }
-        #wm.ok  { color:rgba(0,255,136,0.55); }
-        #wm.bad { color:rgba(255,68,85,0.6); }
+        #wmsg { font-size:.52rem; color:var(--dim); letter-spacing:1px; margin-top:7px; text-align:right; transition:color .3s; }
+        #wmsg.ok  { color:rgba(0,255,136,0.55); }
+        #wmsg.bad { color:rgba(255,68,85,0.6); }
 
         /* ── SPINNER ── */
-        .spin-wrap { display:none; align-items:center; justify-content:center; gap:12px; margin-bottom:16px; }
-        .spin-wrap.active { display:flex; }
+        .spin-row { display:none; align-items:center; justify-content:center; gap:12px; margin-bottom:16px; }
+        .spin-row.on { display:flex; }
         .spinner {
-            width:18px; height:18px; border:2px solid rgba(255,140,0,0.15);
-            border-top-color:var(--orange); border-radius:50%;
-            animation:spin .8s linear infinite; flex-shrink:0;
+            width:18px; height:18px;
+            border:2px solid rgba(255,140,0,0.15);
+            border-top-color:var(--orange);
+            border-radius:50%; animation:spin .8s linear infinite; flex-shrink:0;
         }
         @keyframes spin { to { transform:rotate(360deg); } }
-        .spin-txt { font-size:0.65rem; color:var(--dim); letter-spacing:2px; text-transform:uppercase; }
+        .spin-txt { font-size:.65rem; color:var(--dim); letter-spacing:2px; text-transform:uppercase; }
 
         /* ── STATUS LINE ── */
-        #status-line {
-            font-size:0.65rem; letter-spacing:2px; text-transform:uppercase;
-            color:var(--dim); margin-bottom:18px; min-height:1.1em;
+        #status {
+            font-size:.68rem; letter-spacing:2px; text-transform:uppercase;
+            color:var(--dim); margin-bottom:20px;
             display:flex; align-items:center; justify-content:center; gap:8px;
+            transition:color .3s; min-height:1.1em;
         }
-        .sdot { width:5px; height:5px; border-radius:50%; background:var(--muted); flex-shrink:0; animation:sdot 2s ease-in-out infinite; }
-        @keyframes sdot { 0%,100%{opacity:1} 50%{opacity:0.25} }
-        #status-line.green { color:var(--green); }
-        #status-line.green .sdot { background:var(--green); box-shadow:0 0 6px var(--green); }
-        #status-line.red   { color:var(--red); }
-        #status-line.red   .sdot { background:var(--red); animation:none; }
+        .sdot { width:5px; height:5px; border-radius:50%; background:var(--muted); flex-shrink:0; animation:pulse 2s ease-in-out infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+        #status.green { color:var(--green); }
+        #status.green .sdot { background:var(--green); box-shadow:0 0 6px var(--green); }
+        #status.red   { color:var(--red); }
+        #status.red   .sdot { background:var(--red); animation:none; }
 
-        /* ── GET KEY BUTTON ── */
-        #open-btn {
-            position:relative; overflow:hidden; background:transparent;
-            border:1px solid var(--orange); color:var(--orange);
-            font-family:'Orbitron',sans-serif; font-size:0.75rem; font-weight:700;
-            padding:17px 24px; width:100%; cursor:pointer;
-            letter-spacing:3px; text-transform:uppercase; border-radius:3px;
+        /* ── BUTTON ── */
+        #get-btn {
+            position:relative; overflow:hidden;
+            background:transparent;
+            border:1px solid var(--orange);
+            color:var(--orange);
+            font-family:'Orbitron',sans-serif;
+            font-size:.78rem; font-weight:700;
+            padding:18px 24px; width:100%;
+            cursor:pointer; letter-spacing:3px; text-transform:uppercase;
+            border-radius:3px;
             transition:color .25s,background .25s,box-shadow .25s,opacity .25s;
         }
-        #open-btn::after {
+        #get-btn::after {
             content:""; position:absolute; top:0; left:-120%; width:60%; height:100%;
             background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);
             animation:shimmer 2.8s ease-in-out infinite;
         }
         @keyframes shimmer { 0%{left:-120%} 55%,100%{left:160%} }
-        #open-btn:hover:not(:disabled) { background:var(--orange); color:#000; box-shadow:0 0 30px var(--orange-glow); }
-        #open-btn:active:not(:disabled) { transform:scale(0.997); }
-        #open-btn:disabled { opacity:0.3; cursor:not-allowed; }
+        #get-btn:hover:not(:disabled)  { background:var(--orange); color:#000; box-shadow:0 0 30px var(--orange-glow); }
+        #get-btn:active:not(:disabled) { transform:scale(0.997); }
+        #get-btn:disabled { opacity:.28; cursor:not-allowed; }
 
         /* ── KEY BOX ── */
         #key-box {
-            display:none; margin-top:20px; background:var(--green-soft);
-            border:1px solid rgba(0,255,136,0.18); border-radius:4px;
-            padding:20px 16px 16px;
+            display:none; margin-top:20px;
+            background:var(--green-soft);
+            border:1px solid rgba(0,255,136,0.18);
+            border-radius:4px; padding:20px 16px 16px;
             animation:slideUp .45s cubic-bezier(0.22,1,0.36,1) both;
         }
         @keyframes slideUp { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:none;} }
-        .key-label { font-size:0.5rem; letter-spacing:3px; color:rgba(0,255,136,0.35); text-transform:uppercase; margin-bottom:12px; }
+        .key-label { font-size:.5rem; letter-spacing:3px; color:rgba(0,255,136,0.35); text-transform:uppercase; margin-bottom:12px; }
         #key-value {
-            font-family:'Orbitron',sans-serif; font-size:1.05rem; font-weight:700; letter-spacing:3px;
-            color:var(--green); word-break:break-all; text-shadow:0 0 14px var(--green-glow);
-            margin-bottom:14px; user-select:all;
+            font-family:'Orbitron',sans-serif;
+            font-size:1.05rem; font-weight:700; letter-spacing:3px;
+            color:var(--green); word-break:break-all;
+            text-shadow:0 0 14px var(--green-glow);
+            margin-bottom:8px; user-select:all;
         }
+        #key-expiry { font-size:.52rem; color:rgba(0,255,136,0.3); letter-spacing:1px; margin-bottom:14px; }
         #copy-btn {
-            background:transparent; border:1px solid rgba(0,255,136,0.2);
-            color:rgba(0,255,136,0.5); font-family:'JetBrains Mono',monospace;
-            font-size:0.62rem; letter-spacing:2px; text-transform:uppercase;
+            background:transparent;
+            border:1px solid rgba(0,255,136,0.2);
+            color:rgba(0,255,136,0.5);
+            font-family:'JetBrains Mono',monospace;
+            font-size:.62rem; letter-spacing:2px; text-transform:uppercase;
             padding:10px; width:100%; cursor:pointer; border-radius:2px; transition:all .2s;
         }
         #copy-btn:hover  { background:rgba(0,255,136,0.05); color:var(--green); border-color:rgba(0,255,136,0.35); }
-        #copy-btn.copied { color:var(--green); background:rgba(0,255,136,0.08); border-color:rgba(0,255,136,0.4); }
+        #copy-btn.copied { color:var(--green); background:rgba(0,255,136,0.08); }
 
-        #redirect-notice {
-            display:none; margin-top:10px; font-size:0.55rem;
-            color:rgba(0,255,136,0.4); letter-spacing:1px; text-align:center;
+        /* ── ANOTHER KEY BUTTON ── */
+        #again-btn {
+            display:none; margin-top:10px;
+            background:transparent;
+            border:1px solid rgba(255,255,255,0.06);
+            color:var(--muted);
+            font-family:'JetBrains Mono',monospace;
+            font-size:.6rem; letter-spacing:1px; text-transform:uppercase;
+            padding:9px; width:100%; cursor:pointer; border-radius:2px; transition:all .2s;
         }
+        #again-btn:hover { border-color:var(--orange); color:var(--orange); }
 
         /* ── ERROR ── */
         #error-box {
-            display:none; margin-top:14px; background:var(--red-soft);
-            border:1px solid rgba(255,68,85,0.2); border-radius:4px;
-            padding:14px; animation:slideUp .3s ease both;
+            display:none; margin-top:14px;
+            background:var(--red-soft);
+            border:1px solid rgba(255,68,85,0.2);
+            border-radius:4px; padding:14px;
+            animation:slideUp .3s ease both;
         }
-        #error-msg { font-size:0.65rem; color:var(--red); letter-spacing:.5px; margin-bottom:10px; line-height:1.55; }
+        #error-msg { font-size:.65rem; color:var(--red); letter-spacing:.5px; margin-bottom:10px; line-height:1.55; }
         #retry-btn {
             background:transparent; border:1px solid rgba(255,68,85,0.3); color:var(--red);
-            font-family:'JetBrains Mono',monospace; font-size:0.62rem; padding:9px; width:100%;
+            font-family:'JetBrains Mono',monospace; font-size:.62rem; padding:9px; width:100%;
             cursor:pointer; letter-spacing:1px; border-radius:2px; transition:all .2s; text-transform:uppercase;
         }
         #retry-btn:hover { background:rgba(255,68,85,0.06); }
 
+        /* ── FOOTER ── */
         .footer { margin-top:24px; display:flex; justify-content:center; align-items:center; gap:10px; }
-        .fi { font-size:0.45rem; letter-spacing:1.5px; color:#1a0e06; text-transform:uppercase; }
+        .fi { font-size:.45rem; letter-spacing:1.5px; color:#1a0e06; text-transform:uppercase; }
         .fd { width:2px; height:2px; border-radius:50%; background:#1a0e06; }
     </style>
 </head>
@@ -197,40 +240,43 @@
     <div class="logo-sub">Key Generation System</div>
     <div class="divider"></div>
 
-    <!-- Server warmup — shown while /health is being polled -->
-    <div id="warmup-wrap">
+    <!-- Warmup bar — visible while server is cold-starting -->
+    <div id="warmup-wrap" class="show">
         <div class="wh">
             <span class="wl">⚙ Waking Server</span>
             <span id="wpct">0%</span>
         </div>
-        <div class="wt"><div id="wf" class="loading"></div></div>
-        <div id="wm">Connecting to server...</div>
+        <div class="wtrack"><div id="wbar"></div></div>
+        <div id="wmsg">Render cold-start — please wait...</div>
     </div>
 
-    <!-- Processing spinner -->
-    <div class="spin-wrap" id="spin-wrap">
+    <!-- Spinner row -->
+    <div class="spin-row" id="spin-row">
         <div class="spinner"></div>
         <div class="spin-txt" id="spin-txt">Processing...</div>
     </div>
 
-    <!-- Status text -->
-    <div id="status-line"><span class="sdot"></span><span id="status-txt">Connecting to server...</span></div>
+    <!-- Status line -->
+    <div id="status"><span class="sdot"></span><span id="status-txt">Connecting to server...</span></div>
 
-    <!-- Main CTA — hidden until server confirmed alive -->
-    <button id="open-btn" style="display:none" onclick="startSession()">⚡ Get My Key</button>
+    <!-- Main button — hidden until server is alive -->
+    <button id="get-btn" disabled style="display:none" onclick="getKey()">⚡ Get My Key</button>
 
-    <!-- Key revealed after successful verification -->
+    <!-- Key display -->
     <div id="key-box">
-        <div class="key-label">▸ Access Key</div>
+        <div class="key-label">▸ Your Access Key</div>
         <div id="key-value"></div>
+        <div id="key-expiry"></div>
         <button id="copy-btn" onclick="copyKey()">[ Copy Key ]</button>
     </div>
-    <div id="redirect-notice"></div>
 
-    <!-- Error state -->
+    <!-- Get another key -->
+    <button id="again-btn" onclick="resetUI()">↩ Get Another Key</button>
+
+    <!-- Error -->
     <div id="error-box">
         <div id="error-msg"></div>
-        <button id="retry-btn" onclick="retryPage()">↩ Try Again</button>
+        <button id="retry-btn" onclick="resetUI()">↩ Try Again</button>
     </div>
 
     <div class="footer">
@@ -241,71 +287,64 @@
 </div>
 
 <script>
-/* ═══════════════════════════════════════════════════
+/* ═══════════════════════════════════════
    CONFIG
-   ─────────────────────────────────────────────────
-   API_BASE        → your Render backend
-   LINKVERTISE_URL → your link-center.net ad link
-                     Linkvertise appends ?token=X when
-                     it bounces the user back to this page
-═══════════════════════════════════════════════════ */
-const API_BASE        = "https://rezurx-backend.onrender.com";
-const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
-const DASHBOARD_URL   = API_BASE + "/dashboard";
+═══════════════════════════════════════ */
+const API = "https://rezurx-backend.onrender.com";
 
-/* ═══════════════════════════════════════════════════
-   DOM REFS
-═══════════════════════════════════════════════════ */
-const openBtn       = document.getElementById('open-btn');
-const spinWrap      = document.getElementById('spin-wrap');
-const spinTxt       = document.getElementById('spin-txt');
-const keyBox        = document.getElementById('key-box');
-const keyValueEl    = document.getElementById('key-value');
-const copyBtn       = document.getElementById('copy-btn');
-const errorBox      = document.getElementById('error-box');
-const errorMsgEl    = document.getElementById('error-msg');
-const redirectNote  = document.getElementById('redirect-notice');
-const warmupWrap    = document.getElementById('warmup-wrap');
-const wfEl          = document.getElementById('wf');
-const wpctEl        = document.getElementById('wpct');
-const wmEl          = document.getElementById('wm');
-const statusLine    = document.getElementById('status-line');
-const statusTxt     = document.getElementById('status-txt');
+/* ═══════════════════════════════════════
+   DOM
+═══════════════════════════════════════ */
+const getBtn     = document.getElementById('get-btn');
+const spinRow    = document.getElementById('spin-row');
+const spinTxt    = document.getElementById('spin-txt');
+const statusEl   = document.getElementById('status');
+const statusTxt  = document.getElementById('status-txt');
+const keyBox     = document.getElementById('key-box');
+const keyValueEl = document.getElementById('key-value');
+const keyExpiry  = document.getElementById('key-expiry');
+const copyBtn    = document.getElementById('copy-btn');
+const againBtn   = document.getElementById('again-btn');
+const errorBox   = document.getElementById('error-box');
+const errorMsgEl = document.getElementById('error-msg');
+const warmupWrap = document.getElementById('warmup-wrap');
+const wbar       = document.getElementById('wbar');
+const wpct       = document.getElementById('wpct');
+const wmsg       = document.getElementById('wmsg');
 
 let currentKey = '';
 
-/* ═══════════════════════════════════════════════════
-   UTILITIES
-═══════════════════════════════════════════════════ */
-function fetchT(url, opts, ms = 10000) {
+/* ═══════════════════════════════════════
+   UTILS
+═══════════════════════════════════════ */
+function fetchT(url, opts = {}, ms = 10000) {
     const ctrl = new AbortController();
     const tid  = setTimeout(() => ctrl.abort(), ms);
     return fetch(url, { ...opts, signal: ctrl.signal, mode: 'cors', credentials: 'omit' })
-        .finally(() => clearTimeout(tid));
+           .finally(() => clearTimeout(tid));
 }
-
-const delay = ms => new Promise(r => setTimeout(r, ms));
 
 function setStatus(msg, type = '') {
     statusTxt.textContent = msg;
-    statusLine.className  = type;
+    statusEl.className    = type;
 }
 
-/* ═══════════════════════════════════════════════════
-   WARMUP
-   ─────────────────────────────────────────────────
-   The bar fills in real-time based on actual /health
-   ping responses. The fill is tied to how many attempts
-   have passed — but the bar only completes (100%) when
-   the server actually replies with a good status.
+function setBar(pct) {
+    wbar.style.width    = pct + '%';
+    wpct.textContent    = Math.round(pct) + '%';
+}
 
-   Render free tier cold-starts take 15–50s typically.
-   We try every 4s for up to 90s (22 attempts).
-═══════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════
+   WARMUP
+   Polls GET /health every 4s until Render
+   wakes up. Bar fills with real progress
+   tied to actual ping attempts.
+   Button only shows when server responds.
+═══════════════════════════════════════ */
 async function warmupServer() {
-    const MAX_ATTEMPTS = 22;
-    const INTERVAL_MS  = 4000;
-    const PER_REQ_MS   = 7000;
+    const MAX = 22;       // 22 × 4s = ~90s budget
+    const GAP = 4000;     // ms between pings
+    const PER = 7000;     // timeout per request
 
     const messages = [
         [0,  "Render cold-start — please wait..."],
@@ -313,235 +352,160 @@ async function warmupServer() {
         [35, "Loading services..."],
         [55, "Almost there..."],
         [75, "Finishing startup..."],
-        [90, "Taking a little longer — hang tight..."],
+        [92, "Taking a little longer — hang tight..."],
     ];
 
-    function setBar(pct) {
-        wfEl.style.width  = pct + '%';
-        wpctEl.textContent = Math.round(pct) + '%';
+    function updateMsg(pct) {
         for (let i = messages.length - 1; i >= 0; i--) {
-            if (pct >= messages[i][0]) { wmEl.textContent = messages[i][1]; break; }
+            if (pct >= messages[i][0]) { wmsg.textContent = messages[i][1]; break; }
         }
     }
 
-    // Show warmup bar
-    warmupWrap.classList.add('visible');
-    wfEl.classList.add('loading'); // animated stripes while waiting
+    warmupWrap.classList.add('show');
     setBar(0);
+    updateMsg(0);
 
-    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-        // Progress bar reflects how far through our budget we are (up to 90%)
-        const pct = Math.round((attempt / MAX_ATTEMPTS) * 90);
+    for (let i = 1; i <= MAX; i++) {
+        const pct = Math.round((i / MAX) * 90);
         setBar(pct);
+        updateMsg(pct);
 
         try {
-            const res = await fetchT(
-                API_BASE + '/health',
-                { method: 'GET', cache: 'no-store' },
-                PER_REQ_MS
-            );
-            // Any sub-500 response means server is up
+            const res = await fetchT(API + '/health', { method:'GET', cache:'no-store' }, PER);
             if (res.status < 500) {
-                warmupDone(true);
+                // ✅ Server is alive
+                warmupFinish(true);
                 return;
             }
-        } catch (_) {
-            // timed out or network error — keep trying
-        }
+        } catch (_) { /* still booting — keep going */ }
 
-        // Wait before next attempt (unless this was the last)
-        if (attempt < MAX_ATTEMPTS) {
-            await delay(INTERVAL_MS);
-        }
+        if (i < MAX) await new Promise(r => setTimeout(r, GAP));
     }
 
-    // Exhausted all attempts
-    warmupDone(false);
+    // All attempts used up
+    warmupFinish(false);
 }
 
-function warmupDone(ok) {
-    // Fill bar to 100% and switch from stripes to solid
-    wfEl.classList.remove('loading');
-    wfEl.style.width  = '100%';
-    wpctEl.textContent = '100%';
+function warmupFinish(ok) {
+    setBar(100);
 
     if (ok) {
-        wmEl.textContent = '✓ Server online — ready!';
-        wmEl.classList.add('ok');
+        wmsg.textContent = '✓ Server online — ready!';
+        wmsg.classList.add('ok');
         setStatus("SYSTEM: READY", "green");
     } else {
-        wmEl.textContent = '⚠ Server slow — you can still try.';
-        wmEl.classList.add('bad');
-        setStatus("SERVER DEGRADED — try anyway", "red");
+        wmsg.textContent = '⚠ Server slow — you can still try.';
+        wmsg.classList.add('bad');
+        setStatus("SERVER DEGRADED", "red");
     }
 
-    // Reveal the button
-    openBtn.style.display  = 'block';
-    openBtn.disabled       = false;
+    // Show the button
+    getBtn.style.display = 'block';
+    getBtn.disabled      = false;
 
-    // Fade out the warmup bar after 2.5s
+    // Fade warmup bar out after 2.5s
     setTimeout(() => {
-        warmupWrap.style.opacity = '0';
+        warmupWrap.style.transition = 'opacity .6s';
+        warmupWrap.style.opacity    = '0';
         setTimeout(() => {
-            warmupWrap.classList.remove('visible');
-            warmupWrap.style.opacity = '';
-        }, 600);
+            warmupWrap.classList.remove('show');
+            warmupWrap.style.opacity    = '';
+            warmupWrap.style.transition = '';
+        }, 700);
     }, 2500);
 }
 
-/* ═══════════════════════════════════════════════════
-   STEP 1 — Start Session
-   ─────────────────────────────────────────────────
-   Calls /api/initiate-session → gets a one-time token
-   → redirects user to Linkvertise with that token.
-   Linkvertise will redirect back to THIS page with
-   ?token=X&hash=Y once the user completes the ad.
-═══════════════════════════════════════════════════ */
-async function startSession() {
-    openBtn.disabled = true;
-    showSpinner('GENERATING SECURE TOKEN...');
-    setStatus("GENERATING TOKEN...", "");
-
-    const MAX_RETRIES = 3;
-    let lastErr = '';
-
-    for (let i = 1; i <= MAX_RETRIES; i++) {
-        if (i > 1) {
-            spinTxt.textContent = `RETRYING (${i}/${MAX_RETRIES})...`;
-            await delay(1500);
-        }
-        try {
-            const res = await fetchT(
-                API_BASE + '/api/initiate-session',
-                { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' },
-                12000
-            );
-            if (!res.ok) { lastErr = `HTTP ${res.status}`; if (res.status < 500) break; continue; }
-            const data = await res.json();
-            if (!data.token) { lastErr = 'No token received'; continue; }
-
-            // ✅ Redirect user to Linkvertise — they complete the ad
-            // Linkvertise then sends them back here with ?token=...&hash=...
-            setStatus("REDIRECTING TO AD...", "");
-            window.location.href = LINKVERTISE_URL + '?token=' + data.token;
-            return; // page will navigate away
-
-        } catch (err) {
-            lastErr = err.name === 'AbortError' ? 'Request timed out' : (err.message || 'Unknown error');
-        }
-    }
-
-    // All retries failed
-    hideSpinner();
-    showError('SERVER UNREACHABLE — ' + lastErr + '.\nWait 30 seconds and try again.');
-    openBtn.disabled = false;
-}
-
-/* ═══════════════════════════════════════════════════
-   STEP 2 — Verify Linkvertise
-   ─────────────────────────────────────────────────
-   Called automatically when user lands back on this
-   page with ?token=X&hash=Y in the URL (set by
-   Linkvertise after ad completion).
-   Sends token+hash to backend for anti-bypass check.
-   Backend returns the generated key on success.
-═══════════════════════════════════════════════════ */
-async function verifyLinkvertise(token, hash) {
-    // Hide button, show spinner
-    openBtn.style.display = 'none';
-    showSpinner('VERIFYING AD COMPLETION...');
-    setStatus("VERIFYING...", "");
+/* ═══════════════════════════════════════
+   GET KEY
+   Calls POST /api/get-key directly.
+   Backend generates and returns the key.
+   No redirect, no ad, no Linkvertise.
+═══════════════════════════════════════ */
+async function getKey() {
+    getBtn.disabled = true;
+    keyBox.style.display   = 'none';
+    againBtn.style.display = 'none';
+    errorBox.style.display = 'none';
+    spinRow.classList.add('on');
+    spinTxt.textContent = 'GENERATING KEY...';
+    setStatus("GENERATING KEY...", "");
 
     try {
-        const res = await fetchT(
-            API_BASE + '/api/verify-linkvertise',
-            {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify({ token, hash })
-            },
-            20000  // 20s — give backend time to call Linkvertise API
+        const res  = await fetchT(
+            API + '/api/get-key',
+            { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' },
+            15000
         );
         const data = await res.json();
 
-        if (res.status === 400) { showError('TOKEN ALREADY USED — Each ad completion gives one key.'); return; }
-        if (res.status === 403) { showError('AD NOT COMPLETED — Please finish the full ad offer.'); return; }
-        if (res.status === 404) { showError('SESSION EXPIRED — Please start over.'); return; }
-        if (!res.ok)            { showError((data.error || `Server error ${res.status}`) + ' — Try again shortly.'); return; }
-
+        if (res.status === 429) {
+            // Rate limited — they already have a key
+            showError('YOU ALREADY HAVE A KEY — Wait for your current key to expire before generating a new one.');
+            return;
+        }
+        if (!res.ok) {
+            showError((data.error || `Server error ${res.status}`) + ' — Try again shortly.');
+            return;
+        }
         if (data.key) {
-            showSuccess(data.key);
+            showSuccess(data.key, data.expiresAt);
         } else {
-            showError(data.error ? data.error.toUpperCase() : 'VERIFICATION FAILED — Unknown reason.');
+            showError('Key generation failed — please try again.');
         }
 
     } catch (err) {
         showError(
             err.name === 'AbortError'
-                ? 'VERIFICATION TIMED OUT — Try again.'
+                ? 'REQUEST TIMED OUT — The server may be cold. Please wait and try again.'
                 : 'CONNECTION LOST — Check your network and try again.'
         );
     }
 }
 
-/* ═══════════════════════════════════════════════════
-   UI STATE HELPERS
-═══════════════════════════════════════════════════ */
-function showSpinner(msg) {
-    spinTxt.textContent = msg;
-    spinWrap.classList.add('active');
-    keyBox.style.display      = 'none';
-    errorBox.style.display    = 'none';
-    redirectNote.style.display= 'none';
-}
-function hideSpinner() {
-    spinWrap.classList.remove('active');
-}
-
-function showSuccess(key) {
+/* ═══════════════════════════════════════
+   UI STATES
+═══════════════════════════════════════ */
+function showSuccess(key, expiresAt) {
     currentKey = key;
-    hideSpinner();
-    openBtn.style.display     = 'none';
-    errorBox.style.display    = 'none';
-    keyValueEl.textContent    = key;
-    keyBox.style.display      = 'block';
-    setStatus("ACCESS GRANTED", "green");
-    launchConfetti();
+    spinRow.classList.remove('on');
+    getBtn.style.display   = 'none';
+    errorBox.style.display = 'none';
 
-    // Countdown redirect to private dashboard
-    let secs = 5;
-    redirectNote.style.display = 'block';
-    redirectNote.textContent   = `Redirecting to dashboard in ${secs}s...`;
-    const iv = setInterval(() => {
-        secs--;
-        if (secs <= 0) {
-            clearInterval(iv);
-            window.location.href = DASHBOARD_URL + '?key=' + encodeURIComponent(key);
-        } else {
-            redirectNote.textContent = `Redirecting to dashboard in ${secs}s...`;
-        }
-    }, 1000);
+    keyValueEl.textContent = key;
+
+    if (expiresAt) {
+        const exp = new Date(expiresAt);
+        keyExpiry.textContent = 'Expires: ' + exp.toLocaleString('en-GB', { hour12: false });
+    }
+
+    keyBox.style.display    = 'block';
+    againBtn.style.display  = 'block';
+    setStatus("KEY GENERATED", "green");
+    launchConfetti();
 }
 
 function showError(msg) {
-    hideSpinner();
+    spinRow.classList.remove('on');
     errorMsgEl.textContent = msg;
     errorBox.style.display = 'block';
-    setStatus("SYSTEM: ERROR", "red");
+    getBtn.disabled        = false;
+    setStatus("ERROR", "red");
 }
 
-function retryPage() {
-    errorBox.style.display    = 'none';
-    keyBox.style.display      = 'none';
-    redirectNote.style.display= 'none';
+function resetUI() {
+    currentKey = '';
+    spinRow.classList.remove('on');
+    keyBox.style.display    = 'none';
+    againBtn.style.display  = 'none';
+    errorBox.style.display  = 'none';
+    getBtn.style.display    = 'block';
+    getBtn.disabled         = false;
     setStatus("SYSTEM: READY", "green");
-    openBtn.style.display = 'block';
-    openBtn.disabled      = false;
 }
 
-/* ═══════════════════════════════════════════════════
+/* ═══════════════════════════════════════
    COPY KEY
-═══════════════════════════════════════════════════ */
+═══════════════════════════════════════ */
 function copyKey() {
     if (!currentKey) return;
     const done = () => {
@@ -563,168 +527,115 @@ function fallbackCopy(cb) {
     document.body.removeChild(t);
 }
 
-/* ═══════════════════════════════════════════════════
+/* ═══════════════════════════════════════
    BOOT
-   ─────────────────────────────────────────────────
-   Two cases:
-   1. Fresh visit → warm up server, then show button
-   2. Returning from Linkvertise (?token & ?hash present)
-      → wipe URL immediately, verify in background
-      → NO warmup needed, server is already awake
-      (it issued the session token moments ago)
-═══════════════════════════════════════════════════ */
+═══════════════════════════════════════ */
 window.onload = function () {
-    const params = new URLSearchParams(window.location.search);
-    const token  = params.get('token');
-    const hash   = params.get('hash');
-
-    if (token && hash) {
-        // ── RETURNING FROM LINKVERTISE ──────────────────
-        // Wipe URL first so token/hash aren't visible or shareable
-        window.history.replaceState({}, '', window.location.pathname);
-
-        // Guard: if this token was already redeemed in this browser, block it
-        if (sessionStorage.getItem('rzx_used_' + token)) {
-            showError('TOKEN ALREADY REDEEMED — Each ad completion grants one key.');
-            return;
-        }
-        // Mark token as being used immediately
-        sessionStorage.setItem('rzx_used_' + token, '1');
-
-        // Hide warmup (server was just alive when it gave us the token)
-        warmupWrap.style.display = 'none';
-
-        // Verify with backend
-        verifyLinkvertise(token, hash);
-
-    } else {
-        // ── FRESH VISIT ─────────────────────────────────
-        // Warm up server in background; button reveals when server responds
-        setStatus("Connecting to server...", "");
-        warmupServer(); // async — calls warmupDone() when server replies
-    }
+    setStatus("Connecting to server...", "");
+    warmupServer(); // wakes server, then reveals button when ready
 };
 
-/* ═══════════════════════════════════════════════════
+/* ═══════════════════════════════════════
    CONFETTI
-═══════════════════════════════════════════════════ */
+═══════════════════════════════════════ */
 function launchConfetti() {
-    const cv = document.getElementById('confetti-canvas');
+    const cv  = document.getElementById('confetti-canvas');
     const ctx = cv.getContext('2d');
     cv.width = innerWidth; cv.height = innerHeight;
     const pal = ['#ff8c00','#ffb347','#ffd700','#00ff88','#fff','#ff6644','#ffcc33'];
     const sh  = ['rect','circle','line'];
-    const pieces = Array.from({ length: 200 }, () => ({
-        x: innerWidth * .5 + (Math.random() - .5) * 160,
-        y: innerHeight * .4,
-        vx: (Math.random() - .5) * 16, vy: -(Math.random() * 14 + 5), ay: .35 + Math.random() * .15,
-        color: pal[Math.floor(Math.random() * pal.length)],
-        size:  Math.random() * 8 + 3,
-        rot:   Math.random() * Math.PI * 2,
-        rspd:  (Math.random() - .5) * .22,
-        alpha: 1, decay: .011 + Math.random() * .007,
-        shape: sh[Math.floor(Math.random() * sh.length)]
+    const pieces = Array.from({ length:200 }, () => ({
+        x: innerWidth*.5 + (Math.random()-.5)*160,
+        y: innerHeight*.4,
+        vx:(Math.random()-.5)*16, vy:-(Math.random()*14+5), ay:.35+Math.random()*.15,
+        color:pal[Math.floor(Math.random()*pal.length)],
+        size:Math.random()*8+3, rot:Math.random()*Math.PI*2,
+        rspd:(Math.random()-.5)*.22, alpha:1, decay:.011+Math.random()*.007,
+        shape:sh[Math.floor(Math.random()*sh.length)]
     }));
     (function draw() {
-        ctx.clearRect(0, 0, cv.width, cv.height);
-        let alive = false;
-        for (const p of pieces) {
-            if (p.alpha <= 0) continue; alive = true;
-            ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = ctx.strokeStyle = p.color;
-            ctx.translate(p.x, p.y); ctx.rotate(p.rot);
-            if      (p.shape === 'rect')   { ctx.fillRect(-p.size/2,-p.size/4,p.size,p.size/2); }
-            else if (p.shape === 'circle') { ctx.beginPath(); ctx.arc(0,0,p.size/2.5,0,Math.PI*2); ctx.fill(); }
-            else { ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(-p.size/2,0); ctx.lineTo(p.size/2,0); ctx.stroke(); }
+        ctx.clearRect(0,0,cv.width,cv.height); let alive=false;
+        for(const p of pieces){
+            if(p.alpha<=0) continue; alive=true;
+            ctx.save(); ctx.globalAlpha=p.alpha; ctx.fillStyle=ctx.strokeStyle=p.color;
+            ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+            if(p.shape==='rect')        ctx.fillRect(-p.size/2,-p.size/4,p.size,p.size/2);
+            else if(p.shape==='circle'){ ctx.beginPath();ctx.arc(0,0,p.size/2.5,0,Math.PI*2);ctx.fill(); }
+            else{ ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-p.size/2,0);ctx.lineTo(p.size/2,0);ctx.stroke(); }
             ctx.restore();
-            p.x+=p.vx; p.y+=p.vy; p.vy+=p.ay; p.vx*=.99; p.rot+=p.rspd; p.alpha-=p.decay;
+            p.x+=p.vx;p.y+=p.vy;p.vy+=p.ay;p.vx*=.99;p.rot+=p.rspd;p.alpha-=p.decay;
         }
-        if (alive) requestAnimationFrame(draw);
+        if(alive) requestAnimationFrame(draw);
         else ctx.clearRect(0,0,cv.width,cv.height);
     })();
 }
-window.addEventListener('resize', () => {
-    const c = document.getElementById('confetti-canvas');
-    c.width = innerWidth; c.height = innerHeight;
+window.addEventListener('resize',()=>{
+    const c=document.getElementById('confetti-canvas');
+    c.width=innerWidth; c.height=innerHeight;
 });
 
-/* ═══════════════════════════════════════════════════
+/* ═══════════════════════════════════════
    LAVA BACKGROUND
-═══════════════════════════════════════════════════ */
-(function () {
-    const cv = document.getElementById('lava-canvas');
-    const ctx = cv.getContext('2d');
-    function resize() { cv.width = innerWidth; cv.height = innerHeight; }
-    resize(); window.addEventListener('resize', resize);
-
-    const pal = [[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0]];
-    const r = (a, b) => a + Math.random() * (b - a);
-
-    function mkDrop(init) {
-        const c = pal[Math.floor(Math.random() * pal.length)];
-        const sp = cv.width * .18;
-        return {
-            x: cv.width * .5 + r(-sp, sp),
-            y: init ? r(-cv.height, 0) : r(-60, 0),
-            vy: r(1.2, 3.2), vx: r(-.6, .6),
-            radius: r(3, 12),
-            tail: [], maxTail: Math.floor(r(10, 28)),
-            r: c[0], g: c[1], b: c[2],
-            alpha: r(.5, .92),
-            w: r(0, Math.PI * 2), wS: r(.01,.045), wA: r(.2, 1.4),
-            glow: Math.random() > .55
+═══════════════════════════════════════ */
+(function(){
+    const cv=document.getElementById('lava-canvas'),ctx=cv.getContext('2d');
+    function resize(){ cv.width=innerWidth; cv.height=innerHeight; }
+    resize(); window.addEventListener('resize',resize);
+    const pal=[[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0]];
+    const rnd=(a,b)=>a+Math.random()*(b-a);
+    function mk(init){
+        const c=pal[Math.floor(Math.random()*pal.length)],sp=cv.width*.18;
+        return{
+            x:cv.width*.5+rnd(-sp,sp), y:init?rnd(-cv.height,0):rnd(-60,0),
+            vy:rnd(1.2,3.2), vx:rnd(-.6,.6), radius:rnd(3,12),
+            tail:[],maxTail:Math.floor(rnd(10,28)),
+            r:c[0],g:c[1],b:c[2], alpha:rnd(.5,.92),
+            w:rnd(0,Math.PI*2), wS:rnd(.01,.045), wA:rnd(.2,1.4),
+            glow:Math.random()>.55
         };
     }
-
-    const drops = [];
-    for (let i = 0; i < 60; i++) drops.push(mkDrop(true));
-
-    function drawDrop(d) {
-        const { x, y, radius: rd, r, g, b, alpha, tail, glow } = d;
-        for (let i = 0; i < tail.length; i++) {
-            const t = tail[i], pct = i / tail.length;
-            const a = alpha * pct * .4, rad = rd * pct * .65;
-            if (rad < .5 || a < .01) continue;
-            ctx.beginPath(); ctx.arc(t.x, t.y, rad, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(${r},${g},${b},${a})`; ctx.fill();
+    const drops=[];
+    for(let i=0;i<60;i++) drops.push(mk(true));
+    function drawDrop(d){
+        const{x,y,radius:rd,r,g,b,alpha,tail,glow}=d;
+        for(let i=0;i<tail.length;i++){
+            const t=tail[i],pct=i/tail.length,a=alpha*pct*.4,rad=rd*pct*.65;
+            if(rad<.5||a<.01) continue;
+            ctx.beginPath();ctx.arc(t.x,t.y,rad,0,Math.PI*2);
+            ctx.fillStyle=`rgba(${r},${g},${b},${a})`;ctx.fill();
         }
-        if (glow) {
-            const gr = ctx.createRadialGradient(x, y, 0, x, y, rd * 4);
-            gr.addColorStop(0, `rgba(${r},${g},${b},${alpha * .38})`);
-            gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
-            ctx.beginPath(); ctx.arc(x, y, rd * 4, 0, Math.PI * 2);
-            ctx.fillStyle = gr; ctx.fill();
+        if(glow){
+            const gr=ctx.createRadialGradient(x,y,0,x,y,rd*4);
+            gr.addColorStop(0,`rgba(${r},${g},${b},${alpha*.38})`);gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
+            ctx.beginPath();ctx.arc(x,y,rd*4,0,Math.PI*2);ctx.fillStyle=gr;ctx.fill();
         }
-        const gm = ctx.createRadialGradient(x - rd * .3, y - rd * .35, 0, x, y, rd);
-        gm.addColorStop(0,   `rgba(255,210,130,${alpha * .95})`);
-        gm.addColorStop(.35, `rgba(${r},${g},${b},${alpha})`);
-        gm.addColorStop(1,   `rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
-        ctx.beginPath(); ctx.arc(x, y, rd, 0, Math.PI * 2); ctx.fillStyle = gm; ctx.fill();
-        ctx.beginPath(); ctx.arc(x - rd * .28, y - rd * .3, rd * .27, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,230,${alpha * .6})`; ctx.fill();
+        const gm=ctx.createRadialGradient(x-rd*.3,y-rd*.35,0,x,y,rd);
+        gm.addColorStop(0,`rgba(255,210,130,${alpha*.95})`);
+        gm.addColorStop(.35,`rgba(${r},${g},${b},${alpha})`);
+        gm.addColorStop(1,`rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
+        ctx.beginPath();ctx.arc(x,y,rd,0,Math.PI*2);ctx.fillStyle=gm;ctx.fill();
+        ctx.beginPath();ctx.arc(x-rd*.28,y-rd*.3,rd*.27,0,Math.PI*2);
+        ctx.fillStyle=`rgba(255,255,230,${alpha*.6})`;ctx.fill();
     }
-
-    function drawVolcano() {
-        const w = cv.width;
-        ctx.save(); ctx.fillStyle = 'rgba(6,2,0,0.96)';
-        ctx.beginPath();
-        ctx.moveTo(-10,0); ctx.lineTo(w*.28,0); ctx.lineTo(w*.41,80);
-        ctx.lineTo(w*.46,28); ctx.lineTo(w*.5,0); ctx.lineTo(w*.54,28);
-        ctx.lineTo(w*.59,80); ctx.lineTo(w*.72,0); ctx.lineTo(w+10,0);
-        ctx.lineTo(w+10,-20); ctx.lineTo(-10,-20); ctx.closePath(); ctx.fill();
-        const cg = ctx.createRadialGradient(w/2,0,0,w/2,5,90);
-        cg.addColorStop(0,'rgba(255,160,0,0.7)'); cg.addColorStop(1,'rgba(255,0,0,0)');
-        ctx.fillStyle = cg; ctx.beginPath(); ctx.ellipse(w/2,0,90,55,0,0,Math.PI*2); ctx.fill();
+    function drawVolcano(){
+        const w=cv.width;ctx.save();ctx.fillStyle='rgba(6,2,0,0.96)';
+        ctx.beginPath();ctx.moveTo(-10,0);ctx.lineTo(w*.28,0);ctx.lineTo(w*.41,80);
+        ctx.lineTo(w*.46,28);ctx.lineTo(w*.5,0);ctx.lineTo(w*.54,28);ctx.lineTo(w*.59,80);
+        ctx.lineTo(w*.72,0);ctx.lineTo(w+10,0);ctx.lineTo(w+10,-20);ctx.lineTo(-10,-20);
+        ctx.closePath();ctx.fill();
+        const cg=ctx.createRadialGradient(w/2,0,0,w/2,5,90);
+        cg.addColorStop(0,'rgba(255,160,0,0.7)');cg.addColorStop(1,'rgba(255,0,0,0)');
+        ctx.fillStyle=cg;ctx.beginPath();ctx.ellipse(w/2,0,90,55,0,0,Math.PI*2);ctx.fill();
         ctx.restore();
     }
-
-    function animate() {
-        ctx.clearRect(0, 0, cv.width, cv.height);
-        for (const d of drops) {
-            d.w += d.wS; d.x += Math.sin(d.w) * d.wA + d.vx; d.y += d.vy;
-            d.tail.push({ x: d.x, y: d.y });
-            if (d.tail.length > d.maxTail) d.tail.shift();
+    function animate(){
+        ctx.clearRect(0,0,cv.width,cv.height);
+        for(const d of drops){
+            d.w+=d.wS;d.x+=Math.sin(d.w)*d.wA+d.vx;d.y+=d.vy;
+            d.tail.push({x:d.x,y:d.y});
+            if(d.tail.length>d.maxTail) d.tail.shift();
             drawDrop(d);
-            if (d.y - d.radius > cv.height) { Object.assign(d, mkDrop(false)); d.tail = []; }
+            if(d.y-d.radius>cv.height){Object.assign(d,mk(false));d.tail=[];}
         }
         drawVolcano();
         requestAnimationFrame(animate);
