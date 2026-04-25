@@ -22,12 +22,13 @@
         #lava-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
         .atmos {
             position:fixed; inset:0; z-index:1; pointer-events:none;
-            background:radial-gradient(ellipse 90% 50% at 50% 0%, rgba(255,90,0,0.20) 0%, transparent 65%),
-                       radial-gradient(ellipse 100% 100% at 50% 50%, transparent 35%, rgba(0,0,0,0.72) 100%);
+            background:
+                radial-gradient(ellipse 90% 50% at 50% 0%, rgba(255,90,0,0.20) 0%, transparent 65%),
+                radial-gradient(ellipse 100% 100% at 50% 50%, transparent 35%, rgba(0,0,0,0.72) 100%);
         }
         .scanlines {
             position:fixed; inset:0; z-index:2; pointer-events:none;
-            background:repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.045) 3px, rgba(0,0,0,0.045) 4px);
+            background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.045) 3px,rgba(0,0,0,0.045) 4px);
         }
         #confetti-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:999; pointer-events:none; }
 
@@ -35,8 +36,8 @@
             position:relative; z-index:10; background:var(--panel);
             border:1px solid rgba(255,140,0,0.22); border-radius:6px;
             padding:42px 38px 34px; width:92%; max-width:480px; text-align:center;
-            box-shadow:0 0 0 1px rgba(0,0,0,0.9), 0 8px 40px rgba(0,0,0,0.85),
-                       0 0 100px rgba(255,80,0,0.10), inset 0 1px 0 rgba(255,180,80,0.09);
+            box-shadow:0 0 0 1px rgba(0,0,0,0.9),0 8px 40px rgba(0,0,0,0.85),
+                       0 0 100px rgba(255,80,0,0.10),inset 0 1px 0 rgba(255,180,80,0.09);
             backdrop-filter:blur(3px);
             animation:panelIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
         }
@@ -58,25 +59,39 @@
         .logo-sub { font-size:0.5rem; letter-spacing:5px; color:var(--muted); text-transform:uppercase; margin-top:9px; margin-bottom:28px; }
         .divider { width:100%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,140,0,0.22),transparent); margin-bottom:22px; }
 
-        /* Warmup bar */
+        /* ── WARMUP BAR ── */
         #warmup-wrap {
-            display:none; margin-bottom:16px; background:rgba(255,140,0,0.04);
-            border:1px solid rgba(255,140,0,0.12); border-radius:3px; padding:10px 14px;
+            display:none; margin-bottom:16px;
+            background:rgba(255,140,0,0.04);
+            border:1px solid rgba(255,140,0,0.12);
+            border-radius:3px; padding:12px 14px;
+            transition:opacity .5s;
         }
         #warmup-wrap.visible { display:block; }
-        .wh { display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; }
+        .wh { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
         .wl { font-size:0.55rem; letter-spacing:2px; color:var(--orange); opacity:.7; text-transform:uppercase; }
-        #wpct { font-size:0.55rem; color:var(--orange); opacity:.5; letter-spacing:1px; }
-        .wt { width:100%; height:2px; background:rgba(255,140,0,0.1); border-radius:2px; overflow:hidden; }
+        #wpct { font-size:0.55rem; color:var(--orange); letter-spacing:1px; font-variant-numeric:tabular-nums; }
+        .wt { width:100%; height:3px; background:rgba(255,140,0,0.1); border-radius:2px; overflow:hidden; }
         #wf {
             height:100%; width:0%;
-            background:linear-gradient(90deg,#cc7000,var(--orange));
-            border-radius:2px; transition:width .4s ease; box-shadow:0 0 8px var(--orange-glow);
+            background:linear-gradient(90deg,#cc7000,var(--orange),#ffb347);
+            border-radius:2px; transition:width .6s ease;
+            box-shadow:0 0 10px var(--orange-glow);
         }
-        #wm { font-size:0.52rem; color:var(--dim); letter-spacing:1px; margin-top:6px; text-align:right; transition:color .3s; }
-        #wm.ok { color:rgba(0,255,136,0.5); }
+        /* Stripes animate while loading, solid when done */
+        #wf.loading {
+            background-size:20px 100%;
+            animation:wstripe .8s linear infinite;
+        }
+        @keyframes wstripe {
+            0%   { background-position:0 0; }
+            100% { background-position:20px 0; }
+        }
+        #wm { font-size:0.52rem; color:var(--dim); letter-spacing:1px; margin-top:7px; text-align:right; transition:color .3s; }
+        #wm.ok  { color:rgba(0,255,136,0.55); }
+        #wm.bad { color:rgba(255,68,85,0.6); }
 
-        /* Spinner */
+        /* ── SPINNER ── */
         .spin-wrap { display:none; align-items:center; justify-content:center; gap:12px; margin-bottom:16px; }
         .spin-wrap.active { display:flex; }
         .spinner {
@@ -87,14 +102,27 @@
         @keyframes spin { to { transform:rotate(360deg); } }
         .spin-txt { font-size:0.65rem; color:var(--dim); letter-spacing:2px; text-transform:uppercase; }
 
-        /* Get Key button */
+        /* ── STATUS LINE ── */
+        #status-line {
+            font-size:0.65rem; letter-spacing:2px; text-transform:uppercase;
+            color:var(--dim); margin-bottom:18px; min-height:1.1em;
+            display:flex; align-items:center; justify-content:center; gap:8px;
+        }
+        .sdot { width:5px; height:5px; border-radius:50%; background:var(--muted); flex-shrink:0; animation:sdot 2s ease-in-out infinite; }
+        @keyframes sdot { 0%,100%{opacity:1} 50%{opacity:0.25} }
+        #status-line.green { color:var(--green); }
+        #status-line.green .sdot { background:var(--green); box-shadow:0 0 6px var(--green); }
+        #status-line.red   { color:var(--red); }
+        #status-line.red   .sdot { background:var(--red); animation:none; }
+
+        /* ── GET KEY BUTTON ── */
         #open-btn {
             position:relative; overflow:hidden; background:transparent;
             border:1px solid var(--orange); color:var(--orange);
             font-family:'Orbitron',sans-serif; font-size:0.75rem; font-weight:700;
             padding:17px 24px; width:100%; cursor:pointer;
             letter-spacing:3px; text-transform:uppercase; border-radius:3px;
-            transition:color .25s, background .25s, box-shadow .25s;
+            transition:color .25s,background .25s,box-shadow .25s,opacity .25s;
         }
         #open-btn::after {
             content:""; position:absolute; top:0; left:-120%; width:60%; height:100%;
@@ -104,14 +132,14 @@
         @keyframes shimmer { 0%{left:-120%} 55%,100%{left:160%} }
         #open-btn:hover:not(:disabled) { background:var(--orange); color:#000; box-shadow:0 0 30px var(--orange-glow); }
         #open-btn:active:not(:disabled) { transform:scale(0.997); }
-        #open-btn:disabled { opacity:0.4; cursor:not-allowed; }
+        #open-btn:disabled { opacity:0.3; cursor:not-allowed; }
 
-        /* Key box */
+        /* ── KEY BOX ── */
         #key-box {
             display:none; margin-top:20px; background:var(--green-soft);
             border:1px solid rgba(0,255,136,0.18); border-radius:4px;
             padding:20px 16px 16px;
-            animation:slideUp 0.45s cubic-bezier(0.22,1,0.36,1) both;
+            animation:slideUp .45s cubic-bezier(0.22,1,0.36,1) both;
         }
         @keyframes slideUp { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:none;} }
         .key-label { font-size:0.5rem; letter-spacing:3px; color:rgba(0,255,136,0.35); text-transform:uppercase; margin-bottom:12px; }
@@ -126,7 +154,7 @@
             font-size:0.62rem; letter-spacing:2px; text-transform:uppercase;
             padding:10px; width:100%; cursor:pointer; border-radius:2px; transition:all .2s;
         }
-        #copy-btn:hover { background:rgba(0,255,136,0.05); color:var(--green); border-color:rgba(0,255,136,0.35); }
+        #copy-btn:hover  { background:rgba(0,255,136,0.05); color:var(--green); border-color:rgba(0,255,136,0.35); }
         #copy-btn.copied { color:var(--green); background:rgba(0,255,136,0.08); border-color:rgba(0,255,136,0.4); }
 
         #redirect-notice {
@@ -134,13 +162,13 @@
             color:rgba(0,255,136,0.4); letter-spacing:1px; text-align:center;
         }
 
-        /* Error */
+        /* ── ERROR ── */
         #error-box {
             display:none; margin-top:14px; background:var(--red-soft);
             border:1px solid rgba(255,68,85,0.2); border-radius:4px;
             padding:14px; animation:slideUp .3s ease both;
         }
-        #error-msg { font-size:0.65rem; color:var(--red); letter-spacing:.5px; margin-bottom:10px; line-height:1.5; }
+        #error-msg { font-size:0.65rem; color:var(--red); letter-spacing:.5px; margin-bottom:10px; line-height:1.55; }
         #retry-btn {
             background:transparent; border:1px solid rgba(255,68,85,0.3); color:var(--red);
             font-family:'JetBrains Mono',monospace; font-size:0.62rem; padding:9px; width:100%;
@@ -154,6 +182,7 @@
     </style>
 </head>
 <body>
+
 <canvas id="lava-canvas"></canvas>
 <div class="atmos"></div>
 <div class="scanlines"></div>
@@ -168,35 +197,40 @@
     <div class="logo-sub">Key Generation System</div>
     <div class="divider"></div>
 
-    <!-- Server warmup progress -->
-    <div id="warmup-wrap" class="visible">
-        <div class="wh"><span class="wl">⚙ Waking Server</span><span id="wpct">0%</span></div>
-        <div class="wt"><div id="wf"></div></div>
-        <div id="wm">Render cold-start — please wait...</div>
+    <!-- Server warmup — shown while /health is being polled -->
+    <div id="warmup-wrap">
+        <div class="wh">
+            <span class="wl">⚙ Waking Server</span>
+            <span id="wpct">0%</span>
+        </div>
+        <div class="wt"><div id="wf" class="loading"></div></div>
+        <div id="wm">Connecting to server...</div>
     </div>
 
-    <!-- Loading spinner -->
+    <!-- Processing spinner -->
     <div class="spin-wrap" id="spin-wrap">
         <div class="spinner"></div>
         <div class="spin-txt" id="spin-txt">Processing...</div>
     </div>
 
-    <!-- Main button -->
-    <button id="open-btn" disabled>⚡ Get My Key</button>
+    <!-- Status text -->
+    <div id="status-line"><span class="sdot"></span><span id="status-txt">Connecting to server...</span></div>
 
-    <!-- Key revealed -->
+    <!-- Main CTA — hidden until server confirmed alive -->
+    <button id="open-btn" style="display:none" onclick="startSession()">⚡ Get My Key</button>
+
+    <!-- Key revealed after successful verification -->
     <div id="key-box">
         <div class="key-label">▸ Access Key</div>
         <div id="key-value"></div>
-        <button id="copy-btn">[ Copy Key ]</button>
+        <button id="copy-btn" onclick="copyKey()">[ Copy Key ]</button>
     </div>
-
     <div id="redirect-notice"></div>
 
     <!-- Error state -->
     <div id="error-box">
         <div id="error-msg"></div>
-        <button id="retry-btn">↩ Try Again</button>
+        <button id="retry-btn" onclick="retryPage()">↩ Try Again</button>
     </div>
 
     <div class="footer">
@@ -207,193 +241,307 @@
 </div>
 
 <script>
-// ── CONFIG ────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════
+   CONFIG
+   ─────────────────────────────────────────────────
+   API_BASE        → your Render backend
+   LINKVERTISE_URL → your link-center.net ad link
+                     Linkvertise appends ?token=X when
+                     it bounces the user back to this page
+═══════════════════════════════════════════════════ */
 const API_BASE        = "https://rezurx-backend.onrender.com";
-const LINKVERTISE_URL = "https://linkvertise.com/5011888/rezurxlab";
+const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
 const DASHBOARD_URL   = API_BASE + "/dashboard";
 
-const POLL_INTERVAL   = 4000;   // ms between /health pings
-const POLL_MAX        = 22;     // 22 × 4s ≈ 90s (Render free-tier cold-start)
-const FETCH_TIMEOUT   = 8000;   // per-request abort timeout
-const SESSION_RETRIES = 3;      // retry /initiate-session up to 3×
+/* ═══════════════════════════════════════════════════
+   DOM REFS
+═══════════════════════════════════════════════════ */
+const openBtn       = document.getElementById('open-btn');
+const spinWrap      = document.getElementById('spin-wrap');
+const spinTxt       = document.getElementById('spin-txt');
+const keyBox        = document.getElementById('key-box');
+const keyValueEl    = document.getElementById('key-value');
+const copyBtn       = document.getElementById('copy-btn');
+const errorBox      = document.getElementById('error-box');
+const errorMsgEl    = document.getElementById('error-msg');
+const redirectNote  = document.getElementById('redirect-notice');
+const warmupWrap    = document.getElementById('warmup-wrap');
+const wfEl          = document.getElementById('wf');
+const wpctEl        = document.getElementById('wpct');
+const wmEl          = document.getElementById('wm');
+const statusLine    = document.getElementById('status-line');
+const statusTxt     = document.getElementById('status-txt');
 
-// ── DOM ───────────────────────────────────────────────────────
-const openBtn      = document.getElementById('open-btn');
-const spinWrap     = document.getElementById('spin-wrap');
-const spinTxt      = document.getElementById('spin-txt');
-const keyBox       = document.getElementById('key-box');
-const keyValue     = document.getElementById('key-value');
-const copyBtn      = document.getElementById('copy-btn');
-const errorBox     = document.getElementById('error-box');
-const errorMsg     = document.getElementById('error-msg');
-const retryBtn     = document.getElementById('retry-btn');
-const redirectNote = document.getElementById('redirect-notice');
-const warmupWrap   = document.getElementById('warmup-wrap');
-const wf           = document.getElementById('wf');
-const wpct         = document.getElementById('wpct');
-const wm           = document.getElementById('wm');
+let currentKey = '';
 
-let currentKey  = '';
-let serverReady = false;
-let warmupAbort = false;
-
-// ── HELPERS ───────────────────────────────────────────────────
-function fetchT(url, opts, ms) {
+/* ═══════════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════════ */
+function fetchT(url, opts, ms = 10000) {
     const ctrl = new AbortController();
     const tid  = setTimeout(() => ctrl.abort(), ms);
     return fetch(url, { ...opts, signal: ctrl.signal, mode: 'cors', credentials: 'omit' })
         .finally(() => clearTimeout(tid));
 }
+
 const delay = ms => new Promise(r => setTimeout(r, ms));
 
-// ── WARMUP ────────────────────────────────────────────────────
-// Polls /health every 4s until Render wakes up (can take up to 90s on free tier)
-function startWarmup() {
-    warmupAbort = false;
-    serverReady = false;
-    wf.style.width = '0%';
-    wpct.textContent = '0%';
-    wm.textContent = 'Render cold-start — please wait...';
-    wm.classList.remove('ok');
-    warmupWrap.classList.add('visible');
-    openBtn.disabled = true;
-
-    const msgs = [
-        [0,  'Render cold-start — please wait...'],
-        [20, 'Sending wake signal...'],
-        [40, 'Server is starting up...'],
-        [60, 'Almost there...'],
-        [80, 'Finishing boot sequence...'],
-        [92, 'Hang tight — nearly ready...']
-    ];
-    function updateBar(pct) {
-        wf.style.width = pct + '%';
-        wpct.textContent = Math.round(pct) + '%';
-        for (let i = msgs.length - 1; i >= 0; i--) {
-            if (pct >= msgs[i][0]) { wm.textContent = msgs[i][1]; break; }
-        }
-    }
-    function finish(ok) {
-        if (warmupAbort) return;
-        serverReady = true;
-        updateBar(100);
-        wm.textContent = ok ? '✓ Server online — ready!' : '⚠ Server slow — you can try anyway.';
-        if (ok) wm.classList.add('ok');
-        openBtn.disabled = false;
-        setTimeout(() => {
-            warmupWrap.style.transition = 'opacity .6s';
-            warmupWrap.style.opacity = '0';
-            setTimeout(() => {
-                warmupWrap.classList.remove('visible');
-                warmupWrap.style.opacity = '';
-                warmupWrap.style.transition = '';
-            }, 700);
-        }, 2000);
-    }
-
-    let attempt = 0;
-    async function poll() {
-        if (warmupAbort) return;
-        attempt++;
-        updateBar(Math.min(90, Math.round((attempt / POLL_MAX) * 90)));
-        try {
-            const res = await fetchT(API_BASE + '/health', { method: 'GET', cache: 'no-store' }, FETCH_TIMEOUT);
-            if (res.status < 500) { finish(true); return; }
-        } catch (_) {}
-        if (attempt >= POLL_MAX) { finish(false); return; }
-        setTimeout(poll, POLL_INTERVAL);
-    }
-    poll();
+function setStatus(msg, type = '') {
+    statusTxt.textContent = msg;
+    statusLine.className  = type;
 }
 
-// ── STEP 1: get session token → send to Linkvertise ──────────
+/* ═══════════════════════════════════════════════════
+   WARMUP
+   ─────────────────────────────────────────────────
+   The bar fills in real-time based on actual /health
+   ping responses. The fill is tied to how many attempts
+   have passed — but the bar only completes (100%) when
+   the server actually replies with a good status.
+
+   Render free tier cold-starts take 15–50s typically.
+   We try every 4s for up to 90s (22 attempts).
+═══════════════════════════════════════════════════ */
+async function warmupServer() {
+    const MAX_ATTEMPTS = 22;
+    const INTERVAL_MS  = 4000;
+    const PER_REQ_MS   = 7000;
+
+    const messages = [
+        [0,  "Render cold-start — please wait..."],
+        [15, "Server waking up..."],
+        [35, "Loading services..."],
+        [55, "Almost there..."],
+        [75, "Finishing startup..."],
+        [90, "Taking a little longer — hang tight..."],
+    ];
+
+    function setBar(pct) {
+        wfEl.style.width  = pct + '%';
+        wpctEl.textContent = Math.round(pct) + '%';
+        for (let i = messages.length - 1; i >= 0; i--) {
+            if (pct >= messages[i][0]) { wmEl.textContent = messages[i][1]; break; }
+        }
+    }
+
+    // Show warmup bar
+    warmupWrap.classList.add('visible');
+    wfEl.classList.add('loading'); // animated stripes while waiting
+    setBar(0);
+
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+        // Progress bar reflects how far through our budget we are (up to 90%)
+        const pct = Math.round((attempt / MAX_ATTEMPTS) * 90);
+        setBar(pct);
+
+        try {
+            const res = await fetchT(
+                API_BASE + '/health',
+                { method: 'GET', cache: 'no-store' },
+                PER_REQ_MS
+            );
+            // Any sub-500 response means server is up
+            if (res.status < 500) {
+                warmupDone(true);
+                return;
+            }
+        } catch (_) {
+            // timed out or network error — keep trying
+        }
+
+        // Wait before next attempt (unless this was the last)
+        if (attempt < MAX_ATTEMPTS) {
+            await delay(INTERVAL_MS);
+        }
+    }
+
+    // Exhausted all attempts
+    warmupDone(false);
+}
+
+function warmupDone(ok) {
+    // Fill bar to 100% and switch from stripes to solid
+    wfEl.classList.remove('loading');
+    wfEl.style.width  = '100%';
+    wpctEl.textContent = '100%';
+
+    if (ok) {
+        wmEl.textContent = '✓ Server online — ready!';
+        wmEl.classList.add('ok');
+        setStatus("SYSTEM: READY", "green");
+    } else {
+        wmEl.textContent = '⚠ Server slow — you can still try.';
+        wmEl.classList.add('bad');
+        setStatus("SERVER DEGRADED — try anyway", "red");
+    }
+
+    // Reveal the button
+    openBtn.style.display  = 'block';
+    openBtn.disabled       = false;
+
+    // Fade out the warmup bar after 2.5s
+    setTimeout(() => {
+        warmupWrap.style.opacity = '0';
+        setTimeout(() => {
+            warmupWrap.classList.remove('visible');
+            warmupWrap.style.opacity = '';
+        }, 600);
+    }, 2500);
+}
+
+/* ═══════════════════════════════════════════════════
+   STEP 1 — Start Session
+   ─────────────────────────────────────────────────
+   Calls /api/initiate-session → gets a one-time token
+   → redirects user to Linkvertise with that token.
+   Linkvertise will redirect back to THIS page with
+   ?token=X&hash=Y once the user completes the ad.
+═══════════════════════════════════════════════════ */
 async function startSession() {
-    if (!serverReady) return;
     openBtn.disabled = true;
     showSpinner('GENERATING SECURE TOKEN...');
+    setStatus("GENERATING TOKEN...", "");
 
+    const MAX_RETRIES = 3;
     let lastErr = '';
-    for (let i = 1; i <= SESSION_RETRIES; i++) {
-        if (i > 1) { spinTxt.textContent = 'RETRYING... (' + i + '/' + SESSION_RETRIES + ')'; await delay(1500); }
+
+    for (let i = 1; i <= MAX_RETRIES; i++) {
+        if (i > 1) {
+            spinTxt.textContent = `RETRYING (${i}/${MAX_RETRIES})...`;
+            await delay(1500);
+        }
         try {
-            const res = await fetchT(API_BASE + '/api/initiate-session', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: '{}'
-            }, 12000);
-            if (!res.ok) { lastErr = 'HTTP ' + res.status; if (res.status < 500) break; continue; }
+            const res = await fetchT(
+                API_BASE + '/api/initiate-session',
+                { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' },
+                12000
+            );
+            if (!res.ok) { lastErr = `HTTP ${res.status}`; if (res.status < 500) break; continue; }
             const data = await res.json();
             if (!data.token) { lastErr = 'No token received'; continue; }
-            // Send user to Linkvertise — it bounces back with ?token=...&hash=...
+
+            // ✅ Redirect user to Linkvertise — they complete the ad
+            // Linkvertise then sends them back here with ?token=...&hash=...
+            setStatus("REDIRECTING TO AD...", "");
             window.location.href = LINKVERTISE_URL + '?token=' + data.token;
-            return;
+            return; // page will navigate away
+
         } catch (err) {
-            lastErr = err.name === 'AbortError' ? 'Request timed out' : err.message;
+            lastErr = err.name === 'AbortError' ? 'Request timed out' : (err.message || 'Unknown error');
         }
     }
-    showError('SERVER UNREACHABLE — ' + lastErr + '. Wait 30s and try again.');
+
+    // All retries failed
+    hideSpinner();
+    showError('SERVER UNREACHABLE — ' + lastErr + '.\nWait 30 seconds and try again.');
+    openBtn.disabled = false;
 }
 
-// ── STEP 2: verify ad completion after returning from Linkvertise
+/* ═══════════════════════════════════════════════════
+   STEP 2 — Verify Linkvertise
+   ─────────────────────────────────────────────────
+   Called automatically when user lands back on this
+   page with ?token=X&hash=Y in the URL (set by
+   Linkvertise after ad completion).
+   Sends token+hash to backend for anti-bypass check.
+   Backend returns the generated key on success.
+═══════════════════════════════════════════════════ */
 async function verifyLinkvertise(token, hash) {
+    // Hide button, show spinner
     openBtn.style.display = 'none';
     showSpinner('VERIFYING AD COMPLETION...');
+    setStatus("VERIFYING...", "");
+
     try {
-        const res = await fetchT(API_BASE + '/api/verify-linkvertise', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token, hash })
-        }, 15000);
+        const res = await fetchT(
+            API_BASE + '/api/verify-linkvertise',
+            {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ token, hash })
+            },
+            20000  // 20s — give backend time to call Linkvertise API
+        );
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Verification failed');
-        showSuccess(data.key);
+
+        if (res.status === 400) { showError('TOKEN ALREADY USED — Each ad completion gives one key.'); return; }
+        if (res.status === 403) { showError('AD NOT COMPLETED — Please finish the full ad offer.'); return; }
+        if (res.status === 404) { showError('SESSION EXPIRED — Please start over.'); return; }
+        if (!res.ok)            { showError((data.error || `Server error ${res.status}`) + ' — Try again shortly.'); return; }
+
+        if (data.key) {
+            showSuccess(data.key);
+        } else {
+            showError(data.error ? data.error.toUpperCase() : 'VERIFICATION FAILED — Unknown reason.');
+        }
+
     } catch (err) {
-        showError(err.name === 'AbortError'
-            ? 'Verification timed out. Please try again.'
-            : (err.message || 'Verification failed. Complete the ad properly.'));
+        showError(
+            err.name === 'AbortError'
+                ? 'VERIFICATION TIMED OUT — Try again.'
+                : 'CONNECTION LOST — Check your network and try again.'
+        );
     }
 }
 
-// ── UI STATES ─────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════
+   UI STATE HELPERS
+═══════════════════════════════════════════════════ */
 function showSpinner(msg) {
-    spinWrap.classList.add('active');
     spinTxt.textContent = msg;
-    keyBox.style.display = 'none';
-    errorBox.style.display = 'none';
-    redirectNote.style.display = 'none';
+    spinWrap.classList.add('active');
+    keyBox.style.display      = 'none';
+    errorBox.style.display    = 'none';
+    redirectNote.style.display= 'none';
+}
+function hideSpinner() {
+    spinWrap.classList.remove('active');
 }
 
 function showSuccess(key) {
     currentKey = key;
-    spinWrap.classList.remove('active');
-    openBtn.style.display = 'none';
-    errorBox.style.display = 'none';
-    keyValue.textContent = key;
-    keyBox.style.display = 'block';
+    hideSpinner();
+    openBtn.style.display     = 'none';
+    errorBox.style.display    = 'none';
+    keyValueEl.textContent    = key;
+    keyBox.style.display      = 'block';
+    setStatus("ACCESS GRANTED", "green");
     launchConfetti();
 
-    // Countdown then redirect to dashboard (served from private repo via Render)
-    let secs = 4;
+    // Countdown redirect to private dashboard
+    let secs = 5;
     redirectNote.style.display = 'block';
-    redirectNote.textContent = 'Redirecting to dashboard in ' + secs + 's...';
+    redirectNote.textContent   = `Redirecting to dashboard in ${secs}s...`;
     const iv = setInterval(() => {
         secs--;
         if (secs <= 0) {
             clearInterval(iv);
             window.location.href = DASHBOARD_URL + '?key=' + encodeURIComponent(key);
         } else {
-            redirectNote.textContent = 'Redirecting to dashboard in ' + secs + 's...';
+            redirectNote.textContent = `Redirecting to dashboard in ${secs}s...`;
         }
     }, 1000);
 }
 
 function showError(msg) {
-    spinWrap.classList.remove('active');
-    errorMsg.textContent = msg;
+    hideSpinner();
+    errorMsgEl.textContent = msg;
     errorBox.style.display = 'block';
+    setStatus("SYSTEM: ERROR", "red");
 }
 
-// ── COPY ──────────────────────────────────────────────────────
+function retryPage() {
+    errorBox.style.display    = 'none';
+    keyBox.style.display      = 'none';
+    redirectNote.style.display= 'none';
+    setStatus("SYSTEM: READY", "green");
+    openBtn.style.display = 'block';
+    openBtn.disabled      = false;
+}
+
+/* ═══════════════════════════════════════════════════
+   COPY KEY
+═══════════════════════════════════════════════════ */
 function copyKey() {
     if (!currentKey) return;
     const done = () => {
@@ -401,69 +549,97 @@ function copyKey() {
         copyBtn.classList.add('copied');
         setTimeout(() => { copyBtn.textContent = '[ Copy Key ]'; copyBtn.classList.remove('copied'); }, 2500);
     };
-    navigator.clipboard?.writeText(currentKey).then(done).catch(() => {
-        const t = document.createElement('textarea');
-        t.value = currentKey; t.style.cssText = 'position:fixed;opacity:0;';
-        document.body.appendChild(t); t.focus(); t.select();
-        try { document.execCommand('copy'); done(); } catch {}
-        document.body.removeChild(t);
-    });
+    if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(currentKey).then(done).catch(() => fallbackCopy(done));
+    } else {
+        fallbackCopy(done);
+    }
+}
+function fallbackCopy(cb) {
+    const t = document.createElement('textarea');
+    t.value = currentKey; t.style.cssText = 'position:fixed;opacity:0;';
+    document.body.appendChild(t); t.focus(); t.select();
+    try { document.execCommand('copy'); cb(); } catch {}
+    document.body.removeChild(t);
 }
 
-// ── EVENTS ────────────────────────────────────────────────────
-openBtn.addEventListener('click', startSession);
-copyBtn.addEventListener('click', copyKey);
-retryBtn.addEventListener('click', () => {
-    errorBox.style.display = 'none';
-    openBtn.style.display  = 'block';
-    openBtn.disabled = !serverReady;
-    if (!serverReady) { warmupAbort = false; startWarmup(); }
-});
-
-// ── INIT ──────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════
+   BOOT
+   ─────────────────────────────────────────────────
+   Two cases:
+   1. Fresh visit → warm up server, then show button
+   2. Returning from Linkvertise (?token & ?hash present)
+      → wipe URL immediately, verify in background
+      → NO warmup needed, server is already awake
+      (it issued the session token moments ago)
+═══════════════════════════════════════════════════ */
 window.onload = function () {
     const params = new URLSearchParams(window.location.search);
     const token  = params.get('token');
     const hash   = params.get('hash');
 
     if (token && hash) {
-        // Returning from Linkvertise
+        // ── RETURNING FROM LINKVERTISE ──────────────────
+        // Wipe URL first so token/hash aren't visible or shareable
         window.history.replaceState({}, '', window.location.pathname);
-        startWarmup(); // wake server concurrently while verifying
+
+        // Guard: if this token was already redeemed in this browser, block it
+        if (sessionStorage.getItem('rzx_used_' + token)) {
+            showError('TOKEN ALREADY REDEEMED — Each ad completion grants one key.');
+            return;
+        }
+        // Mark token as being used immediately
+        sessionStorage.setItem('rzx_used_' + token, '1');
+
+        // Hide warmup (server was just alive when it gave us the token)
+        warmupWrap.style.display = 'none';
+
+        // Verify with backend
         verifyLinkvertise(token, hash);
+
     } else {
-        startWarmup();
+        // ── FRESH VISIT ─────────────────────────────────
+        // Warm up server in background; button reveals when server responds
+        setStatus("Connecting to server...", "");
+        warmupServer(); // async — calls warmupDone() when server replies
     }
 };
 
-// ── CONFETTI ──────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════
+   CONFETTI
+═══════════════════════════════════════════════════ */
 function launchConfetti() {
-    const cv = document.getElementById('confetti-canvas'), ctx = cv.getContext('2d');
+    const cv = document.getElementById('confetti-canvas');
+    const ctx = cv.getContext('2d');
     cv.width = innerWidth; cv.height = innerHeight;
     const pal = ['#ff8c00','#ffb347','#ffd700','#00ff88','#fff','#ff6644','#ffcc33'];
     const sh  = ['rect','circle','line'];
-    const p   = Array.from({ length: 180 }, () => ({
+    const pieces = Array.from({ length: 200 }, () => ({
         x: innerWidth * .5 + (Math.random() - .5) * 160,
         y: innerHeight * .4,
         vx: (Math.random() - .5) * 16, vy: -(Math.random() * 14 + 5), ay: .35 + Math.random() * .15,
-        color: pal[Math.floor(Math.random() * pal.length)], size: Math.random() * 8 + 3,
-        rot: Math.random() * Math.PI * 2, rspd: (Math.random() - .5) * .22,
+        color: pal[Math.floor(Math.random() * pal.length)],
+        size:  Math.random() * 8 + 3,
+        rot:   Math.random() * Math.PI * 2,
+        rspd:  (Math.random() - .5) * .22,
         alpha: 1, decay: .011 + Math.random() * .007,
         shape: sh[Math.floor(Math.random() * sh.length)]
     }));
     (function draw() {
-        ctx.clearRect(0, 0, cv.width, cv.height); let alive = false;
-        for (const q of p) {
-            if (q.alpha <= 0) continue; alive = true;
-            ctx.save(); ctx.globalAlpha = q.alpha; ctx.fillStyle = ctx.strokeStyle = q.color;
-            ctx.translate(q.x, q.y); ctx.rotate(q.rot);
-            if (q.shape === 'rect') ctx.fillRect(-q.size/2, -q.size/4, q.size, q.size/2);
-            else if (q.shape === 'circle') { ctx.beginPath(); ctx.arc(0,0,q.size/2.5,0,Math.PI*2); ctx.fill(); }
-            else { ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-q.size/2,0); ctx.lineTo(q.size/2,0); ctx.stroke(); }
+        ctx.clearRect(0, 0, cv.width, cv.height);
+        let alive = false;
+        for (const p of pieces) {
+            if (p.alpha <= 0) continue; alive = true;
+            ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = ctx.strokeStyle = p.color;
+            ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+            if      (p.shape === 'rect')   { ctx.fillRect(-p.size/2,-p.size/4,p.size,p.size/2); }
+            else if (p.shape === 'circle') { ctx.beginPath(); ctx.arc(0,0,p.size/2.5,0,Math.PI*2); ctx.fill(); }
+            else { ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(-p.size/2,0); ctx.lineTo(p.size/2,0); ctx.stroke(); }
             ctx.restore();
-            q.x += q.vx; q.y += q.vy; q.vy += q.ay; q.vx *= .99; q.rot += q.rspd; q.alpha -= q.decay;
+            p.x+=p.vx; p.y+=p.vy; p.vy+=p.ay; p.vx*=.99; p.rot+=p.rspd; p.alpha-=p.decay;
         }
-        if (alive) requestAnimationFrame(draw); else ctx.clearRect(0,0,cv.width,cv.height);
+        if (alive) requestAnimationFrame(draw);
+        else ctx.clearRect(0,0,cv.width,cv.height);
     })();
 }
 window.addEventListener('resize', () => {
@@ -471,67 +647,89 @@ window.addEventListener('resize', () => {
     c.width = innerWidth; c.height = innerHeight;
 });
 
-// ── LAVA BACKGROUND ───────────────────────────────────────────
+/* ═══════════════════════════════════════════════════
+   LAVA BACKGROUND
+═══════════════════════════════════════════════════ */
 (function () {
-    const cv = document.getElementById('lava-canvas'), ctx = cv.getContext('2d');
+    const cv = document.getElementById('lava-canvas');
+    const ctx = cv.getContext('2d');
     function resize() { cv.width = innerWidth; cv.height = innerHeight; }
     resize(); window.addEventListener('resize', resize);
+
     const pal = [[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0]];
     const r = (a, b) => a + Math.random() * (b - a);
-    function mk(init) {
-        const c = pal[Math.floor(Math.random() * pal.length)], sp = cv.width * .18;
+
+    function mkDrop(init) {
+        const c = pal[Math.floor(Math.random() * pal.length)];
+        const sp = cv.width * .18;
         return {
-            x: cv.width * .5 + r(-sp, sp), y: init ? r(-cv.height, 0) : r(-60, 0),
-            vy: r(1.2, 3.2), vx: r(-.6, .6), radius: r(3, 12), tail: [], maxTail: Math.floor(r(10, 28)),
-            r: c[0], g: c[1], b: c[2], alpha: r(.5, .92),
-            w: r(0, Math.PI * 2), wS: r(.01, .045), wA: r(.2, 1.4), glow: Math.random() > .55
+            x: cv.width * .5 + r(-sp, sp),
+            y: init ? r(-cv.height, 0) : r(-60, 0),
+            vy: r(1.2, 3.2), vx: r(-.6, .6),
+            radius: r(3, 12),
+            tail: [], maxTail: Math.floor(r(10, 28)),
+            r: c[0], g: c[1], b: c[2],
+            alpha: r(.5, .92),
+            w: r(0, Math.PI * 2), wS: r(.01,.045), wA: r(.2, 1.4),
+            glow: Math.random() > .55
         };
     }
-    const drops = []; for (let i = 0; i < 60; i++) drops.push(mk(true));
-    function dd(d) {
+
+    const drops = [];
+    for (let i = 0; i < 60; i++) drops.push(mkDrop(true));
+
+    function drawDrop(d) {
         const { x, y, radius: rd, r, g, b, alpha, tail, glow } = d;
         for (let i = 0; i < tail.length; i++) {
-            const t = tail[i], pct = i / tail.length, a = alpha * pct * .4, rad = rd * pct * .65;
+            const t = tail[i], pct = i / tail.length;
+            const a = alpha * pct * .4, rad = rd * pct * .65;
             if (rad < .5 || a < .01) continue;
             ctx.beginPath(); ctx.arc(t.x, t.y, rad, 0, Math.PI * 2);
             ctx.fillStyle = `rgba(${r},${g},${b},${a})`; ctx.fill();
         }
         if (glow) {
             const gr = ctx.createRadialGradient(x, y, 0, x, y, rd * 4);
-            gr.addColorStop(0, `rgba(${r},${g},${b},${alpha * .38})`); gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
-            ctx.beginPath(); ctx.arc(x, y, rd * 4, 0, Math.PI * 2); ctx.fillStyle = gr; ctx.fill();
+            gr.addColorStop(0, `rgba(${r},${g},${b},${alpha * .38})`);
+            gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
+            ctx.beginPath(); ctx.arc(x, y, rd * 4, 0, Math.PI * 2);
+            ctx.fillStyle = gr; ctx.fill();
         }
         const gm = ctx.createRadialGradient(x - rd * .3, y - rd * .35, 0, x, y, rd);
-        gm.addColorStop(0, `rgba(255,210,130,${alpha * .95})`);
+        gm.addColorStop(0,   `rgba(255,210,130,${alpha * .95})`);
         gm.addColorStop(.35, `rgba(${r},${g},${b},${alpha})`);
-        gm.addColorStop(1, `rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
+        gm.addColorStop(1,   `rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
         ctx.beginPath(); ctx.arc(x, y, rd, 0, Math.PI * 2); ctx.fillStyle = gm; ctx.fill();
         ctx.beginPath(); ctx.arc(x - rd * .28, y - rd * .3, rd * .27, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255,255,230,${alpha * .6})`; ctx.fill();
     }
-    function vol() {
-        const w = cv.width; ctx.save(); ctx.fillStyle = 'rgba(6,2,0,0.96)';
-        ctx.beginPath(); ctx.moveTo(-10,0); ctx.lineTo(w*.28,0); ctx.lineTo(w*.41,80);
-        ctx.lineTo(w*.46,28); ctx.lineTo(w*.5,0); ctx.lineTo(w*.54,28); ctx.lineTo(w*.59,80);
-        ctx.lineTo(w*.72,0); ctx.lineTo(w+10,0); ctx.lineTo(w+10,-20); ctx.lineTo(-10,-20);
-        ctx.closePath(); ctx.fill();
+
+    function drawVolcano() {
+        const w = cv.width;
+        ctx.save(); ctx.fillStyle = 'rgba(6,2,0,0.96)';
+        ctx.beginPath();
+        ctx.moveTo(-10,0); ctx.lineTo(w*.28,0); ctx.lineTo(w*.41,80);
+        ctx.lineTo(w*.46,28); ctx.lineTo(w*.5,0); ctx.lineTo(w*.54,28);
+        ctx.lineTo(w*.59,80); ctx.lineTo(w*.72,0); ctx.lineTo(w+10,0);
+        ctx.lineTo(w+10,-20); ctx.lineTo(-10,-20); ctx.closePath(); ctx.fill();
         const cg = ctx.createRadialGradient(w/2,0,0,w/2,5,90);
         cg.addColorStop(0,'rgba(255,160,0,0.7)'); cg.addColorStop(1,'rgba(255,0,0,0)');
         ctx.fillStyle = cg; ctx.beginPath(); ctx.ellipse(w/2,0,90,55,0,0,Math.PI*2); ctx.fill();
         ctx.restore();
     }
-    function anim() {
+
+    function animate() {
         ctx.clearRect(0, 0, cv.width, cv.height);
         for (const d of drops) {
             d.w += d.wS; d.x += Math.sin(d.w) * d.wA + d.vx; d.y += d.vy;
             d.tail.push({ x: d.x, y: d.y });
             if (d.tail.length > d.maxTail) d.tail.shift();
-            dd(d);
-            if (d.y - d.radius > cv.height) { Object.assign(d, mk(false)); d.tail = []; }
+            drawDrop(d);
+            if (d.y - d.radius > cv.height) { Object.assign(d, mkDrop(false)); d.tail = []; }
         }
-        vol(); requestAnimationFrame(anim);
+        drawVolcano();
+        requestAnimationFrame(animate);
     }
-    anim();
+    animate();
 })();
 </script>
 </body>
