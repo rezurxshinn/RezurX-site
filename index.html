@@ -46,7 +46,6 @@
             z-index: 0; pointer-events: none;
         }
 
-        /* Orange atmospheric haze */
         .atmos {
             position: fixed; inset: 0; z-index: 1; pointer-events: none;
             background:
@@ -55,7 +54,6 @@
                 radial-gradient(ellipse 100% 100% at 50% 50%, transparent 35%, rgba(0,0,0,0.72) 100%);
         }
 
-        /* Scanlines */
         .scanlines {
             position: fixed; inset: 0; z-index: 2; pointer-events: none;
             background: repeating-linear-gradient(
@@ -64,7 +62,6 @@
             );
         }
 
-        /* Gloss sheen */
         .gloss {
             position: fixed; top:0; left:0; right:0; height:50vh;
             z-index: 2; pointer-events: none;
@@ -101,7 +98,6 @@
             to   { opacity:1; transform:none; }
         }
 
-        /* Gloss on panel top */
         .panel-gloss {
             position: absolute; top:0; left:0; right:0; height:48%;
             border-radius: 6px 6px 0 0; pointer-events: none;
@@ -226,13 +222,11 @@
             border-radius:3px;
             transition:color 0.25s, background 0.25s, box-shadow 0.25s, opacity 0.25s;
         }
-        /* Inner gloss */
         #get-key-btn::before {
             content:""; position:absolute; inset:0;
             background:linear-gradient(135deg, transparent 30%, rgba(255,180,80,0.06));
             pointer-events:none;
         }
-        /* Shimmer sweep */
         #get-key-btn::after {
             content:""; position:absolute;
             top:0; left:-120%; width:60%; height:100%;
@@ -361,7 +355,6 @@
         </div>
     </div>
 
-    <!-- Boot progress (visible until server is warm) -->
     <div id="boot-overlay">
         <div class="boot-top">
             <span class="boot-label">⚙ Server Boot</span>
@@ -371,19 +364,15 @@
         <div id="boot-msg">Waking render server — cold start...</div>
     </div>
 
-    <!-- Spinner -->
     <div class="spin-row" id="spin-row">
         <div class="spinner"></div>
         <div class="spin-txt" id="spin-txt">Processing...</div>
     </div>
 
-    <!-- Status -->
     <div id="status"><span class="sdot"></span><span id="status-txt">Connecting to server...</span></div>
 
-    <!-- Button: hidden until warm -->
     <button id="get-key-btn" style="display:none" onclick="startSession()">⚡ Get Access Key</button>
 
-    <!-- Key display -->
     <div id="key-box">
         <div class="key-label">▸ Access Key Generated</div>
         <div id="key-value"></div>
@@ -391,7 +380,6 @@
     </div>
     <button id="reset-btn" onclick="resetPage()">↩ Generate Another Key</button>
 
-    <!-- Error -->
     <div id="error-box">
         <div id="error-msg"></div>
         <button id="try-again-btn" onclick="resetPage()">↩ Try Again</button>
@@ -408,15 +396,23 @@
 /* ═══════════════════════════════════════════════
    CONFIG
 ═══════════════════════════════════════════════ */
-const API_BASE        = "https://rezurx-backend.onrender.com";
+const API_BASE = "https://rezurx-backend.onrender.com";
+
+/*
+ * LINKVERTISE URL — your link-center URL.
+ * After the user completes the ad, Linkvertise redirects them back to
+ * whatever destination URL you configured in your publisher dashboard.
+ * Make sure that destination is set to:
+ *   https://rezurxshinn.github.io/
+ * Linkvertise will automatically append ?token=TOKEN&hash=HASH to that URL.
+ *
+ * We store our session token in sessionStorage before redirecting so we
+ * can match it when the user comes back.
+ */
 const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
 
 /* ═══════════════════════════════════════════════
    LAVA BACKGROUND
-   - Volcano silhouette at top with crater glow
-   - Lava drops (with shiny highlight + glow tail)
-     falling from the crater and edges
-   - Lava pool glow at the bottom
 ═══════════════════════════════════════════════ */
 (function initLava() {
     const canvas = document.getElementById('lava-canvas');
@@ -433,8 +429,7 @@ const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
     function rand(a,b){ return a + Math.random()*(b-a); }
 
     function makeDrop(initial) {
-        const col = palette[Math.floor(Math.random()*palette.length)];
-        // All drops originate from the crater zone at top-center
+        const col    = palette[Math.floor(Math.random()*palette.length)];
         const spread = canvas.width * 0.18;
         return {
             x:       canvas.width*0.5 + rand(-spread, spread),
@@ -459,7 +454,6 @@ const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
     function drawDrop(d) {
         const {x, y, radius, r, g, b, alpha, tail, glow} = d;
 
-        // Tail
         for (let i=0; i<tail.length; i++) {
             const t   = tail[i];
             const pct = i / tail.length;
@@ -472,7 +466,6 @@ const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
             ctx.fill();
         }
 
-        // Outer glow
         if (glow) {
             const gr = ctx.createRadialGradient(x, y, 0, x, y, radius*4);
             gr.addColorStop(0, `rgba(${r},${g},${b},${alpha*0.38})`);
@@ -483,7 +476,6 @@ const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
             ctx.fill();
         }
 
-        // Main drop — radial gradient for shiny orb effect
         const grMain = ctx.createRadialGradient(
             x - radius*0.3, y - radius*0.35, 0,
             x, y, radius
@@ -497,7 +489,6 @@ const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
         ctx.fillStyle = grMain;
         ctx.fill();
 
-        // Specular highlight (the "shiny" pop)
         ctx.beginPath();
         ctx.arc(x - radius*0.28, y - radius*0.30, radius*0.27, 0, Math.PI*2);
         ctx.fillStyle = `rgba(255,255,230,${alpha*0.6})`;
@@ -507,20 +498,15 @@ const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
     function drawVolcano() {
         const w = canvas.width;
         ctx.save();
-
-        // Dark mountain body
         ctx.fillStyle = 'rgba(6,2,0,0.96)';
         ctx.beginPath();
         ctx.moveTo(-10, 0);
-        // Left side slope
         ctx.lineTo(w*0.28, 0);
         ctx.lineTo(w*0.41, 80);
         ctx.lineTo(w*0.46, 28);
-        // Crater dip
         ctx.lineTo(w*0.50, 0);
         ctx.lineTo(w*0.54, 28);
         ctx.lineTo(w*0.59, 80);
-        // Right side slope
         ctx.lineTo(w*0.72, 0);
         ctx.lineTo(w+10, 0);
         ctx.lineTo(w+10, -20);
@@ -528,7 +514,6 @@ const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
         ctx.closePath();
         ctx.fill();
 
-        // Crater inner glow
         const cg = ctx.createRadialGradient(w/2, 0, 0, w/2, 5, 90);
         cg.addColorStop(0, 'rgba(255,160,0,0.7)');
         cg.addColorStop(0.3,'rgba(255,90,0,0.35)');
@@ -538,13 +523,11 @@ const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
         ctx.beginPath();
         ctx.ellipse(w/2, 0, 90, 55, 0, 0, Math.PI*2);
         ctx.fill();
-
         ctx.restore();
     }
 
     function drawPool() {
         const w = canvas.width, h = canvas.height;
-        // Bottom lava glow
         const pg = ctx.createLinearGradient(0, h*0.80, 0, h);
         pg.addColorStop(0, 'rgba(255,60,0,0)');
         pg.addColorStop(0.5,'rgba(255,80,0,0.06)');
@@ -552,7 +535,6 @@ const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
         ctx.fillStyle = pg;
         ctx.fillRect(0, h*0.80, w, h*0.20);
 
-        // Wide ambient radial at horizon
         const rg = ctx.createRadialGradient(w/2, h, 5, w/2, h, w*0.75);
         rg.addColorStop(0, 'rgba(255,70,0,0.10)');
         rg.addColorStop(1, 'rgba(255,70,0,0)');
@@ -563,23 +545,18 @@ const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawPool();
-
         for (const d of drops) {
             d.wobble += d.wobbleSpd;
             d.x += Math.sin(d.wobble) * d.wobbleAmp + d.vx;
             d.y += d.vy;
-
             d.tail.push({x: d.x, y: d.y});
             if (d.tail.length > d.maxTail) d.tail.shift();
-
             drawDrop(d);
-
             if (d.y - d.radius > canvas.height) {
                 Object.assign(d, makeDrop(false));
                 d.tail = [];
             }
         }
-
         drawVolcano();
         requestAnimationFrame(animate);
     }
@@ -611,7 +588,7 @@ let warmTimer   = null;
 let warmPctVal  = 0;
 
 /* ═══════════════════════════════════════════════
-   WARMUP BAR  (animated fake progress)
+   WARMUP BAR
 ═══════════════════════════════════════════════ */
 function startWarmupBar() {
     warmPctVal = 0;
@@ -654,11 +631,9 @@ function finishWarmup(ok) {
         setStatus("SERVER DEGRADED", "red");
     }
 
-    // Reveal button
     getKeyBtn.style.display = "block";
     getKeyBtn.disabled      = false;
 
-    // Fade boot bar out after 2.5 s
     setTimeout(() => {
         bootWrap.style.transition = 'opacity 0.7s';
         bootWrap.style.opacity    = '0';
@@ -668,13 +643,11 @@ function finishWarmup(ok) {
 
 /* ═══════════════════════════════════════════════
    PING WITH RETRIES
-   Tries /health repeatedly until alive.
-   Render cold starts typically take 15-40 s.
 ═══════════════════════════════════════════════ */
 async function pingUntilAlive() {
-    const MAX      = 12;        // 12 attempts
-    const GAP      = 4000;      // 4 s between attempts
-    const PER_TO   = 7000;      // 7 s per request timeout
+    const MAX    = 12;
+    const GAP    = 4000;
+    const PER_TO = 7000;
 
     for (let i = 1; i <= MAX; i++) {
         try {
@@ -684,57 +657,89 @@ async function pingUntilAlive() {
                 method: 'GET', signal: ctrl.signal, cache: 'no-store',
             });
             clearTimeout(tid);
-            // Any sub-500 response means the server is up
             if (res.status < 500) { finishWarmup(true); return; }
-        } catch { /* timed out or network error — retry */ }
-
+        } catch { /* retry */ }
         if (i < MAX) await new Promise(r => setTimeout(r, GAP));
     }
-    finishWarmup(false); // all retries exhausted
+    finishWarmup(false);
 }
 
 /* ═══════════════════════════════════════════════
-   BOOT
+   BOOT — check for returning Linkvertise user
 ═══════════════════════════════════════════════ */
 window.onload = async function () {
     const params = new URLSearchParams(window.location.search);
-    const token  = params.get('token');
-    const hash   = params.get('hash');
 
-    if (token && hash) {
-        // Returning from Linkvertise — verify immediately, no warmup needed
+    /*
+     * FIX: Linkvertise passes back `hash` (their anti-bypass hash).
+     * Our session token was stored in sessionStorage before the redirect
+     * so we retrieve it here and pair it with the hash Linkvertise returned.
+     *
+     * Linkvertise return URL params: ?hash=XXXX
+     * We stored our token in sessionStorage under key 'rzx_pending_token'.
+     */
+    const hash  = params.get('hash');
+    const token = sessionStorage.getItem('rzx_pending_token');
+
+    if (hash && token) {
+        // User is returning from Linkvertise with a hash — verify immediately
         window.history.replaceState({}, '', window.location.pathname);
         bootWrap.style.display = 'none';
 
-        if (sessionStorage.getItem('used_' + token)) {
+        // Guard against double-redemption
+        if (sessionStorage.getItem('rzx_used_' + token)) {
             showError("TOKEN ALREADY REDEEMED — Each ad completion grants one key.");
             return;
         }
+
         setStep(2);
         await handleVerify(token, hash);
+
+    } else if (hash && !token) {
+        // Hash came back but we lost the token (e.g. private browsing cleared storage)
+        bootWrap.style.display = 'none';
+        showError("SESSION LOST — Your browser may have cleared session storage. Please start over.");
 
     } else {
         // Fresh visit — warm up server while user reads the page
         setStatus("Connecting to server...", "default");
         startWarmupBar();
-        pingUntilAlive(); // resolves async, calls finishWarmup() when done
+        pingUntilAlive();
     }
 };
 
 /* ═══════════════════════════════════════════════
-   STEP 1 — Initiate session
+   STEP 1 — Initiate session & redirect
 ═══════════════════════════════════════════════ */
 async function startSession() {
     getKeyBtn.disabled = true;
     setLoading("GENERATING SECURE TOKEN...");
     setStep(1);
+
     try {
         const res  = await fetch(`${API_BASE}/api/initiate-session`, { method: 'POST' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        if (!data.token) throw new Error("No token");
-        setStatus("REDIRECTING...", "default");
-        window.location.href = `${LINKVERTISE_URL}?token=${data.token}`;
+        if (!data.token) throw new Error("No token in response");
+
+        /*
+         * FIX: Store the session token in sessionStorage BEFORE redirecting.
+         * Linkvertise will redirect back to this page with only ?hash=XXXX.
+         * We retrieve our token from storage on return to pair with the hash.
+         */
+        sessionStorage.setItem('rzx_pending_token', data.token);
+
+        setStatus("REDIRECTING TO LINKVERTISE...", "default");
+
+        /*
+         * FIX: Do NOT append the token to the Linkvertise URL.
+         * Linkvertise uses its own internal redirect system — appending foreign
+         * query params breaks the link. Just redirect straight to the link.
+         * The destination URL (your GitHub Pages page) must be set in your
+         * Linkvertise publisher dashboard as the link destination.
+         */
+        window.location.href = LINKVERTISE_URL;
+
     } catch {
         showError("SERVER UNREACHABLE — Please wait a moment and try again.");
         getKeyBtn.style.display = "block";
@@ -743,10 +748,11 @@ async function startSession() {
 }
 
 /* ═══════════════════════════════════════════════
-   STEP 2 — Verify
+   STEP 2 — Verify with backend
 ═══════════════════════════════════════════════ */
 async function handleVerify(token, hash) {
     setLoading("VERIFYING AD COMPLETION...");
+
     try {
         const res  = await fetch(`${API_BASE}/api/verify-linkvertise`, {
             method: 'POST',
@@ -754,15 +760,19 @@ async function handleVerify(token, hash) {
             body: JSON.stringify({ token, hash }),
         });
         const data = await res.json();
-        sessionStorage.setItem('used_' + token, 'true');
+
+        // Mark token as used so refresh/back can't re-redeem
+        sessionStorage.setItem('rzx_used_' + token, 'true');
+        // Clear the pending token regardless of outcome
+        sessionStorage.removeItem('rzx_pending_token');
 
         if (res.status === 400) { showError("TOKEN ALREADY USED — Each ad completion gives one key."); return; }
-        if (res.status === 403) { showError("AD NOT COMPLETED — Please finish the Linkvertise offer."); return; }
+        if (res.status === 403) { showError("AD NOT COMPLETED — Please finish the Linkvertise offer properly."); return; }
         if (res.status === 404) { showError("SESSION EXPIRED — Please start over."); return; }
         if (!res.ok)            { showError(`SERVER ERROR (${res.status}) — Try again shortly.`); return; }
 
         if (data.key) showSuccess(data.key);
-        else showError(data.error ? data.error.toUpperCase() : "VERIFICATION FAILED");
+        else showError(data.error ? data.error.toUpperCase() : "VERIFICATION FAILED — Please try again.");
 
     } catch {
         showError("CONNECTION LOST — Check your network and try again.");
@@ -773,7 +783,8 @@ async function handleVerify(token, hash) {
    UI HELPERS
 ═══════════════════════════════════════════════ */
 function setLoading(msg) {
-    spinRow.classList.add('on'); spinTxt.innerText = msg;
+    spinRow.classList.add('on');
+    spinTxt.innerText       = msg;
     setStatus(msg, "default");
     getKeyBtn.style.display = "none";
     keyBox.style.display    = "none";
@@ -806,6 +817,8 @@ function showError(msg) {
 
 function resetPage() {
     keyToCopy = "";
+    // Clear any leftover pending token so next attempt is clean
+    sessionStorage.removeItem('rzx_pending_token');
     spinRow.classList.remove('on');
     errorBox.style.display  = "none";
     keyBox.style.display    = "none";
@@ -825,7 +838,7 @@ function setStep(n) {
     for (let i=1; i<=3; i++) {
         const el = document.getElementById('step-'+i);
         el.className = 'step';
-        if (i < n)  el.classList.add('done');
+        if (i < n)   el.classList.add('done');
         if (i === n) el.classList.add('active');
     }
 }
@@ -838,15 +851,18 @@ function copyKey() {
     const done = () => {
         copyBtn.innerText = "[ ✓ COPIED! ]";
         copyBtn.classList.add('copied');
-        setTimeout(() => { copyBtn.innerText="[ Click to Copy ]"; copyBtn.classList.remove('copied'); }, 2500);
+        setTimeout(() => { copyBtn.innerText = "[ Click to Copy ]"; copyBtn.classList.remove('copied'); }, 2500);
     };
-    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(keyToCopy).then(done).catch(()=>fallbackCopy(done));
+    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(keyToCopy).then(done).catch(() => fallbackCopy(done));
     else fallbackCopy(done);
 }
+
 function fallbackCopy(cb) {
     const ta = document.createElement('textarea');
-    ta.value = keyToCopy; ta.style.cssText = "position:fixed;opacity:0;";
-    document.body.appendChild(ta); ta.focus(); ta.select();
+    ta.value = keyToCopy;
+    ta.style.cssText = "position:fixed;opacity:0;";
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
     try { document.execCommand('copy'); cb(); } catch {}
     document.body.removeChild(ta);
 }
@@ -857,7 +873,8 @@ function fallbackCopy(cb) {
 function launchConfetti() {
     const canvas = document.getElementById('confetti-canvas');
     const ctx    = canvas.getContext('2d');
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     const pal    = ['#ff8c00','#ffb347','#ffd700','#00ff88','#fff','#ff6644','#ffcc33'];
     const shapes = ['rect','circle','line'];
@@ -876,7 +893,6 @@ function launchConfetti() {
         shape: shapes[Math.floor(Math.random()*shapes.length)],
     }));
 
-    let raf;
     (function draw() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
         let alive = false;
@@ -886,21 +902,23 @@ function launchConfetti() {
             ctx.save();
             ctx.globalAlpha = p.alpha;
             ctx.fillStyle = ctx.strokeStyle = p.color;
-            ctx.translate(p.x, p.y); ctx.rotate(p.rot);
-            if (p.shape==='rect')        ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rot);
+            if      (p.shape==='rect')   ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
             else if (p.shape==='circle') { ctx.beginPath(); ctx.arc(0,0,p.size/2.5,0,Math.PI*2); ctx.fill(); }
             else { ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(-p.size/2,0); ctx.lineTo(p.size/2,0); ctx.stroke(); }
             ctx.restore();
             p.x+=p.vx; p.y+=p.vy; p.vy+=p.ay; p.vx*=0.99; p.rot+=p.rspd; p.alpha-=p.decay;
         }
-        if (alive) raf = requestAnimationFrame(draw);
+        if (alive) requestAnimationFrame(draw);
         else ctx.clearRect(0,0,canvas.width,canvas.height);
     })();
 }
 
 window.addEventListener('resize', () => {
     const c = document.getElementById('confetti-canvas');
-    c.width = window.innerWidth; c.height = window.innerHeight;
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
 });
 </script>
 </body>
