@@ -396,20 +396,20 @@
 /* ═══════════════════════════════════════════════
    CONFIG
 ═══════════════════════════════════════════════ */
-const API_BASE = "https://rezurx-backend.onrender.com";
+const API_BASE        = "https://rezurx-backend.onrender.com";
+const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
 
 /*
- * LINKVERTISE URL — your link-center URL.
- * After the user completes the ad, Linkvertise redirects them back to
- * whatever destination URL you configured in your publisher dashboard.
- * Make sure that destination is set to:
- *   https://rezurxshinn.github.io/
- * Linkvertise will automatically append ?token=TOKEN&hash=HASH to that URL.
- *
- * We store our session token in sessionStorage before redirecting so we
- * can match it when the user comes back.
+ * HOW THE FLOW WORKS:
+ * 1. User clicks Get Access Key
+ * 2. We call /api/initiate-session → get a token
+ * 3. We redirect to Linkvertise, encoding our return URL with the token
+ *    already embedded as a query param:
+ *      https://rezurxshinn.github.io/?token=TOKEN
+ *    Linkvertise appends its hash on top, giving us:
+ *      https://rezurxshinn.github.io/?token=TOKEN&hash=HASH
+ * 4. On return we read BOTH from the URL — no sessionStorage needed.
  */
-const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
 
 /* ═══════════════════════════════════════════════
    LAVA BACKGROUND
@@ -671,34 +671,24 @@ window.onload = async function () {
     const params = new URLSearchParams(window.location.search);
 
     /*
-     * FIX: Linkvertise passes back `hash` (their anti-bypass hash).
-     * Our session token was stored in sessionStorage before the redirect
-     * so we retrieve it here and pair it with the hash Linkvertise returned.
-     *
-     * Linkvertise return URL params: ?hash=XXXX
-     * We stored our token in sessionStorage under key 'rzx_pending_token'.
+     * Both token and hash arrive as URL params on return from Linkvertise.
+     * token = our session token (we embedded it in the return URL before redirecting)
+     * hash  = Linkvertise's anti-bypass proof (appended by them automatically)
      */
+    const token = params.get('token');
     const hash  = params.get('hash');
-    const token = sessionStorage.getItem('rzx_pending_token');
 
-    if (hash && token) {
-        // User is returning from Linkvertise with a hash — verify immediately
+    if (token && hash) {
+        // Returning from Linkvertise — verify immediately, skip warmup
         window.history.replaceState({}, '', window.location.pathname);
         bootWrap.style.display = 'none';
-
-        // Guard against double-redemption
-        if (sessionStorage.getItem('rzx_used_' + token)) {
-            showError("TOKEN ALREADY REDEEMED — Each ad completion grants one key.");
-            return;
-        }
-
         setStep(2);
         await handleVerify(token, hash);
 
     } else if (hash && !token) {
-        // Hash came back but we lost the token (e.g. private browsing cleared storage)
+        // Hash present but no token — something stripped our return URL params
         bootWrap.style.display = 'none';
-        showError("SESSION LOST — Your browser may have cleared session storage. Please start over.");
+        showError("SESSION LOST — Please start over and do not close this tab during the ad.");
 
     } else {
         // Fresh visit — warm up server while user reads the page
@@ -722,23 +712,24 @@ async function startSession() {
         const data = await res.json();
         if (!data.token) throw new Error("No token in response");
 
-        /*
-         * FIX: Store the session token in sessionStorage BEFORE redirecting.
-         * Linkvertise will redirect back to this page with only ?hash=XXXX.
-         * We retrieve our token from storage on return to pair with the hash.
-         */
-        sessionStorage.setItem('rzx_pending_token', data.token);
-
         setStatus("REDIRECTING TO LINKVERTISE...", "default");
 
         /*
-         * FIX: Do NOT append the token to the Linkvertise URL.
-         * Linkvertise uses its own internal redirect system — appending foreign
-         * query params breaks the link. Just redirect straight to the link.
-         * The destination URL (your GitHub Pages page) must be set in your
-         * Linkvertise publisher dashboard as the link destination.
+         * Encode our return URL with the token already in it as a query param.
+         * Linkvertise will append &hash=XXXX to whatever destination URL is set
+         * in the publisher dashboard, giving us:
+         *   https://rezurxshinn.github.io/?token=TOKEN&hash=HASH
+         *
+         * IMPORTANT: In your Linkvertise publisher dashboard, the destination
+         * URL must be set to:
+         *   https://rezurxshinn.github.io/
+         * (without any extra params — Linkvertise handles the appending)
+         *
+         * We pass our token via the URL so it survives the redirect without
+         * relying on sessionStorage (which link-center.net can clear).
          */
-        window.location.href = LINKVERTISE_URL;
+        const returnUrl = `https://rezurxshinn.github.io/?token=${encodeURIComponent(data.token)}`;
+        window.location.href = `${LINKVERTISE_URL}?r=${encodeURIComponent(returnUrl)}`;
 
     } catch {
         showError("SERVER UNREACHABLE — Please wait a moment and try again.");
@@ -760,11 +751,6 @@ async function handleVerify(token, hash) {
             body: JSON.stringify({ token, hash }),
         });
         const data = await res.json();
-
-        // Mark token as used so refresh/back can't re-redeem
-        sessionStorage.setItem('rzx_used_' + token, 'true');
-        // Clear the pending token regardless of outcome
-        sessionStorage.removeItem('rzx_pending_token');
 
         if (res.status === 400) { showError("TOKEN ALREADY USED — Each ad completion gives one key."); return; }
         if (res.status === 403) { showError("AD NOT COMPLETED — Please finish the Linkvertise offer properly."); return; }
@@ -817,8 +803,6 @@ function showError(msg) {
 
 function resetPage() {
     keyToCopy = "";
-    // Clear any leftover pending token so next attempt is clean
-    sessionStorage.removeItem('rzx_pending_token');
     spinRow.classList.remove('on');
     errorBox.style.display  = "none";
     keyBox.style.display    = "none";
