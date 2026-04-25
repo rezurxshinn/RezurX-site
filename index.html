@@ -399,18 +399,6 @@
 const API_BASE        = "https://rezurx-backend.onrender.com";
 const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
 
-/*
- * HOW THE FLOW WORKS:
- * 1. User clicks Get Access Key
- * 2. We call /api/initiate-session → get a token
- * 3. We redirect to Linkvertise, encoding our return URL with the token
- *    already embedded as a query param:
- *      https://rezurxshinn.github.io/?token=TOKEN
- *    Linkvertise appends its hash on top, giving us:
- *      https://rezurxshinn.github.io/?token=TOKEN&hash=HASH
- * 4. On return we read BOTH from the URL — no sessionStorage needed.
- */
-
 /* ═══════════════════════════════════════════════
    LAVA BACKGROUND
 ═══════════════════════════════════════════════ */
@@ -669,24 +657,24 @@ async function pingUntilAlive() {
 ═══════════════════════════════════════════════ */
 window.onload = async function () {
     const params = new URLSearchParams(window.location.search);
+    const hash   = params.get('hash');
 
-    /*
-     * Both token and hash arrive as URL params on return from Linkvertise.
-     * token = our session token (we embedded it in the return URL before redirecting)
-     * hash  = Linkvertise's anti-bypass proof (appended by them automatically)
-     */
-    const token = params.get('token');
-    const hash  = params.get('hash');
+    // Recover token: try URL param first, then sessionStorage fallback
+    const tokenFromUrl     = params.get('token');
+    const tokenFromStorage = sessionStorage.getItem('rezurx_token');
+    const token            = tokenFromUrl || tokenFromStorage;
 
-    if (token && hash) {
-        // Returning from Linkvertise — verify immediately, skip warmup
+    if (hash && token) {
+        // ✅ Returning from Linkvertise with both token + hash — verify now
         window.history.replaceState({}, '', window.location.pathname);
+        sessionStorage.removeItem('rezurx_token');
         bootWrap.style.display = 'none';
         setStep(2);
         await handleVerify(token, hash);
 
     } else if (hash && !token) {
-        // Hash present but no token — something stripped our return URL params
+        // ❌ Hash present but token is gone — session was lost
+        window.history.replaceState({}, '', window.location.pathname);
         bootWrap.style.display = 'none';
         showError("SESSION LOST — Please start over and do not close this tab during the ad.");
 
@@ -699,7 +687,7 @@ window.onload = async function () {
 };
 
 /* ═══════════════════════════════════════════════
-   STEP 1 — Initiate session & redirect
+   STEP 1 — Initiate session & redirect to Linkvertise
 ═══════════════════════════════════════════════ */
 async function startSession() {
     getKeyBtn.disabled = true;
@@ -712,26 +700,23 @@ async function startSession() {
         const data = await res.json();
         if (!data.token) throw new Error("No token in response");
 
+        // ── Store token in sessionStorage so it survives the redirect ──
+        // Linkvertise appends ?hash=XXXX to the destination URL you set in
+        // your publisher dashboard. Since they don't forward custom query
+        // params from the ?r= redirect parameter reliably, we store the
+        // token client-side and read it back on return.
+        sessionStorage.setItem('rezurx_token', data.token);
+
         setStatus("REDIRECTING TO LINKVERTISE...", "default");
 
-        /*
-         * Encode our return URL with the token already in it as a query param.
-         * Linkvertise will append &hash=XXXX to whatever destination URL is set
-         * in the publisher dashboard, giving us:
-         *   https://rezurxshinn.github.io/?token=TOKEN&hash=HASH
-         *
-         * IMPORTANT: In your Linkvertise publisher dashboard, the destination
-         * URL must be set to:
-         *   https://rezurxshinn.github.io/
-         * (without any extra params — Linkvertise handles the appending)
-         *
-         * We pass our token via the URL so it survives the redirect without
-         * relying on sessionStorage (which link-center.net can clear).
-         */
-        const returnUrl = `https://rezurxshinn.github.io/?token=${encodeURIComponent(data.token)}`;
-        window.location.href = `${LINKVERTISE_URL}?r=${encodeURIComponent(returnUrl)}`;
+        // Redirect straight to the Linkvertise link.
+        // Your Linkvertise dashboard destination URL must be:
+        //   https://rezurxshinn.github.io/
+        // Linkvertise will append ?hash=XXXX automatically.
+        window.location.href = LINKVERTISE_URL;
 
-    } catch {
+    } catch (err) {
+        console.error('[startSession]', err);
         showError("SERVER UNREACHABLE — Please wait a moment and try again.");
         getKeyBtn.style.display = "block";
         getKeyBtn.disabled      = false;
@@ -752,15 +737,31 @@ async function handleVerify(token, hash) {
         });
         const data = await res.json();
 
-        if (res.status === 400) { showError("TOKEN ALREADY USED — Each ad completion gives one key."); return; }
-        if (res.status === 403) { showError("AD NOT COMPLETED — Please finish the Linkvertise offer properly."); return; }
-        if (res.status === 404) { showError("SESSION EXPIRED — Please start over."); return; }
-        if (!res.ok)            { showError(`SERVER ERROR (${res.status}) — Try again shortly.`); return; }
+        if (res.status === 400) {
+            showError("TOKEN ALREADY USED — Each ad completion gives one key. Click Try Again to start fresh.");
+            return;
+        }
+        if (res.status === 403) {
+            showError("AD NOT COMPLETED — Please finish the Linkvertise offer properly and do not skip steps.");
+            return;
+        }
+        if (res.status === 404) {
+            showError("SESSION EXPIRED — Sessions last 30 minutes. Please start over.");
+            return;
+        }
+        if (!res.ok) {
+            showError(`SERVER ERROR (${res.status}) — Try again shortly.`);
+            return;
+        }
 
-        if (data.key) showSuccess(data.key);
-        else showError(data.error ? data.error.toUpperCase() : "VERIFICATION FAILED — Please try again.");
+        if (data.key) {
+            showSuccess(data.key);
+        } else {
+            showError(data.error ? data.error.toUpperCase() : "VERIFICATION FAILED — Please try again.");
+        }
 
-    } catch {
+    } catch (err) {
+        console.error('[handleVerify]', err);
         showError("CONNECTION LOST — Check your network and try again.");
     }
 }
@@ -803,6 +804,7 @@ function showError(msg) {
 
 function resetPage() {
     keyToCopy = "";
+    sessionStorage.removeItem('rezurx_token');
     spinRow.classList.remove('on');
     errorBox.style.display  = "none";
     keyBox.style.display    = "none";
@@ -835,10 +837,16 @@ function copyKey() {
     const done = () => {
         copyBtn.innerText = "[ ✓ COPIED! ]";
         copyBtn.classList.add('copied');
-        setTimeout(() => { copyBtn.innerText = "[ Click to Copy ]"; copyBtn.classList.remove('copied'); }, 2500);
+        setTimeout(() => {
+            copyBtn.innerText = "[ Click to Copy ]";
+            copyBtn.classList.remove('copied');
+        }, 2500);
     };
-    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(keyToCopy).then(done).catch(() => fallbackCopy(done));
-    else fallbackCopy(done);
+    if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(keyToCopy).then(done).catch(() => fallbackCopy(done));
+    } else {
+        fallbackCopy(done);
+    }
 }
 
 function fallbackCopy(cb) {
@@ -855,9 +863,9 @@ function fallbackCopy(cb) {
    CONFETTI
 ═══════════════════════════════════════════════ */
 function launchConfetti() {
-    const canvas = document.getElementById('confetti-canvas');
-    const ctx    = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
+    const canvas  = document.getElementById('confetti-canvas');
+    const ctx     = canvas.getContext('2d');
+    canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
 
     const pal    = ['#ff8c00','#ffb347','#ffd700','#00ff88','#fff','#ff6644','#ffcc33'];
@@ -888,7 +896,7 @@ function launchConfetti() {
             ctx.fillStyle = ctx.strokeStyle = p.color;
             ctx.translate(p.x, p.y);
             ctx.rotate(p.rot);
-            if      (p.shape==='rect')   ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
+            if      (p.shape==='rect')   { ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2); }
             else if (p.shape==='circle') { ctx.beginPath(); ctx.arc(0,0,p.size/2.5,0,Math.PI*2); ctx.fill(); }
             else { ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(-p.size/2,0); ctx.lineTo(p.size/2,0); ctx.stroke(); }
             ctx.restore();
@@ -901,7 +909,7 @@ function launchConfetti() {
 
 window.addEventListener('resize', () => {
     const c = document.getElementById('confetti-canvas');
-    c.width = window.innerWidth;
+    c.width  = window.innerWidth;
     c.height = window.innerHeight;
 });
 </script>
