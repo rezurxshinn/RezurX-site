@@ -49,7 +49,6 @@
         .gloss { position:fixed; top:0; left:0; right:0; height:50vh; z-index:2; pointer-events:none; background:linear-gradient(180deg,rgba(255,150,50,0.05) 0%,transparent 100%); }
         #confetti-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:999; pointer-events:none; }
 
-        /* ── PANEL ── */
         .panel {
             position:relative; z-index:10;
             background:var(--panel);
@@ -75,7 +74,6 @@
         .c-bl { bottom:-1px; left:-1px;  border-bottom:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:0 0 0 3px; }
         .c-br { bottom:-1px; right:-1px; border-bottom:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 0 3px 0; }
 
-        /* ── LOGO ── */
         .logo-wrap { margin-bottom:30px; position:relative; z-index:2; }
         .logo-eyebrow { font-size:0.52rem; letter-spacing:4px; color:var(--muted); text-transform:uppercase; margin-bottom:10px; }
         h1 {
@@ -89,7 +87,6 @@
         .logo-sub { font-size:0.5rem; letter-spacing:5px; color:var(--muted); text-transform:uppercase; margin-top:9px; }
         .divider { width:100%; height:1px; position:relative; z-index:2; background:linear-gradient(90deg,transparent,rgba(255,140,0,0.22),transparent); margin-bottom:26px; }
 
-        /* ── STATUS ── */
         #status {
             position:relative; z-index:2;
             font-size:0.65rem; letter-spacing:2px; text-transform:uppercase;
@@ -104,14 +101,12 @@
         #status.red   { color:var(--red); }
         #status.red   .sdot { background:var(--red); animation:none; opacity:1; }
 
-        /* ── SPINNER ── */
         .spin-row { display:none; align-items:center; justify-content:center; gap:12px; margin-bottom:18px; position:relative; z-index:2; }
         .spin-row.on { display:flex; }
         .spinner { width:18px; height:18px; border:2px solid rgba(255,140,0,0.12); border-top-color:var(--orange); border-radius:50%; animation:spin 0.75s linear infinite; }
         @keyframes spin { to{transform:rotate(360deg);} }
         .spin-txt { font-size:0.63rem; color:var(--dim); letter-spacing:2px; text-transform:uppercase; }
 
-        /* ── GET KEY BUTTON ── */
         #get-key-btn {
             display:none; position:relative; overflow:hidden; z-index:2;
             background:transparent;
@@ -131,22 +126,6 @@
         #get-key-btn:active:not(:disabled) { transform:scale(0.997); }
         #get-key-btn:disabled { opacity:0.35; cursor:not-allowed; }
 
-        /* ── START OVER BUTTON ── */
-        #start-over-btn {
-            display:none; position:relative; overflow:hidden; z-index:2;
-            background:transparent;
-            border:1px solid rgba(255,140,0,0.35);
-            color:rgba(255,140,0,0.6);
-            font-family:'Orbitron',sans-serif;
-            font-size:0.72rem; font-weight:700;
-            padding:16px 24px; width:100%;
-            cursor:pointer; letter-spacing:3px; text-transform:uppercase;
-            border-radius:3px;
-            transition:color 0.25s, background 0.25s, box-shadow 0.25s;
-        }
-        #start-over-btn:hover { background:rgba(255,140,0,0.07); color:var(--orange); border-color:var(--orange); }
-
-        /* ── KEY BOX ── */
         #key-box {
             display:none; margin-top:18px;
             background:var(--green-soft);
@@ -162,17 +141,14 @@
         #copy-btn:hover  { background:rgba(0,255,136,0.05); color:var(--green); border-color:rgba(0,255,136,0.3); }
         #copy-btn.copied { color:var(--green); background:rgba(0,255,136,0.07); border-color:rgba(0,255,136,0.35); }
 
-        /* ── RESET ── */
         #reset-btn { display:none; margin-top:10px; position:relative; z-index:2; background:transparent; border:1px solid rgba(255,255,255,0.05); color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:0.6rem; letter-spacing:1px; text-transform:uppercase; padding:10px; width:100%; cursor:pointer; border-radius:2px; transition:all 0.2s; }
         #reset-btn:hover { border-color:var(--orange); color:var(--orange); }
 
-        /* ── ERROR ── */
         #error-box { display:none; margin-top:16px; background:var(--red-soft); border:1px solid rgba(255,68,85,0.18); border-radius:4px; padding:16px; position:relative; z-index:2; animation:slideUp 0.3s ease both; }
         #error-msg { font-size:0.66rem; color:var(--red); letter-spacing:0.5px; margin-bottom:12px; line-height:1.6; }
         #try-again-btn { background:transparent; border:1px solid rgba(255,68,85,0.25); color:var(--red); font-family:'JetBrains Mono',monospace; font-size:0.62rem; letter-spacing:1px; text-transform:uppercase; padding:10px; width:100%; cursor:pointer; border-radius:2px; transition:all 0.2s; }
         #try-again-btn:hover { background:rgba(255,68,85,0.05); }
 
-        /* ── FOOTER ── */
         .footer { position:relative; z-index:2; margin-top:26px; display:flex; justify-content:center; align-items:center; gap:10px; }
         .fi { font-size:0.47rem; letter-spacing:1.5px; color:#1c1008; text-transform:uppercase; }
         .fd { width:2px; height:2px; border-radius:50%; background:#1c1008; }
@@ -206,19 +182,18 @@
 
     <div id="status"><span class="sdot"></span><span id="status-txt">Initializing...</span></div>
 
-    <button id="get-key-btn"   onclick="claimKey()">&#9889; Get Access Key</button>
-    <button id="start-over-btn" onclick="goToAd()">&#8617; Complete Ad First</button>
+    <button id="get-key-btn" onclick="claimKey()">⚡ Get Access Key</button>
 
     <div id="key-box">
-        <div class="key-label">&#9656; Access Key Generated</div>
+        <div class="key-label">▸ Access Key Generated</div>
         <div id="key-value"></div>
         <button id="copy-btn" onclick="copyKey()">[ Click to Copy ]</button>
     </div>
-    <button id="reset-btn" onclick="goToAd()">&#8617; Generate Another Key</button>
+    <button id="reset-btn" onclick="location.reload()">↩ Generate Another Key</button>
 
     <div id="error-box">
         <div id="error-msg"></div>
-        <button id="try-again-btn" onclick="handleErrorRetry()">&#8617; Try Again</button>
+        <button id="try-again-btn" onclick="location.reload()">↩ Try Again</button>
     </div>
 
     <div class="footer">
@@ -229,19 +204,14 @@
 </div>
 
 <script>
-/* ══════════════════════════════════════════
-   CONFIG
-══════════════════════════════════════════ */
-const API_BASE        = "https://rezurx-backend.onrender.com";
-const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
+const API_BASE = "https://rezurx-backend.onrender.com";
 
-/* ══════════════════════════════════════════
-   READ URL PARAMS — happens before anything
-   Linkvertise sends back: ?token=X&hash=Y
-══════════════════════════════════════════ */
-const _params    = new URLSearchParams(window.location.search);
-const PAGE_TOKEN = _params.get('token') || sessionStorage.getItem('rezurx_token') || null;
-const PAGE_HASH  = _params.get('hash')  || null;
+let keyToCopy = "";
+
+/* Read return params from Linkvertise ad */
+const params     = new URLSearchParams(window.location.search);
+const PAGE_TOKEN = params.get('token') || sessionStorage.getItem('rezurx_token') || null;
+const PAGE_HASH  = params.get('hash')  || null;
 
 /* Clean URL immediately so refresh can't replay */
 if (PAGE_TOKEN || PAGE_HASH) {
@@ -249,74 +219,39 @@ if (PAGE_TOKEN || PAGE_HASH) {
     if (PAGE_TOKEN) sessionStorage.removeItem('rezurx_token');
 }
 
-/* DOM */
-const statusEl    = document.getElementById('status');
-const statusTxt   = document.getElementById('status-txt');
-const spinRow     = document.getElementById('spin-row');
-const spinTxt     = document.getElementById('spin-txt');
-const getKeyBtn   = document.getElementById('get-key-btn');
-const startOverBtn= document.getElementById('start-over-btn');
-const keyBox      = document.getElementById('key-box');
-const keyValue    = document.getElementById('key-value');
-const copyBtn     = document.getElementById('copy-btn');
-const resetBtn    = document.getElementById('reset-btn');
-const errorBox    = document.getElementById('error-box');
-const errorMsg    = document.getElementById('error-msg');
-
-let keyToCopy       = "";
-let lastErrorWasUsed = false; // tracks if error was "already used"
+/* DOM refs */
+const statusEl  = document.getElementById('status');
+const statusTxt = document.getElementById('status-txt');
+const spinRow   = document.getElementById('spin-row');
+const spinTxt   = document.getElementById('spin-txt');
+const getKeyBtn = document.getElementById('get-key-btn');
+const keyBox    = document.getElementById('key-box');
+const keyValue  = document.getElementById('key-value');
+const copyBtn   = document.getElementById('copy-btn');
+const resetBtn  = document.getElementById('reset-btn');
+const errorBox  = document.getElementById('error-box');
+const errorMsg  = document.getElementById('error-msg');
 
 /* ══════════════════════════════════════════
-   INSTANT PAGE LOAD ROUTING
-   No API call here — zero cold-start delay.
-   We decide purely from URL params.
+   PAGE LOAD ROUTING
+   Only show the claim button if both token
+   and hash are present (user completed ad).
+   Otherwise, tell the user to do the ad.
 ══════════════════════════════════════════ */
-(function route() {
+window.onload = function () {
     if (PAGE_HASH && PAGE_TOKEN) {
-        /* ✅ Returned from ad — show claim button immediately */
         setStatus("Ad verified — claim your key below", "default");
         getKeyBtn.style.display = "block";
-
-    } else if (PAGE_HASH && !PAGE_TOKEN) {
-        /* Token got lost mid-session (tab closed, cleared storage) */
-        showError(
-            "SESSION LOST\n\nYour session token expired. Please complete the ad again.",
-            true /* showStartOver */
-        );
-
     } else {
-        /* Fresh visit — no ad done yet, send them to Linkvertise */
-        setStatus("Redirecting to verification...", "default");
-        goToAd();
+        setStatus("Complete the Linkvertise ad first", "default");
+        // Optionally show a helpful message in the error box
+        errorMsg.innerText = "You need to finish the Linkvertise advertisement before you can claim a key.";
+        errorBox.style.display = "block";
     }
-})();
-
-/* ══════════════════════════════════════════
-   GO TO AD
-   Saves a random client-side token, then
-   redirects. Token stored in sessionStorage
-   so it survives the Linkvertise round trip.
-══════════════════════════════════════════ */
-function goToAd() {
-    hideAll();
-    /* Generate a lightweight local token — no backend needed */
-    const token = btoa(Date.now() + ':' + Math.random().toString(36).slice(2));
-    sessionStorage.setItem('rezurx_token', token);
-    setStatus("Redirecting to verification...", "default");
-
-    /* Small delay so the status text is visible before redirect */
-    setTimeout(() => {
-        const returnURL = encodeURIComponent(
-            window.location.origin + window.location.pathname + '?token=' + token
-        );
-        window.location.href = LINKVERTISE_URL + '/' + returnURL;
-    }, 400);
-}
+};
 
 /* ══════════════════════════════════════════
    CLAIM KEY
-   Only called after ad is done and we have
-   both a token and a hash from the URL.
 ══════════════════════════════════════════ */
 async function claimKey() {
     getKeyBtn.disabled = true;
@@ -338,50 +273,32 @@ async function claimKey() {
 
         spinRow.classList.remove('on');
 
-        /* Handle every known status code explicitly */
         if (res.status === 400) {
-            /* Token already used — offer to get a fresh one, don't just dead-end */
-            lastErrorWasUsed = true;
-            showError(
-                "KEY ALREADY CLAIMED\n\nThis session was already used to generate a key. Complete the ad again to get a new one.",
-                true /* showStartOver */
-            );
+            showError("KEY ALREADY CLAIMED\n\nThis session was already used to generate a key. Complete the ad again.");
             return;
         }
         if (res.status === 403) {
-            showError(
-                "AD NOT COMPLETED\n\nPlease finish all steps of the Linkvertise offer before claiming your key.",
-                true
-            );
+            showError("AD NOT COMPLETED\n\nPlease finish all steps of the Linkvertise offer before claiming your key.");
             return;
         }
         if (res.status === 404) {
-            showError(
-                "SESSION EXPIRED\n\nSessions are valid for 30 minutes. Please complete the ad again.",
-                true
-            );
+            showError("SESSION EXPIRED\n\nSessions are valid for 30 minutes. Please complete the ad again.");
             return;
         }
         if (res.status === 429) {
-            showError(
-                "TOO MANY REQUESTS\n\nPlease wait a minute before trying again.",
-                false
-            );
+            showError("TOO MANY REQUESTS\n\nPlease wait a minute before trying again.");
             getKeyBtn.disabled = false;
             return;
         }
         if (!res.ok) {
-            showError(
-                `SERVER ERROR (${res.status})\n\nThe key server returned an unexpected error. Please try again in a moment.`,
-                false
-            );
+            showError(`SERVER ERROR (${res.status})\n\nThe key server returned an unexpected error. Please try again.`);
             getKeyBtn.disabled = false;
             return;
         }
 
         let data;
         try { data = await res.json(); } catch {
-            showError("INVALID RESPONSE\n\nThe server returned an unreadable response. Please try again.", false);
+            showError("INVALID RESPONSE\n\nThe server returned an unreadable response. Please try again.");
             getKeyBtn.disabled = false;
             return;
         }
@@ -389,78 +306,42 @@ async function claimKey() {
         if (data.key) {
             showSuccess(data.key);
         } else {
-            showError(
-                (data.error ? data.error.toUpperCase() : "VERIFICATION FAILED") +
-                "\n\nCould not generate a key. Please try again.",
-                false
-            );
+            showError((data.error || "Verification failed") + "\n\nCould not generate a key. Please try again.");
             getKeyBtn.disabled = false;
         }
-
     } catch (err) {
-        /* Network failure / fetch rejected */
         spinRow.classList.remove('on');
-        showError(
-            "CONNECTION LOST\n\nCould not reach the key server. Check your network and try again.",
-            false
-        );
+        showError("CONNECTION LOST\n\nCould not reach the key server. Check your network and try again.");
         getKeyBtn.disabled = false;
-    }
-}
-
-/* ══════════════════════════════════════════
-   ERROR RETRY HANDLER
-   Decides whether to retry claim or restart
-══════════════════════════════════════════ */
-function handleErrorRetry() {
-    hideAll();
-    if (lastErrorWasUsed) {
-        goToAd();
-    } else {
-        /* Re-show the claim button so they can retry without leaving */
-        lastErrorWasUsed = false;
-        setStatus("Ad verified — claim your key below", "default");
-        getKeyBtn.style.display = "block";
-        getKeyBtn.disabled      = false;
     }
 }
 
 /* ══════════════════════════════════════════
    UI HELPERS
 ══════════════════════════════════════════ */
-function hideAll() {
-    spinRow.classList.remove('on');
-    getKeyBtn.style.display    = "none";
-    startOverBtn.style.display = "none";
-    keyBox.style.display       = "none";
-    resetBtn.style.display     = "none";
-    errorBox.style.display     = "none";
-}
-
 function showSuccess(key) {
     keyToCopy = key;
-    hideAll();
+    spinRow.classList.remove('on');
     setStatus("ACCESS GRANTED", "green");
-    keyValue.innerText     = key;
-    keyBox.style.display   = "block";
-    resetBtn.style.display = "block";
+    getKeyBtn.style.display = "none";
+    errorBox.style.display = "none";
+    keyValue.innerText      = key;
+    keyBox.style.display    = "block";
+    resetBtn.style.display  = "block";
     launchConfetti();
 }
 
-function showError(msg, showStartOver) {
-    hideAll();
+function showError(msg) {
+    spinRow.classList.remove('on');
     setStatus("SYSTEM: ERROR", "red");
-    /* Replace \n\n with a line break for display */
-    errorMsg.innerHTML = msg.replace(/\n\n/g, '<br><br>');
+    getKeyBtn.style.display = "none";
+    errorMsg.innerText = msg;
     errorBox.style.display = "block";
-    if (showStartOver) {
-        startOverBtn.style.display = "block";
-    }
 }
 
 function setStatus(msg, type) {
     statusTxt.innerText = msg;
-    statusEl.className  = type === "green" ? "green" : type === "red" ? "red" : "";
+    statusEl.className  = (type === "green") ? "green" : (type === "red") ? "red" : "";
 }
 
 /* ══════════════════════════════════════════
@@ -469,7 +350,7 @@ function setStatus(msg, type) {
 function copyKey() {
     if (!keyToCopy) return;
     const done = () => {
-        copyBtn.innerText = "[ \u2713 COPIED! ]";
+        copyBtn.innerText = "[ ✓ COPIED! ]";
         copyBtn.classList.add('copied');
         setTimeout(() => { copyBtn.innerText = "[ Click to Copy ]"; copyBtn.classList.remove('copied'); }, 2500);
     };
