@@ -7,297 +7,196 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --orange:      #ff8c00;
-            --orange-glow: rgba(255,140,0,0.45);
-            --green:       #00ff88;
-            --green-glow:  rgba(0,255,136,0.3);
-            --green-soft:  rgba(0,255,136,0.07);
-            --red:         #ff4455;
-            --red-soft:    rgba(255,68,85,0.08);
-            --bg:          #0a0200;
-            --panel:       rgba(10,4,0,0.93);
-            --muted:       #3a3028;
-            --dim:         #6a5848;
+            --orange: #ff8c00; --orange-glow: rgba(255,140,0,0.45);
+            --green: #00ff88; --green-glow: rgba(0,255,136,0.3); --green-soft: rgba(0,255,136,0.07);
+            --red: #ff4455; --red-soft: rgba(255,68,85,0.08);
+            --bg: #0a0200; --panel: rgba(10,4,0,0.93); --muted: #3a3028; --dim: #6a5848;
         }
-        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
         html, body { height:100%; }
         body {
-            background: var(--bg);
-            color: #fff;
-            font-family: 'JetBrains Mono', monospace;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
-            position: relative;
+            background:var(--bg); color:#fff; font-family:'JetBrains Mono',monospace;
+            display:flex; flex-direction:column; justify-content:center; align-items:center;
+            min-height:100vh; overflow:hidden; position:relative;
         }
-
         #lava-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
         .atmos {
             position:fixed; inset:0; z-index:1; pointer-events:none;
-            background:
-                radial-gradient(ellipse 90% 50% at 50% 0%,   rgba(255,90,0,0.20) 0%, transparent 65%),
-                radial-gradient(ellipse 70% 40% at 50% 100%, rgba(255,50,0,0.12) 0%, transparent 70%),
-                radial-gradient(ellipse 100% 100% at 50% 50%, transparent 35%, rgba(0,0,0,0.72) 100%);
+            background:radial-gradient(ellipse 90% 50% at 50% 0%, rgba(255,90,0,0.20) 0%, transparent 65%),
+                       radial-gradient(ellipse 100% 100% at 50% 50%, transparent 35%, rgba(0,0,0,0.72) 100%);
         }
         .scanlines {
             position:fixed; inset:0; z-index:2; pointer-events:none;
-            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.045) 3px, rgba(0,0,0,0.045) 4px);
+            background:repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.045) 3px, rgba(0,0,0,0.045) 4px);
         }
-        .gloss { position:fixed; top:0; left:0; right:0; height:50vh; z-index:2; pointer-events:none; background:linear-gradient(180deg,rgba(255,150,50,0.05) 0%,transparent 100%); }
         #confetti-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:999; pointer-events:none; }
 
         .panel {
-            position:relative; z-index:10;
-            background:var(--panel);
-            border:1px solid rgba(255,140,0,0.22);
-            border-radius:6px;
-            padding:42px 38px 34px;
-            width:92%; max-width:500px;
-            text-align:center;
-            box-shadow:
-                0 0 0 1px rgba(0,0,0,0.9),
-                0 8px 40px rgba(0,0,0,0.85),
-                0 0 100px rgba(255,80,0,0.10),
-                inset 0 1px 0 rgba(255,180,80,0.09),
-                inset 0 -1px 0 rgba(0,0,0,0.5);
+            position:relative; z-index:10; background:var(--panel);
+            border:1px solid rgba(255,140,0,0.22); border-radius:6px;
+            padding:42px 38px 34px; width:92%; max-width:480px; text-align:center;
+            box-shadow:0 0 0 1px rgba(0,0,0,0.9), 0 8px 40px rgba(0,0,0,0.85),
+                       0 0 100px rgba(255,80,0,0.10), inset 0 1px 0 rgba(255,180,80,0.09);
             backdrop-filter:blur(3px);
             animation:panelIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
         }
         @keyframes panelIn { from{opacity:0;transform:translateY(18px) scale(0.97);} to{opacity:1;transform:none;} }
-        .panel-gloss { position:absolute; top:0; left:0; right:0; height:48%; border-radius:6px 6px 0 0; pointer-events:none; background:linear-gradient(180deg,rgba(255,160,80,0.055) 0%,transparent 100%); z-index:1; }
+
         .c { position:absolute; width:14px; height:14px; }
-        .c-tl { top:-1px;    left:-1px;  border-top:2px solid var(--orange); border-left:2px solid var(--orange);   border-radius:3px 0 0 0; }
-        .c-tr { top:-1px;    right:-1px; border-top:2px solid var(--orange); border-right:2px solid var(--orange);  border-radius:0 3px 0 0; }
+        .c-tl { top:-1px; left:-1px;  border-top:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:3px 0 0 0; }
+        .c-tr { top:-1px; right:-1px; border-top:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 3px 0 0; }
         .c-bl { bottom:-1px; left:-1px;  border-bottom:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:0 0 0 3px; }
         .c-br { bottom:-1px; right:-1px; border-bottom:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 0 3px 0; }
 
-        .logo-wrap { margin-bottom:30px; position:relative; z-index:2; }
         .logo-eyebrow { font-size:0.52rem; letter-spacing:4px; color:var(--muted); text-transform:uppercase; margin-bottom:10px; }
         h1 {
-            font-family:'Orbitron',sans-serif;
-            font-size:1.75rem; font-weight:900; letter-spacing:5px;
+            font-family:'Orbitron',sans-serif; font-size:1.75rem; font-weight:900; letter-spacing:5px;
             background:linear-gradient(180deg,#ffd080 0%,#ff9c20 35%,#ff6600 70%,#cc4400 100%);
             -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-            filter:drop-shadow(0 0 20px rgba(255,140,0,0.55));
-            line-height:1.1;
+            filter:drop-shadow(0 0 20px rgba(255,140,0,0.55)); line-height:1.1;
         }
-        .logo-sub { font-size:0.5rem; letter-spacing:5px; color:var(--muted); text-transform:uppercase; margin-top:9px; }
-        .divider { width:100%; height:1px; position:relative; z-index:2; background:linear-gradient(90deg,transparent,rgba(255,140,0,0.22),transparent); margin-bottom:26px; }
+        .logo-sub { font-size:0.5rem; letter-spacing:5px; color:var(--muted); text-transform:uppercase; margin-top:9px; margin-bottom:28px; }
+        .divider { width:100%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,140,0,0.22),transparent); margin-bottom:22px; }
 
-        /* ── Step indicator ── */
-        .steps { display:flex; align-items:center; justify-content:center; gap:0; margin-bottom:26px; position:relative; z-index:2; }
-        .step { display:flex; flex-direction:column; align-items:center; gap:5px; }
-        .step-num { width:26px; height:26px; border-radius:50%; border:1px solid var(--muted); color:var(--dim); font-size:0.6rem; display:flex; align-items:center; justify-content:center; transition:all 0.3s; }
-        .step-lbl { font-size:0.42rem; letter-spacing:1.5px; color:var(--muted); text-transform:uppercase; white-space:nowrap; }
-        .step.active .step-num { border-color:var(--orange); color:var(--orange); box-shadow:0 0 10px var(--orange-glow); }
-        .step.active .step-lbl { color:var(--dim); }
-        .step.done .step-num { border-color:var(--green); color:var(--green); background:rgba(0,255,136,0.07); }
-        .step-line { width:40px; height:1px; background:var(--muted); margin:0 6px; margin-bottom:16px; transition:background 0.3s; }
-        .step-line.done { background:var(--orange); }
+        /* Warmup bar */
+        #warmup-wrap {
+            display:none; margin-bottom:16px; background:rgba(255,140,0,0.04);
+            border:1px solid rgba(255,140,0,0.12); border-radius:3px; padding:10px 14px;
+        }
+        #warmup-wrap.visible { display:block; }
+        .wh { display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; }
+        .wl { font-size:0.55rem; letter-spacing:2px; color:var(--orange); opacity:.7; text-transform:uppercase; }
+        #wpct { font-size:0.55rem; color:var(--orange); opacity:.5; letter-spacing:1px; }
+        .wt { width:100%; height:2px; background:rgba(255,140,0,0.1); border-radius:2px; overflow:hidden; }
+        #wf {
+            height:100%; width:0%;
+            background:linear-gradient(90deg,#cc7000,var(--orange));
+            border-radius:2px; transition:width .4s ease; box-shadow:0 0 8px var(--orange-glow);
+        }
+        #wm { font-size:0.52rem; color:var(--dim); letter-spacing:1px; margin-top:6px; text-align:right; transition:color .3s; }
+        #wm.ok { color:rgba(0,255,136,0.5); }
 
-        /* ── Link display area ── */
-        #link-section { position:relative; z-index:2; margin-bottom:20px; }
-        .link-label { font-size:0.52rem; letter-spacing:3px; color:var(--dim); text-transform:uppercase; margin-bottom:10px; }
-        #scrambled-display {
-            background:rgba(255,140,0,0.04);
-            border:1px solid rgba(255,140,0,0.15);
-            border-radius:4px;
-            padding:14px 16px;
-            font-size:0.62rem;
-            color:rgba(255,140,0,0.55);
-            letter-spacing:1px;
-            word-break:break-all;
-            line-height:1.7;
-            user-select:none;
-            -webkit-user-select:none;
-            position:relative;
-            overflow:hidden;
-            cursor:default;
+        /* Spinner */
+        .spin-wrap { display:none; align-items:center; justify-content:center; gap:12px; margin-bottom:16px; }
+        .spin-wrap.active { display:flex; }
+        .spinner {
+            width:18px; height:18px; border:2px solid rgba(255,140,0,0.15);
+            border-top-color:var(--orange); border-radius:50%;
+            animation:spin .8s linear infinite; flex-shrink:0;
         }
-        /* Overlay blocks copy attempts visually */
-        #scrambled-display::after {
-            content:"";
-            position:absolute;
-            inset:0;
-            background:repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 4px,
-                rgba(255,80,0,0.03) 4px,
-                rgba(255,80,0,0.03) 5px
-            );
-            pointer-events:none;
-        }
-        .link-note { font-size:0.48rem; color:var(--muted); letter-spacing:1px; margin-top:8px; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .spin-txt { font-size:0.65rem; color:var(--dim); letter-spacing:2px; text-transform:uppercase; }
 
-        #goto-btn {
-            position:relative; overflow:hidden; z-index:2;
-            background:transparent;
-            border:1px solid var(--orange);
-            color:var(--orange);
-            font-family:'Orbitron',sans-serif;
-            font-size:0.78rem; font-weight:700;
-            padding:18px 24px; width:100%;
-            cursor:pointer; letter-spacing:3px; text-transform:uppercase;
-            border-radius:3px;
-            transition:color 0.25s, background 0.25s, box-shadow 0.25s;
-            margin-bottom:0;
+        /* Get Key button */
+        #open-btn {
+            position:relative; overflow:hidden; background:transparent;
+            border:1px solid var(--orange); color:var(--orange);
+            font-family:'Orbitron',sans-serif; font-size:0.75rem; font-weight:700;
+            padding:17px 24px; width:100%; cursor:pointer;
+            letter-spacing:3px; text-transform:uppercase; border-radius:3px;
+            transition:color .25s, background .25s, box-shadow .25s;
         }
-        #goto-btn::before { content:""; position:absolute; inset:0; background:linear-gradient(135deg,transparent 30%,rgba(255,180,80,0.06)); pointer-events:none; }
-        #goto-btn::after  { content:""; position:absolute; top:0; left:-120%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent); animation:shimmer 2.8s ease-in-out infinite; }
+        #open-btn::after {
+            content:""; position:absolute; top:0; left:-120%; width:60%; height:100%;
+            background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);
+            animation:shimmer 2.8s ease-in-out infinite;
+        }
         @keyframes shimmer { 0%{left:-120%} 55%,100%{left:160%} }
-        #goto-btn:hover { background:var(--orange); color:#000; box-shadow:0 0 30px var(--orange-glow), 0 4px 24px rgba(0,0,0,0.5); }
-        #goto-btn:active { transform:scale(0.997); }
+        #open-btn:hover:not(:disabled) { background:var(--orange); color:#000; box-shadow:0 0 30px var(--orange-glow); }
+        #open-btn:active:not(:disabled) { transform:scale(0.997); }
+        #open-btn:disabled { opacity:0.4; cursor:not-allowed; }
 
-        /* ── Key input section ── */
-        #key-input-section { display:none; position:relative; z-index:2; }
-        .ki-label { font-size:0.52rem; letter-spacing:3px; color:var(--dim); text-transform:uppercase; margin-bottom:10px; }
-        #key-input {
-            width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,140,0,0.18);
-            border-radius:3px; padding:14px 16px; color:#fff;
-            font-family:'JetBrains Mono',monospace; font-size:0.78rem; letter-spacing:2px;
-            outline:none; margin-bottom:12px; transition:border-color 0.2s;
-        }
-        #key-input:focus { border-color:var(--orange); box-shadow:0 0 0 2px rgba(255,140,0,0.08); }
-        #key-input::placeholder { color:var(--muted); }
-        #validate-btn {
-            position:relative; overflow:hidden;
-            background:transparent; border:1px solid var(--orange); color:var(--orange);
-            font-family:'Orbitron',sans-serif; font-size:0.72rem; font-weight:700;
-            padding:15px 24px; width:100%; cursor:pointer; letter-spacing:3px; text-transform:uppercase;
-            border-radius:3px; transition:color 0.25s, background 0.25s, box-shadow 0.25s;
-        }
-        #validate-btn:hover { background:var(--orange); color:#000; box-shadow:0 0 30px var(--orange-glow); }
-        #validate-btn:disabled { opacity:0.35; cursor:not-allowed; }
-
-        /* ── Status / spinner ── */
-        #status {
-            position:relative; z-index:2;
-            font-size:0.65rem; letter-spacing:2px; text-transform:uppercase;
-            color:var(--dim); margin-bottom:20px;
-            display:flex; align-items:center; justify-content:center; gap:8px;
-            min-height:1.1em; transition:color 0.3s;
-        }
-        .sdot { width:5px; height:5px; border-radius:50%; background:var(--muted); flex-shrink:0; animation:sdot 2s ease-in-out infinite; }
-        @keyframes sdot { 0%,100%{opacity:1} 50%{opacity:0.25} }
-        #status.green { color:var(--green); }
-        #status.green .sdot { background:var(--green); box-shadow:0 0 6px var(--green); }
-        #status.red   { color:var(--red); }
-        #status.red   .sdot { background:var(--red); animation:none; opacity:1; }
-
-        .spin-row { display:none; align-items:center; justify-content:center; gap:12px; margin-bottom:18px; position:relative; z-index:2; }
-        .spin-row.on { display:flex; }
-        .spinner { width:18px; height:18px; border:2px solid rgba(255,140,0,0.12); border-top-color:var(--orange); border-radius:50%; animation:spin 0.75s linear infinite; }
-        @keyframes spin { to{transform:rotate(360deg);} }
-        .spin-txt { font-size:0.63rem; color:var(--dim); letter-spacing:2px; text-transform:uppercase; }
-
-        /* ── Key result box ── */
-        #key-result-box {
-            display:none; margin-top:18px;
-            background:var(--green-soft);
-            border:1px solid rgba(0,255,136,0.18);
-            border-radius:4px; padding:20px 16px 16px;
-            position:relative; z-index:2;
+        /* Key box */
+        #key-box {
+            display:none; margin-top:20px; background:var(--green-soft);
+            border:1px solid rgba(0,255,136,0.18); border-radius:4px;
+            padding:20px 16px 16px;
             animation:slideUp 0.45s cubic-bezier(0.22,1,0.36,1) both;
         }
-        @keyframes slideUp { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:none;} }
-        .key-label { font-size:0.52rem; letter-spacing:3px; color:rgba(0,255,136,0.35); text-transform:uppercase; margin-bottom:12px; }
-        #key-value { font-family:'Orbitron',sans-serif; font-size:1.0rem; font-weight:700; letter-spacing:2px; color:var(--green); word-break:break-all; text-shadow:0 0 14px var(--green-glow); margin-bottom:14px; user-select:all; }
-        #copy-btn { background:transparent; border:1px solid rgba(0,255,136,0.18); color:rgba(0,255,136,0.45); font-family:'JetBrains Mono',monospace; font-size:0.62rem; letter-spacing:2px; text-transform:uppercase; padding:10px; width:100%; cursor:pointer; border-radius:2px; transition:all 0.2s; }
-        #copy-btn:hover  { background:rgba(0,255,136,0.05); color:var(--green); border-color:rgba(0,255,136,0.3); }
-        #copy-btn.copied { color:var(--green); background:rgba(0,255,136,0.07); border-color:rgba(0,255,136,0.35); }
+        @keyframes slideUp { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:none;} }
+        .key-label { font-size:0.5rem; letter-spacing:3px; color:rgba(0,255,136,0.35); text-transform:uppercase; margin-bottom:12px; }
+        #key-value {
+            font-family:'Orbitron',sans-serif; font-size:1.05rem; font-weight:700; letter-spacing:3px;
+            color:var(--green); word-break:break-all; text-shadow:0 0 14px var(--green-glow);
+            margin-bottom:14px; user-select:all;
+        }
+        #copy-btn {
+            background:transparent; border:1px solid rgba(0,255,136,0.2);
+            color:rgba(0,255,136,0.5); font-family:'JetBrains Mono',monospace;
+            font-size:0.62rem; letter-spacing:2px; text-transform:uppercase;
+            padding:10px; width:100%; cursor:pointer; border-radius:2px; transition:all .2s;
+        }
+        #copy-btn:hover { background:rgba(0,255,136,0.05); color:var(--green); border-color:rgba(0,255,136,0.35); }
+        #copy-btn.copied { color:var(--green); background:rgba(0,255,136,0.08); border-color:rgba(0,255,136,0.4); }
 
-        #error-box { display:none; margin-top:16px; background:var(--red-soft); border:1px solid rgba(255,68,85,0.18); border-radius:4px; padding:16px; position:relative; z-index:2; animation:slideUp 0.3s ease both; }
-        #error-msg { font-size:0.66rem; color:var(--red); letter-spacing:0.5px; margin-bottom:12px; line-height:1.6; }
-        #try-again-btn { background:transparent; border:1px solid rgba(255,68,85,0.25); color:var(--red); font-family:'JetBrains Mono',monospace; font-size:0.62rem; letter-spacing:1px; text-transform:uppercase; padding:10px; width:100%; cursor:pointer; border-radius:2px; transition:all 0.2s; }
-        #try-again-btn:hover { background:rgba(255,68,85,0.05); }
+        #redirect-notice {
+            display:none; margin-top:10px; font-size:0.55rem;
+            color:rgba(0,255,136,0.4); letter-spacing:1px; text-align:center;
+        }
 
-        .footer { position:relative; z-index:2; margin-top:26px; display:flex; justify-content:center; align-items:center; gap:10px; }
-        .fi { font-size:0.47rem; letter-spacing:1.5px; color:#1c1008; text-transform:uppercase; }
-        .fd { width:2px; height:2px; border-radius:50%; background:#1c1008; }
+        /* Error */
+        #error-box {
+            display:none; margin-top:14px; background:var(--red-soft);
+            border:1px solid rgba(255,68,85,0.2); border-radius:4px;
+            padding:14px; animation:slideUp .3s ease both;
+        }
+        #error-msg { font-size:0.65rem; color:var(--red); letter-spacing:.5px; margin-bottom:10px; line-height:1.5; }
+        #retry-btn {
+            background:transparent; border:1px solid rgba(255,68,85,0.3); color:var(--red);
+            font-family:'JetBrains Mono',monospace; font-size:0.62rem; padding:9px; width:100%;
+            cursor:pointer; letter-spacing:1px; border-radius:2px; transition:all .2s; text-transform:uppercase;
+        }
+        #retry-btn:hover { background:rgba(255,68,85,0.06); }
 
-        /* Disable text selection on scrambled link */
-        .noselect { -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none; }
+        .footer { margin-top:24px; display:flex; justify-content:center; align-items:center; gap:10px; }
+        .fi { font-size:0.45rem; letter-spacing:1.5px; color:#1a0e06; text-transform:uppercase; }
+        .fd { width:2px; height:2px; border-radius:50%; background:#1a0e06; }
     </style>
 </head>
 <body>
-
 <canvas id="lava-canvas"></canvas>
 <div class="atmos"></div>
 <div class="scanlines"></div>
-<div class="gloss"></div>
 <canvas id="confetti-canvas"></canvas>
 
 <div class="panel">
-    <div class="panel-gloss"></div>
     <div class="c c-tl"></div><div class="c c-tr"></div>
     <div class="c c-bl"></div><div class="c c-br"></div>
 
-    <div class="logo-wrap">
-        <div class="logo-eyebrow">Access Portal</div>
-        <h1>REZURXLAB</h1>
-        <div class="logo-sub">Key Generation System</div>
-    </div>
-
+    <div class="logo-eyebrow">Access Portal</div>
+    <h1>REZURXLAB</h1>
+    <div class="logo-sub">Key Generation System</div>
     <div class="divider"></div>
 
-    <!-- Step indicators -->
-    <div class="steps">
-        <div class="step active" id="step1">
-            <div class="step-num">1</div>
-            <div class="step-lbl">Get Link</div>
-        </div>
-        <div class="step-line" id="line1"></div>
-        <div class="step active" id="step2">
-            <div class="step-num">2</div>
-            <div class="step-lbl">Complete Ad</div>
-        </div>
-        <div class="step-line" id="line2"></div>
-        <div class="step" id="step3">
-            <div class="step-num">3</div>
-            <div class="step-lbl">Enter Key</div>
-        </div>
+    <!-- Server warmup progress -->
+    <div id="warmup-wrap" class="visible">
+        <div class="wh"><span class="wl">⚙ Waking Server</span><span id="wpct">0%</span></div>
+        <div class="wt"><div id="wf"></div></div>
+        <div id="wm">Render cold-start — please wait...</div>
     </div>
 
-    <!-- Phase 1: Show scrambled link + button -->
-    <div id="phase-link">
-        <div id="link-section">
-            <div class="link-label">▸ Your Unique Access Link</div>
-            <div id="scrambled-display" class="noselect" oncopy="return false" oncut="return false"></div>
-            <div class="link-note">⚠ This link is unique to your session. Do not share it.</div>
-        </div>
-
-        <div style="margin-top:18px;">
-            <button id="goto-btn" onclick="openLink()">⚡ Open Link &amp; Complete Ad</button>
-        </div>
+    <!-- Loading spinner -->
+    <div class="spin-wrap" id="spin-wrap">
+        <div class="spinner"></div>
+        <div class="spin-txt" id="spin-txt">Processing...</div>
     </div>
 
-    <!-- Phase 2: Key entry (shown after returning from ad) -->
-    <div id="key-input-section">
-        <div id="status"><span class="sdot"></span><span id="status-txt">Enter the key you received</span></div>
+    <!-- Main button -->
+    <button id="open-btn" disabled>⚡ Get My Key</button>
 
-        <div class="spin-row" id="spin-row">
-            <div class="spinner"></div>
-            <div class="spin-txt">Verifying key...</div>
-        </div>
+    <!-- Key revealed -->
+    <div id="key-box">
+        <div class="key-label">▸ Access Key</div>
+        <div id="key-value"></div>
+        <button id="copy-btn">[ Copy Key ]</button>
+    </div>
 
-        <div class="ki-label">▸ Paste Your Key</div>
-        <input id="key-input" type="text" placeholder="RXLAB-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false" />
-        <button id="validate-btn" onclick="validateKey()">✔ Validate Key</button>
+    <div id="redirect-notice"></div>
 
-        <div id="key-result-box">
-            <div class="key-label">▸ Key Verified — Access Granted</div>
-            <div id="key-value"></div>
-            <button id="copy-btn" onclick="copyKey()">[ Click to Copy ]</button>
-        </div>
-
-        <div id="error-box">
-            <div id="error-msg"></div>
-            <button id="try-again-btn" onclick="resetAll()">↩ Try Again</button>
-        </div>
+    <!-- Error state -->
+    <div id="error-box">
+        <div id="error-msg"></div>
+        <button id="retry-btn">↩ Try Again</button>
     </div>
 
     <div class="footer">
@@ -308,301 +207,331 @@
 </div>
 
 <script>
-// ─────────────────────────────────────────────────────────────────────────────
-//  OBFUSCATED CONFIG
-//  The real Linkvertise URL is stored XOR-encoded. Key = 0x3F.
-//  To re-encode your own URL, run in console:
-//    btoa([...url].map(c=>String.fromCharCode(c.charCodeAt(0)^0x3F)).join(''))
-// ─────────────────────────────────────────────────────────────────────────────
-(function(){
-    function _x(b64,k){const r=atob(b64);let o='';for(let i=0;i<r.length;i++)o+=String.fromCharCode(r.charCodeAt(i)^k);return o;}
-    // Encoded: "https://linkvertise.com/YOUR_ID/rezurxlab" XOR 0x3F
-    // ⚠ REPLACE the string below with YOUR encoded Linkvertise URL
-    // This placeholder decodes to: https://linkvertise.com/000000/rezurxlab
-    const _lv = "WVNZWF1dXF9aXlxbXVtbWlhYWlhYWlhYV1pZWFtVXltcXVtZXVtZWFpZWFtbWlhY";
-    // Encoded backend base URL XOR 0x3F
-    // ⚠ REPLACE with YOUR encoded backend URL
-    const _be = "WVNZWF1RXlFYXFhYVF9dWFxcXFRYXVJRXlFYXFhUXVxZXFhYWFRdWFhY";
-    window.__LV = _x(_lv, 0x3F);
-    window.__BE = _x(_be, 0x3F);
-})();
+// ── CONFIG ────────────────────────────────────────────────────
+const API_BASE        = "https://rezurx-backend.onrender.com";
+const LINKVERTISE_URL = "https://linkvertise.com/5011888/rezurxlab";
+const DASHBOARD_URL   = API_BASE + "/dashboard";
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  SESSION TOKEN
-//  A unique token is generated each page load and appended to the Linkvertise
-//  URL as ?token=... so the backend can match sessions.
-//  The displayed link is scrambled so users can't just copy it.
-// ─────────────────────────────────────────────────────────────────────────────
-const SESSION_TOKEN = (()=>{
-    const arr = new Uint8Array(16);
-    crypto.getRandomValues(arr);
-    return [...arr].map(b=>b.toString(16).padStart(2,'0')).join('');
-})();
+const POLL_INTERVAL   = 4000;   // ms between /health pings
+const POLL_MAX        = 22;     // 22 × 4s ≈ 90s (Render free-tier cold-start)
+const FETCH_TIMEOUT   = 8000;   // per-request abort timeout
+const SESSION_RETRIES = 3;      // retry /initiate-session up to 3×
 
-const REAL_LINK = window.__LV + '?token=' + SESSION_TOKEN;
+// ── DOM ───────────────────────────────────────────────────────
+const openBtn      = document.getElementById('open-btn');
+const spinWrap     = document.getElementById('spin-wrap');
+const spinTxt      = document.getElementById('spin-txt');
+const keyBox       = document.getElementById('key-box');
+const keyValue     = document.getElementById('key-value');
+const copyBtn      = document.getElementById('copy-btn');
+const errorBox     = document.getElementById('error-box');
+const errorMsg     = document.getElementById('error-msg');
+const retryBtn     = document.getElementById('retry-btn');
+const redirectNote = document.getElementById('redirect-notice');
+const warmupWrap   = document.getElementById('warmup-wrap');
+const wf           = document.getElementById('wf');
+const wpct         = document.getElementById('wpct');
+const wm           = document.getElementById('wm');
 
-// Build a visually scrambled display of the link — NOT the real URL
-// It looks like a real link but has zero-width chars and unicode lookalikes injected
-function buildScrambledDisplay(url) {
-    const ZW = ['\u200B','\u200C','\u200D','\uFEFF']; // zero-width invisible chars
-    const LOOKALIKES = {
-        'a':'\u0430','e':'\u0435','o':'\u043E','p':'\u0440','c':'\u0441',
-        'i':'\u0456','x':'\u0445','s':'\u0455','h':'\u04BB','k':'\u043A'
-    };
-    let out = '';
-    for (let i = 0; i < url.length; i++) {
-        const ch = url[i];
-        // Inject invisible zero-width chars randomly between characters
-        if (i > 0 && Math.random() < 0.35) {
-            out += ZW[Math.floor(Math.random()*ZW.length)];
-        }
-        // Randomly replace some letters with unicode lookalikes
-        if (LOOKALIKES[ch] && Math.random() < 0.4) {
-            out += LOOKALIKES[ch];
-        } else {
-            out += ch;
+let currentKey  = '';
+let serverReady = false;
+let warmupAbort = false;
+
+// ── HELPERS ───────────────────────────────────────────────────
+function fetchT(url, opts, ms) {
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), ms);
+    return fetch(url, { ...opts, signal: ctrl.signal, mode: 'cors', credentials: 'omit' })
+        .finally(() => clearTimeout(tid));
+}
+const delay = ms => new Promise(r => setTimeout(r, ms));
+
+// ── WARMUP ────────────────────────────────────────────────────
+// Polls /health every 4s until Render wakes up (can take up to 90s on free tier)
+function startWarmup() {
+    warmupAbort = false;
+    serverReady = false;
+    wf.style.width = '0%';
+    wpct.textContent = '0%';
+    wm.textContent = 'Render cold-start — please wait...';
+    wm.classList.remove('ok');
+    warmupWrap.classList.add('visible');
+    openBtn.disabled = true;
+
+    const msgs = [
+        [0,  'Render cold-start — please wait...'],
+        [20, 'Sending wake signal...'],
+        [40, 'Server is starting up...'],
+        [60, 'Almost there...'],
+        [80, 'Finishing boot sequence...'],
+        [92, 'Hang tight — nearly ready...']
+    ];
+    function updateBar(pct) {
+        wf.style.width = pct + '%';
+        wpct.textContent = Math.round(pct) + '%';
+        for (let i = msgs.length - 1; i >= 0; i--) {
+            if (pct >= msgs[i][0]) { wm.textContent = msgs[i][1]; break; }
         }
     }
-    return out;
-}
-
-// Render the scrambled display
-const dispEl = document.getElementById('scrambled-display');
-dispEl.textContent = buildScrambledDisplay(REAL_LINK);
-
-// Block all copy/cut/contextmenu on the display element
-['copy','cut','contextmenu','dragstart','selectstart'].forEach(ev => {
-    dispEl.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); return false; });
-});
-
-// Also scramble on mouseup to foil selection-based copies
-document.addEventListener('mouseup', () => {
-    const sel = window.getSelection();
-    if (sel && sel.toString().includes('linkvertise')) {
-        sel.removeAllRanges();
-        dispEl.textContent = buildScrambledDisplay(REAL_LINK);
+    function finish(ok) {
+        if (warmupAbort) return;
+        serverReady = true;
+        updateBar(100);
+        wm.textContent = ok ? '✓ Server online — ready!' : '⚠ Server slow — you can try anyway.';
+        if (ok) wm.classList.add('ok');
+        openBtn.disabled = false;
+        setTimeout(() => {
+            warmupWrap.style.transition = 'opacity .6s';
+            warmupWrap.style.opacity = '0';
+            setTimeout(() => {
+                warmupWrap.classList.remove('visible');
+                warmupWrap.style.opacity = '';
+                warmupWrap.style.transition = '';
+            }, 700);
+        }, 2000);
     }
-});
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  OPEN REAL LINK
-// ─────────────────────────────────────────────────────────────────────────────
-function openLink() {
-    // Store token in sessionStorage so we can verify after return
-    sessionStorage.setItem('rxToken', SESSION_TOKEN);
-    window.open(REAL_LINK, '_blank');
-
-    // After a short delay, switch to key-entry phase
-    setTimeout(() => {
-        document.getElementById('phase-link').style.display = 'none';
-        document.getElementById('key-input-section').style.display = 'block';
-        document.getElementById('step1').classList.add('done');
-        document.getElementById('step2').classList.add('done');
-        document.getElementById('line1').classList.add('done');
-        document.getElementById('line2').classList.add('done');
-        document.getElementById('step3').classList.add('active');
-    }, 800);
+    let attempt = 0;
+    async function poll() {
+        if (warmupAbort) return;
+        attempt++;
+        updateBar(Math.min(90, Math.round((attempt / POLL_MAX) * 90)));
+        try {
+            const res = await fetchT(API_BASE + '/health', { method: 'GET', cache: 'no-store' }, FETCH_TIMEOUT);
+            if (res.status < 500) { finish(true); return; }
+        } catch (_) {}
+        if (attempt >= POLL_MAX) { finish(false); return; }
+        setTimeout(poll, POLL_INTERVAL);
+    }
+    poll();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  KEY VALIDATION
-// ─────────────────────────────────────────────────────────────────────────────
-let keyToCopy = '';
+// ── STEP 1: get session token → send to Linkvertise ──────────
+async function startSession() {
+    if (!serverReady) return;
+    openBtn.disabled = true;
+    showSpinner('GENERATING SECURE TOKEN...');
 
-async function validateKey() {
-    const inputEl = document.getElementById('key-input');
-    const key     = inputEl.value.trim();
-    if (!key) { shake(inputEl); return; }
+    let lastErr = '';
+    for (let i = 1; i <= SESSION_RETRIES; i++) {
+        if (i > 1) { spinTxt.textContent = 'RETRYING... (' + i + '/' + SESSION_RETRIES + ')'; await delay(1500); }
+        try {
+            const res = await fetchT(API_BASE + '/api/initiate-session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: '{}'
+            }, 12000);
+            if (!res.ok) { lastErr = 'HTTP ' + res.status; if (res.status < 500) break; continue; }
+            const data = await res.json();
+            if (!data.token) { lastErr = 'No token received'; continue; }
+            // Send user to Linkvertise — it bounces back with ?token=...&hash=...
+            window.location.href = LINKVERTISE_URL + '?token=' + data.token;
+            return;
+        } catch (err) {
+            lastErr = err.name === 'AbortError' ? 'Request timed out' : err.message;
+        }
+    }
+    showError('SERVER UNREACHABLE — ' + lastErr + '. Wait 30s and try again.');
+}
 
-    const spinRow = document.getElementById('spin-row');
-    const btn     = document.getElementById('validate-btn');
-    btn.disabled  = true;
-    spinRow.classList.add('on');
-    setStatus('Verifying key...', 'default');
-    hideError();
-
+// ── STEP 2: verify ad completion after returning from Linkvertise
+async function verifyLinkvertise(token, hash) {
+    openBtn.style.display = 'none';
+    showSpinner('VERIFYING AD COMPLETION...');
     try {
-        const token = sessionStorage.getItem('rxToken') || SESSION_TOKEN;
-        const res = await fetch(window.__BE + '/api/verify-key', {
+        const res = await fetchT(API_BASE + '/api/verify-linkvertise', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ key, token }),
-        });
-
-        spinRow.classList.remove('on');
-
-        if (res.status === 400) { showError('INVALID KEY – That key is not recognised.'); btn.disabled = false; return; }
-        if (res.status === 403) { showError('KEY EXPIRED – Please complete the ad again.'); btn.disabled = false; return; }
-        if (res.status === 410) { showError('KEY ALREADY USED – Keys are single-use only.'); btn.disabled = false; return; }
-        if (!res.ok)            { showError(`SERVER ERROR (${res.status}) – Try again shortly.`); btn.disabled = false; return; }
-
+            body: JSON.stringify({ token, hash })
+        }, 15000);
         const data = await res.json();
-        if (data.valid) {
-            showSuccess(data.key || key);
-        } else {
-            showError(data.error || 'Key verification failed.');
-            btn.disabled = false;
-        }
-    } catch {
-        document.getElementById('spin-row').classList.remove('on');
-        showError('CONNECTION LOST – Check your network.');
-        btn.disabled = false;
+        if (!res.ok) throw new Error(data.error || 'Verification failed');
+        showSuccess(data.key);
+    } catch (err) {
+        showError(err.name === 'AbortError'
+            ? 'Verification timed out. Please try again.'
+            : (err.message || 'Verification failed. Complete the ad properly.'));
     }
+}
+
+// ── UI STATES ─────────────────────────────────────────────────
+function showSpinner(msg) {
+    spinWrap.classList.add('active');
+    spinTxt.textContent = msg;
+    keyBox.style.display = 'none';
+    errorBox.style.display = 'none';
+    redirectNote.style.display = 'none';
 }
 
 function showSuccess(key) {
-    keyToCopy = key;
-    setStatus('ACCESS GRANTED', 'green');
-    document.getElementById('step3').classList.add('done');
-    document.getElementById('validate-btn').style.display = 'none';
-    document.getElementById('key-input').style.display    = 'none';
-    document.querySelector('.ki-label').style.display     = 'none';
-    document.getElementById('key-value').innerText        = key;
-    document.getElementById('key-result-box').style.display = 'block';
+    currentKey = key;
+    spinWrap.classList.remove('active');
+    openBtn.style.display = 'none';
+    errorBox.style.display = 'none';
+    keyValue.textContent = key;
+    keyBox.style.display = 'block';
     launchConfetti();
+
+    // Countdown then redirect to dashboard (served from private repo via Render)
+    let secs = 4;
+    redirectNote.style.display = 'block';
+    redirectNote.textContent = 'Redirecting to dashboard in ' + secs + 's...';
+    const iv = setInterval(() => {
+        secs--;
+        if (secs <= 0) {
+            clearInterval(iv);
+            window.location.href = DASHBOARD_URL + '?key=' + encodeURIComponent(key);
+        } else {
+            redirectNote.textContent = 'Redirecting to dashboard in ' + secs + 's...';
+        }
+    }, 1000);
 }
 
 function showError(msg) {
-    setStatus('SYSTEM: ERROR', 'red');
-    document.getElementById('error-msg').innerText     = msg;
-    document.getElementById('error-box').style.display = 'block';
-}
-function hideError() { document.getElementById('error-box').style.display = 'none'; }
-
-function setStatus(msg, type) {
-    document.getElementById('status-txt').innerText = msg;
-    document.getElementById('status').className = type === 'green' ? 'green' : type === 'red' ? 'red' : '';
+    spinWrap.classList.remove('active');
+    errorMsg.textContent = msg;
+    errorBox.style.display = 'block';
 }
 
-function resetAll() {
-    sessionStorage.removeItem('rxToken');
-    location.reload();
-}
-
-function shake(el) {
-    el.style.animation = 'none';
-    el.style.borderColor = 'var(--red)';
-    setTimeout(()=>{ el.style.borderColor=''; }, 600);
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  COPY KEY
-// ─────────────────────────────────────────────────────────────────────────────
+// ── COPY ──────────────────────────────────────────────────────
 function copyKey() {
-    if (!keyToCopy) return;
+    if (!currentKey) return;
     const done = () => {
-        const b = document.getElementById('copy-btn');
-        b.innerText = '[ ✓ COPIED! ]';
-        b.classList.add('copied');
-        setTimeout(()=>{ b.innerText='[ Click to Copy ]'; b.classList.remove('copied'); }, 2500);
+        copyBtn.textContent = '[ ✓ Copied! ]';
+        copyBtn.classList.add('copied');
+        setTimeout(() => { copyBtn.textContent = '[ Copy Key ]'; copyBtn.classList.remove('copied'); }, 2500);
     };
-    if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(keyToCopy).then(done).catch(()=>fallbackCopy(done));
-    } else { fallbackCopy(done); }
-}
-function fallbackCopy(cb) {
-    const ta = document.createElement('textarea');
-    ta.value = keyToCopy; ta.style.cssText = 'position:fixed;opacity:0;';
-    document.body.appendChild(ta); ta.focus(); ta.select();
-    try { document.execCommand('copy'); cb(); } catch {}
-    document.body.removeChild(ta);
+    navigator.clipboard?.writeText(currentKey).then(done).catch(() => {
+        const t = document.createElement('textarea');
+        t.value = currentKey; t.style.cssText = 'position:fixed;opacity:0;';
+        document.body.appendChild(t); t.focus(); t.select();
+        try { document.execCommand('copy'); done(); } catch {}
+        document.body.removeChild(t);
+    });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  CONFETTI
-// ─────────────────────────────────────────────────────────────────────────────
-function launchConfetti() {
-    const canvas = document.getElementById('confetti-canvas');
-    const ctx    = canvas.getContext('2d');
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    const pal = ['#ff8c00','#ffb347','#ffd700','#00ff88','#fff','#ff6644','#ffcc33'];
-    const shapes = ['rect','circle','line'];
-    const pieces = Array.from({length:200}, ()=>({
-        x:canvas.width*0.5+(Math.random()-0.5)*160, y:canvas.height*0.38,
-        vx:(Math.random()-0.5)*16, vy:-(Math.random()*14+5), ay:0.34+Math.random()*0.16,
-        color:pal[Math.floor(Math.random()*pal.length)], size:Math.random()*8+3,
-        rot:Math.random()*Math.PI*2, rspd:(Math.random()-0.5)*0.22,
-        alpha:1, decay:0.010+Math.random()*0.008, shape:shapes[Math.floor(Math.random()*shapes.length)],
-    }));
-    (function draw(){
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        let alive=false;
-        for(const p of pieces){
-            if(p.alpha<=0)continue; alive=true;
-            ctx.save();ctx.globalAlpha=p.alpha;ctx.fillStyle=ctx.strokeStyle=p.color;
-            ctx.translate(p.x,p.y);ctx.rotate(p.rot);
-            if(p.shape==='rect'){ctx.fillRect(-p.size/2,-p.size/4,p.size,p.size/2);}
-            else if(p.shape==='circle'){ctx.beginPath();ctx.arc(0,0,p.size/2.5,0,Math.PI*2);ctx.fill();}
-            else{ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-p.size/2,0);ctx.lineTo(p.size/2,0);ctx.stroke();}
-            ctx.restore();
-            p.x+=p.vx;p.y+=p.vy;p.vy+=p.ay;p.vx*=0.99;p.rot+=p.rspd;p.alpha-=p.decay;
-        }
-        if(alive) requestAnimationFrame(draw);
-        else ctx.clearRect(0,0,canvas.width,canvas.height);
-    })();
-}
-window.addEventListener('resize',()=>{
-    const c=document.getElementById('confetti-canvas');
-    c.width=window.innerWidth;c.height=window.innerHeight;
+// ── EVENTS ────────────────────────────────────────────────────
+openBtn.addEventListener('click', startSession);
+copyBtn.addEventListener('click', copyKey);
+retryBtn.addEventListener('click', () => {
+    errorBox.style.display = 'none';
+    openBtn.style.display  = 'block';
+    openBtn.disabled = !serverReady;
+    if (!serverReady) { warmupAbort = false; startWarmup(); }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  LAVA BACKGROUND
-// ─────────────────────────────────────────────────────────────────────────────
-(function initLava(){
-    const canvas=document.getElementById('lava-canvas');
-    const ctx=canvas.getContext('2d');
-    function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
-    resize(); window.addEventListener('resize',resize);
-    const palette=[[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0],[255,100,5]];
-    function rand(a,b){return a+Math.random()*(b-a);}
-    function makeDrop(initial){
-        const col=palette[Math.floor(Math.random()*palette.length)];
-        const spread=canvas.width*0.18;
-        return{x:canvas.width*0.5+rand(-spread,spread),y:initial?rand(-canvas.height,0):rand(-60,0),
-            vy:rand(1.2,3.2),vx:rand(-0.6,0.6),radius:rand(3,12),tail:[],maxTail:Math.floor(rand(10,28)),
-            r:col[0],g:col[1],b:col[2],alpha:rand(0.5,0.92),
-            wobble:rand(0,Math.PI*2),wobbleSpd:rand(0.01,0.045),wobbleAmp:rand(0.2,1.4),glow:Math.random()>0.55};
+// ── INIT ──────────────────────────────────────────────────────
+window.onload = function () {
+    const params = new URLSearchParams(window.location.search);
+    const token  = params.get('token');
+    const hash   = params.get('hash');
+
+    if (token && hash) {
+        // Returning from Linkvertise
+        window.history.replaceState({}, '', window.location.pathname);
+        startWarmup(); // wake server concurrently while verifying
+        verifyLinkvertise(token, hash);
+    } else {
+        startWarmup();
     }
-    const drops=[]; for(let i=0;i<60;i++) drops.push(makeDrop(true));
-    function drawDrop(d){
-        const{x,y,radius,r,g,b,alpha,tail,glow}=d;
-        for(let i=0;i<tail.length;i++){
-            const t=tail[i],pct=i/tail.length,a=alpha*pct*0.4,rad=radius*pct*0.65;
-            if(rad<0.5||a<0.01)continue;
-            ctx.beginPath();ctx.arc(t.x,t.y,rad,0,Math.PI*2);
-            ctx.fillStyle=`rgba(${r},${g},${b},${a})`;ctx.fill();
+};
+
+// ── CONFETTI ──────────────────────────────────────────────────
+function launchConfetti() {
+    const cv = document.getElementById('confetti-canvas'), ctx = cv.getContext('2d');
+    cv.width = innerWidth; cv.height = innerHeight;
+    const pal = ['#ff8c00','#ffb347','#ffd700','#00ff88','#fff','#ff6644','#ffcc33'];
+    const sh  = ['rect','circle','line'];
+    const p   = Array.from({ length: 180 }, () => ({
+        x: innerWidth * .5 + (Math.random() - .5) * 160,
+        y: innerHeight * .4,
+        vx: (Math.random() - .5) * 16, vy: -(Math.random() * 14 + 5), ay: .35 + Math.random() * .15,
+        color: pal[Math.floor(Math.random() * pal.length)], size: Math.random() * 8 + 3,
+        rot: Math.random() * Math.PI * 2, rspd: (Math.random() - .5) * .22,
+        alpha: 1, decay: .011 + Math.random() * .007,
+        shape: sh[Math.floor(Math.random() * sh.length)]
+    }));
+    (function draw() {
+        ctx.clearRect(0, 0, cv.width, cv.height); let alive = false;
+        for (const q of p) {
+            if (q.alpha <= 0) continue; alive = true;
+            ctx.save(); ctx.globalAlpha = q.alpha; ctx.fillStyle = ctx.strokeStyle = q.color;
+            ctx.translate(q.x, q.y); ctx.rotate(q.rot);
+            if (q.shape === 'rect') ctx.fillRect(-q.size/2, -q.size/4, q.size, q.size/2);
+            else if (q.shape === 'circle') { ctx.beginPath(); ctx.arc(0,0,q.size/2.5,0,Math.PI*2); ctx.fill(); }
+            else { ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-q.size/2,0); ctx.lineTo(q.size/2,0); ctx.stroke(); }
+            ctx.restore();
+            q.x += q.vx; q.y += q.vy; q.vy += q.ay; q.vx *= .99; q.rot += q.rspd; q.alpha -= q.decay;
         }
-        if(glow){
-            const gr=ctx.createRadialGradient(x,y,0,x,y,radius*4);
-            gr.addColorStop(0,`rgba(${r},${g},${b},${alpha*0.38})`);gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
-            ctx.beginPath();ctx.arc(x,y,radius*4,0,Math.PI*2);ctx.fillStyle=gr;ctx.fill();
+        if (alive) requestAnimationFrame(draw); else ctx.clearRect(0,0,cv.width,cv.height);
+    })();
+}
+window.addEventListener('resize', () => {
+    const c = document.getElementById('confetti-canvas');
+    c.width = innerWidth; c.height = innerHeight;
+});
+
+// ── LAVA BACKGROUND ───────────────────────────────────────────
+(function () {
+    const cv = document.getElementById('lava-canvas'), ctx = cv.getContext('2d');
+    function resize() { cv.width = innerWidth; cv.height = innerHeight; }
+    resize(); window.addEventListener('resize', resize);
+    const pal = [[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0]];
+    const r = (a, b) => a + Math.random() * (b - a);
+    function mk(init) {
+        const c = pal[Math.floor(Math.random() * pal.length)], sp = cv.width * .18;
+        return {
+            x: cv.width * .5 + r(-sp, sp), y: init ? r(-cv.height, 0) : r(-60, 0),
+            vy: r(1.2, 3.2), vx: r(-.6, .6), radius: r(3, 12), tail: [], maxTail: Math.floor(r(10, 28)),
+            r: c[0], g: c[1], b: c[2], alpha: r(.5, .92),
+            w: r(0, Math.PI * 2), wS: r(.01, .045), wA: r(.2, 1.4), glow: Math.random() > .55
+        };
+    }
+    const drops = []; for (let i = 0; i < 60; i++) drops.push(mk(true));
+    function dd(d) {
+        const { x, y, radius: rd, r, g, b, alpha, tail, glow } = d;
+        for (let i = 0; i < tail.length; i++) {
+            const t = tail[i], pct = i / tail.length, a = alpha * pct * .4, rad = rd * pct * .65;
+            if (rad < .5 || a < .01) continue;
+            ctx.beginPath(); ctx.arc(t.x, t.y, rad, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${r},${g},${b},${a})`; ctx.fill();
         }
-        const gm=ctx.createRadialGradient(x-radius*0.3,y-radius*0.35,0,x,y,radius);
-        gm.addColorStop(0,`rgba(255,210,130,${alpha*0.95})`);gm.addColorStop(0.35,`rgba(${r},${g},${b},${alpha})`);gm.addColorStop(1,`rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
-        ctx.beginPath();ctx.arc(x,y,radius,0,Math.PI*2);ctx.fillStyle=gm;ctx.fill();
-        ctx.beginPath();ctx.arc(x-radius*0.28,y-radius*0.30,radius*0.27,0,Math.PI*2);
-        ctx.fillStyle=`rgba(255,255,230,${alpha*0.6})`;ctx.fill();
+        if (glow) {
+            const gr = ctx.createRadialGradient(x, y, 0, x, y, rd * 4);
+            gr.addColorStop(0, `rgba(${r},${g},${b},${alpha * .38})`); gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
+            ctx.beginPath(); ctx.arc(x, y, rd * 4, 0, Math.PI * 2); ctx.fillStyle = gr; ctx.fill();
+        }
+        const gm = ctx.createRadialGradient(x - rd * .3, y - rd * .35, 0, x, y, rd);
+        gm.addColorStop(0, `rgba(255,210,130,${alpha * .95})`);
+        gm.addColorStop(.35, `rgba(${r},${g},${b},${alpha})`);
+        gm.addColorStop(1, `rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
+        ctx.beginPath(); ctx.arc(x, y, rd, 0, Math.PI * 2); ctx.fillStyle = gm; ctx.fill();
+        ctx.beginPath(); ctx.arc(x - rd * .28, y - rd * .3, rd * .27, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,230,${alpha * .6})`; ctx.fill();
     }
-    function drawVolcano(){
-        const w=canvas.width;ctx.save();ctx.fillStyle='rgba(6,2,0,0.96)';
-        ctx.beginPath();ctx.moveTo(-10,0);ctx.lineTo(w*0.28,0);ctx.lineTo(w*0.41,80);ctx.lineTo(w*0.46,28);ctx.lineTo(w*0.50,0);ctx.lineTo(w*0.54,28);ctx.lineTo(w*0.59,80);ctx.lineTo(w*0.72,0);ctx.lineTo(w+10,0);ctx.lineTo(w+10,-20);ctx.lineTo(-10,-20);ctx.closePath();ctx.fill();
-        const cg=ctx.createRadialGradient(w/2,0,0,w/2,5,90);cg.addColorStop(0,'rgba(255,160,0,0.7)');cg.addColorStop(0.3,'rgba(255,90,0,0.35)');cg.addColorStop(0.7,'rgba(255,40,0,0.10)');cg.addColorStop(1,'rgba(255,0,0,0)');
-        ctx.fillStyle=cg;ctx.beginPath();ctx.ellipse(w/2,0,90,55,0,0,Math.PI*2);ctx.fill();ctx.restore();
+    function vol() {
+        const w = cv.width; ctx.save(); ctx.fillStyle = 'rgba(6,2,0,0.96)';
+        ctx.beginPath(); ctx.moveTo(-10,0); ctx.lineTo(w*.28,0); ctx.lineTo(w*.41,80);
+        ctx.lineTo(w*.46,28); ctx.lineTo(w*.5,0); ctx.lineTo(w*.54,28); ctx.lineTo(w*.59,80);
+        ctx.lineTo(w*.72,0); ctx.lineTo(w+10,0); ctx.lineTo(w+10,-20); ctx.lineTo(-10,-20);
+        ctx.closePath(); ctx.fill();
+        const cg = ctx.createRadialGradient(w/2,0,0,w/2,5,90);
+        cg.addColorStop(0,'rgba(255,160,0,0.7)'); cg.addColorStop(1,'rgba(255,0,0,0)');
+        ctx.fillStyle = cg; ctx.beginPath(); ctx.ellipse(w/2,0,90,55,0,0,Math.PI*2); ctx.fill();
+        ctx.restore();
     }
-    function drawPool(){
-        const w=canvas.width,h=canvas.height;
-        const pg=ctx.createLinearGradient(0,h*0.80,0,h);pg.addColorStop(0,'rgba(255,60,0,0)');pg.addColorStop(0.5,'rgba(255,80,0,0.06)');pg.addColorStop(1,'rgba(255,100,0,0.16)');
-        ctx.fillStyle=pg;ctx.fillRect(0,h*0.80,w,h*0.20);
-        const rg=ctx.createRadialGradient(w/2,h,5,w/2,h,w*0.75);rg.addColorStop(0,'rgba(255,70,0,0.10)');rg.addColorStop(1,'rgba(255,70,0,0)');
-        ctx.fillStyle=rg;ctx.fillRect(0,0,w,h);
+    function anim() {
+        ctx.clearRect(0, 0, cv.width, cv.height);
+        for (const d of drops) {
+            d.w += d.wS; d.x += Math.sin(d.w) * d.wA + d.vx; d.y += d.vy;
+            d.tail.push({ x: d.x, y: d.y });
+            if (d.tail.length > d.maxTail) d.tail.shift();
+            dd(d);
+            if (d.y - d.radius > cv.height) { Object.assign(d, mk(false)); d.tail = []; }
+        }
+        vol(); requestAnimationFrame(anim);
     }
-    function animate(){
-        ctx.clearRect(0,0,canvas.width,canvas.height);drawPool();
-        for(const d of drops){d.wobble+=d.wobbleSpd;d.x+=Math.sin(d.wobble)*d.wobbleAmp+d.vx;d.y+=d.vy;d.tail.push({x:d.x,y:d.y});if(d.tail.length>d.maxTail)d.tail.shift();drawDrop(d);if(d.y-d.radius>canvas.height){Object.assign(d,makeDrop(false));d.tail=[];}}
-        drawVolcano(); requestAnimationFrame(animate);
-    }
-    animate();
+    anim();
 })();
 </script>
 </body>
