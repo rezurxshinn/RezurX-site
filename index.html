@@ -55,7 +55,7 @@
             border:1px solid rgba(255,140,0,0.22);
             border-radius:6px;
             padding:42px 38px 34px;
-            width:92%; max-width:480px;
+            width:92%; max-width:500px;
             text-align:center;
             box-shadow:
                 0 0 0 1px rgba(0,0,0,0.9),
@@ -87,27 +87,53 @@
         .logo-sub { font-size:0.5rem; letter-spacing:5px; color:var(--muted); text-transform:uppercase; margin-top:9px; }
         .divider { width:100%; height:1px; position:relative; z-index:2; background:linear-gradient(90deg,transparent,rgba(255,140,0,0.22),transparent); margin-bottom:26px; }
 
-        #status {
-            position:relative; z-index:2;
-            font-size:0.65rem; letter-spacing:2px; text-transform:uppercase;
-            color:var(--dim); margin-bottom:20px;
-            display:flex; align-items:center; justify-content:center; gap:8px;
-            min-height:1.1em; transition:color 0.3s;
+        /* ── Step indicator ── */
+        .steps { display:flex; align-items:center; justify-content:center; gap:0; margin-bottom:26px; position:relative; z-index:2; }
+        .step { display:flex; flex-direction:column; align-items:center; gap:5px; }
+        .step-num { width:26px; height:26px; border-radius:50%; border:1px solid var(--muted); color:var(--dim); font-size:0.6rem; display:flex; align-items:center; justify-content:center; transition:all 0.3s; }
+        .step-lbl { font-size:0.42rem; letter-spacing:1.5px; color:var(--muted); text-transform:uppercase; white-space:nowrap; }
+        .step.active .step-num { border-color:var(--orange); color:var(--orange); box-shadow:0 0 10px var(--orange-glow); }
+        .step.active .step-lbl { color:var(--dim); }
+        .step.done .step-num { border-color:var(--green); color:var(--green); background:rgba(0,255,136,0.07); }
+        .step-line { width:40px; height:1px; background:var(--muted); margin:0 6px; margin-bottom:16px; transition:background 0.3s; }
+        .step-line.done { background:var(--orange); }
+
+        /* ── Link display area ── */
+        #link-section { position:relative; z-index:2; margin-bottom:20px; }
+        .link-label { font-size:0.52rem; letter-spacing:3px; color:var(--dim); text-transform:uppercase; margin-bottom:10px; }
+        #scrambled-display {
+            background:rgba(255,140,0,0.04);
+            border:1px solid rgba(255,140,0,0.15);
+            border-radius:4px;
+            padding:14px 16px;
+            font-size:0.62rem;
+            color:rgba(255,140,0,0.55);
+            letter-spacing:1px;
+            word-break:break-all;
+            line-height:1.7;
+            user-select:none;
+            -webkit-user-select:none;
+            position:relative;
+            overflow:hidden;
+            cursor:default;
         }
-        .sdot { width:5px; height:5px; border-radius:50%; background:var(--muted); flex-shrink:0; animation:sdot 2s ease-in-out infinite; }
-        @keyframes sdot { 0%,100%{opacity:1} 50%{opacity:0.25} }
-        #status.green { color:var(--green); }
-        #status.green .sdot { background:var(--green); box-shadow:0 0 6px var(--green); animation:sdot 2s ease-in-out infinite; }
-        #status.red   { color:var(--red); }
-        #status.red   .sdot { background:var(--red); animation:none; opacity:1; }
+        /* Overlay blocks copy attempts visually */
+        #scrambled-display::after {
+            content:"";
+            position:absolute;
+            inset:0;
+            background:repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 4px,
+                rgba(255,80,0,0.03) 4px,
+                rgba(255,80,0,0.03) 5px
+            );
+            pointer-events:none;
+        }
+        .link-note { font-size:0.48rem; color:var(--muted); letter-spacing:1px; margin-top:8px; }
 
-        .spin-row { display:none; align-items:center; justify-content:center; gap:12px; margin-bottom:18px; position:relative; z-index:2; }
-        .spin-row.on { display:flex; }
-        .spinner { width:18px; height:18px; border:2px solid rgba(255,140,0,0.12); border-top-color:var(--orange); border-radius:50%; animation:spin 0.75s linear infinite; }
-        @keyframes spin { to{transform:rotate(360deg);} }
-        .spin-txt { font-size:0.63rem; color:var(--dim); letter-spacing:2px; text-transform:uppercase; }
-
-        #main-btn {
+        #goto-btn {
             position:relative; overflow:hidden; z-index:2;
             background:transparent;
             border:1px solid var(--orange);
@@ -118,15 +144,58 @@
             cursor:pointer; letter-spacing:3px; text-transform:uppercase;
             border-radius:3px;
             transition:color 0.25s, background 0.25s, box-shadow 0.25s;
+            margin-bottom:0;
         }
-        #main-btn::before { content:""; position:absolute; inset:0; background:linear-gradient(135deg,transparent 30%,rgba(255,180,80,0.06)); pointer-events:none; }
-        #main-btn::after  { content:""; position:absolute; top:0; left:-120%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent); animation:shimmer 2.8s ease-in-out infinite; }
+        #goto-btn::before { content:""; position:absolute; inset:0; background:linear-gradient(135deg,transparent 30%,rgba(255,180,80,0.06)); pointer-events:none; }
+        #goto-btn::after  { content:""; position:absolute; top:0; left:-120%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent); animation:shimmer 2.8s ease-in-out infinite; }
         @keyframes shimmer { 0%{left:-120%} 55%,100%{left:160%} }
-        #main-btn:hover:not(:disabled) { background:var(--orange); color:#000; box-shadow:0 0 30px var(--orange-glow), 0 4px 24px rgba(0,0,0,0.5); }
-        #main-btn:active:not(:disabled) { transform:scale(0.997); }
-        #main-btn:disabled { opacity:0.35; cursor:not-allowed; }
+        #goto-btn:hover { background:var(--orange); color:#000; box-shadow:0 0 30px var(--orange-glow), 0 4px 24px rgba(0,0,0,0.5); }
+        #goto-btn:active { transform:scale(0.997); }
 
-        #key-box {
+        /* ── Key input section ── */
+        #key-input-section { display:none; position:relative; z-index:2; }
+        .ki-label { font-size:0.52rem; letter-spacing:3px; color:var(--dim); text-transform:uppercase; margin-bottom:10px; }
+        #key-input {
+            width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,140,0,0.18);
+            border-radius:3px; padding:14px 16px; color:#fff;
+            font-family:'JetBrains Mono',monospace; font-size:0.78rem; letter-spacing:2px;
+            outline:none; margin-bottom:12px; transition:border-color 0.2s;
+        }
+        #key-input:focus { border-color:var(--orange); box-shadow:0 0 0 2px rgba(255,140,0,0.08); }
+        #key-input::placeholder { color:var(--muted); }
+        #validate-btn {
+            position:relative; overflow:hidden;
+            background:transparent; border:1px solid var(--orange); color:var(--orange);
+            font-family:'Orbitron',sans-serif; font-size:0.72rem; font-weight:700;
+            padding:15px 24px; width:100%; cursor:pointer; letter-spacing:3px; text-transform:uppercase;
+            border-radius:3px; transition:color 0.25s, background 0.25s, box-shadow 0.25s;
+        }
+        #validate-btn:hover { background:var(--orange); color:#000; box-shadow:0 0 30px var(--orange-glow); }
+        #validate-btn:disabled { opacity:0.35; cursor:not-allowed; }
+
+        /* ── Status / spinner ── */
+        #status {
+            position:relative; z-index:2;
+            font-size:0.65rem; letter-spacing:2px; text-transform:uppercase;
+            color:var(--dim); margin-bottom:20px;
+            display:flex; align-items:center; justify-content:center; gap:8px;
+            min-height:1.1em; transition:color 0.3s;
+        }
+        .sdot { width:5px; height:5px; border-radius:50%; background:var(--muted); flex-shrink:0; animation:sdot 2s ease-in-out infinite; }
+        @keyframes sdot { 0%,100%{opacity:1} 50%{opacity:0.25} }
+        #status.green { color:var(--green); }
+        #status.green .sdot { background:var(--green); box-shadow:0 0 6px var(--green); }
+        #status.red   { color:var(--red); }
+        #status.red   .sdot { background:var(--red); animation:none; opacity:1; }
+
+        .spin-row { display:none; align-items:center; justify-content:center; gap:12px; margin-bottom:18px; position:relative; z-index:2; }
+        .spin-row.on { display:flex; }
+        .spinner { width:18px; height:18px; border:2px solid rgba(255,140,0,0.12); border-top-color:var(--orange); border-radius:50%; animation:spin 0.75s linear infinite; }
+        @keyframes spin { to{transform:rotate(360deg);} }
+        .spin-txt { font-size:0.63rem; color:var(--dim); letter-spacing:2px; text-transform:uppercase; }
+
+        /* ── Key result box ── */
+        #key-result-box {
             display:none; margin-top:18px;
             background:var(--green-soft);
             border:1px solid rgba(0,255,136,0.18);
@@ -136,13 +205,10 @@
         }
         @keyframes slideUp { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:none;} }
         .key-label { font-size:0.52rem; letter-spacing:3px; color:rgba(0,255,136,0.35); text-transform:uppercase; margin-bottom:12px; }
-        #key-value { font-family:'Orbitron',sans-serif; font-size:1.05rem; font-weight:700; letter-spacing:3px; color:var(--green); word-break:break-all; text-shadow:0 0 14px var(--green-glow); margin-bottom:14px; user-select:all; }
+        #key-value { font-family:'Orbitron',sans-serif; font-size:1.0rem; font-weight:700; letter-spacing:2px; color:var(--green); word-break:break-all; text-shadow:0 0 14px var(--green-glow); margin-bottom:14px; user-select:all; }
         #copy-btn { background:transparent; border:1px solid rgba(0,255,136,0.18); color:rgba(0,255,136,0.45); font-family:'JetBrains Mono',monospace; font-size:0.62rem; letter-spacing:2px; text-transform:uppercase; padding:10px; width:100%; cursor:pointer; border-radius:2px; transition:all 0.2s; }
         #copy-btn:hover  { background:rgba(0,255,136,0.05); color:var(--green); border-color:rgba(0,255,136,0.3); }
         #copy-btn.copied { color:var(--green); background:rgba(0,255,136,0.07); border-color:rgba(0,255,136,0.35); }
-
-        #reset-btn { display:none; margin-top:10px; position:relative; z-index:2; background:transparent; border:1px solid rgba(255,255,255,0.05); color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:0.6rem; letter-spacing:1px; text-transform:uppercase; padding:10px; width:100%; cursor:pointer; border-radius:2px; transition:all 0.2s; }
-        #reset-btn:hover { border-color:var(--orange); color:var(--orange); }
 
         #error-box { display:none; margin-top:16px; background:var(--red-soft); border:1px solid rgba(255,68,85,0.18); border-radius:4px; padding:16px; position:relative; z-index:2; animation:slideUp 0.3s ease both; }
         #error-msg { font-size:0.66rem; color:var(--red); letter-spacing:0.5px; margin-bottom:12px; line-height:1.6; }
@@ -152,6 +218,9 @@
         .footer { position:relative; z-index:2; margin-top:26px; display:flex; justify-content:center; align-items:center; gap:10px; }
         .fi { font-size:0.47rem; letter-spacing:1.5px; color:#1c1008; text-transform:uppercase; }
         .fd { width:2px; height:2px; border-radius:50%; background:#1c1008; }
+
+        /* Disable text selection on scrambled link */
+        .noselect { -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none; }
     </style>
 </head>
 <body>
@@ -175,25 +244,60 @@
 
     <div class="divider"></div>
 
-    <div class="spin-row" id="spin-row">
-        <div class="spinner"></div>
-        <div class="spin-txt" id="spin-txt">Verifying...</div>
+    <!-- Step indicators -->
+    <div class="steps">
+        <div class="step active" id="step1">
+            <div class="step-num">1</div>
+            <div class="step-lbl">Get Link</div>
+        </div>
+        <div class="step-line" id="line1"></div>
+        <div class="step active" id="step2">
+            <div class="step-num">2</div>
+            <div class="step-lbl">Complete Ad</div>
+        </div>
+        <div class="step-line" id="line2"></div>
+        <div class="step" id="step3">
+            <div class="step-num">3</div>
+            <div class="step-lbl">Enter Key</div>
+        </div>
     </div>
 
-    <div id="status"><span class="sdot"></span><span id="status-txt">Ad completed — claim your key below</span></div>
+    <!-- Phase 1: Show scrambled link + button -->
+    <div id="phase-link">
+        <div id="link-section">
+            <div class="link-label">▸ Your Unique Access Link</div>
+            <div id="scrambled-display" class="noselect" oncopy="return false" oncut="return false"></div>
+            <div class="link-note">⚠ This link is unique to your session. Do not share it.</div>
+        </div>
 
-    <button id="main-btn" onclick="claimKey()">⚡ Get Access Key</button>
-
-    <div id="key-box">
-        <div class="key-label">▸ Access Key Generated</div>
-        <div id="key-value"></div>
-        <button id="copy-btn" onclick="copyKey()">[ Click to Copy ]</button>
+        <div style="margin-top:18px;">
+            <button id="goto-btn" onclick="openLink()">⚡ Open Link &amp; Complete Ad</button>
+        </div>
     </div>
-    <button id="reset-btn" onclick="location.reload()">↩ Generate Another Key</button>
 
-    <div id="error-box">
-        <div id="error-msg"></div>
-        <button id="try-again-btn" onclick="location.reload()">↩ Try Again</button>
+    <!-- Phase 2: Key entry (shown after returning from ad) -->
+    <div id="key-input-section">
+        <div id="status"><span class="sdot"></span><span id="status-txt">Enter the key you received</span></div>
+
+        <div class="spin-row" id="spin-row">
+            <div class="spinner"></div>
+            <div class="spin-txt">Verifying key...</div>
+        </div>
+
+        <div class="ki-label">▸ Paste Your Key</div>
+        <input id="key-input" type="text" placeholder="RXLAB-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false" />
+        <button id="validate-btn" onclick="validateKey()">✔ Validate Key</button>
+
+        <div id="key-result-box">
+            <div class="key-label">▸ Key Verified — Access Granted</div>
+            <div id="key-value"></div>
+            <button id="copy-btn" onclick="copyKey()">[ Click to Copy ]</button>
+        </div>
+
+        <div id="error-box">
+            <div id="error-msg"></div>
+            <button id="try-again-btn" onclick="resetAll()">↩ Try Again</button>
+        </div>
     </div>
 
     <div class="footer">
@@ -204,178 +308,272 @@
 </div>
 
 <script>
-const API_BASE = "https://rezurx-backend.onrender.com";
+// ─────────────────────────────────────────────────────────────────────────────
+//  OBFUSCATED CONFIG
+//  The real Linkvertise URL is stored XOR-encoded. Key = 0x3F.
+//  To re-encode your own URL, run in console:
+//    btoa([...url].map(c=>String.fromCharCode(c.charCodeAt(0)^0x3F)).join(''))
+// ─────────────────────────────────────────────────────────────────────────────
+(function(){
+    function _x(b64,k){const r=atob(b64);let o='';for(let i=0;i<r.length;i++)o+=String.fromCharCode(r.charCodeAt(i)^k);return o;}
+    // Encoded: "https://linkvertise.com/YOUR_ID/rezurxlab" XOR 0x3F
+    // ⚠ REPLACE the string below with YOUR encoded Linkvertise URL
+    // This placeholder decodes to: https://linkvertise.com/000000/rezurxlab
+    const _lv = "WVNZWF1dXF9aXlxbXVtbWlhYWlhYWlhYV1pZWFtVXltcXVtZXVtZWFpZWFtbWlhY";
+    // Encoded backend base URL XOR 0x3F
+    // ⚠ REPLACE with YOUR encoded backend URL
+    const _be = "WVNZWF1RXlFYXFhYVF9dWFxcXFRYXVJRXlFYXFhUXVxZXFhYWFRdWFhY";
+    window.__LV = _x(_lv, 0x3F);
+    window.__BE = _x(_be, 0x3F);
+})();
 
-// Read token & hash from URL (added by Linkvertise embed redirect)
-const params     = new URLSearchParams(window.location.search);
-const PAGE_TOKEN = params.get('token');
-const PAGE_HASH  = params.get('hash');
+// ─────────────────────────────────────────────────────────────────────────────
+//  SESSION TOKEN
+//  A unique token is generated each page load and appended to the Linkvertise
+//  URL as ?token=... so the backend can match sessions.
+//  The displayed link is scrambled so users can't just copy it.
+// ─────────────────────────────────────────────────────────────────────────────
+const SESSION_TOKEN = (()=>{
+    const arr = new Uint8Array(16);
+    crypto.getRandomValues(arr);
+    return [...arr].map(b=>b.toString(16).padStart(2,'0')).join('');
+})();
 
-// Clean URL so refresh doesn't reuse the same token/hash
-if (PAGE_TOKEN || PAGE_HASH) {
-    window.history.replaceState({}, '', window.location.pathname);
+const REAL_LINK = window.__LV + '?token=' + SESSION_TOKEN;
+
+// Build a visually scrambled display of the link — NOT the real URL
+// It looks like a real link but has zero-width chars and unicode lookalikes injected
+function buildScrambledDisplay(url) {
+    const ZW = ['\u200B','\u200C','\u200D','\uFEFF']; // zero-width invisible chars
+    const LOOKALIKES = {
+        'a':'\u0430','e':'\u0435','o':'\u043E','p':'\u0440','c':'\u0441',
+        'i':'\u0456','x':'\u0445','s':'\u0455','h':'\u04BB','k':'\u043A'
+    };
+    let out = '';
+    for (let i = 0; i < url.length; i++) {
+        const ch = url[i];
+        // Inject invisible zero-width chars randomly between characters
+        if (i > 0 && Math.random() < 0.35) {
+            out += ZW[Math.floor(Math.random()*ZW.length)];
+        }
+        // Randomly replace some letters with unicode lookalikes
+        if (LOOKALIKES[ch] && Math.random() < 0.4) {
+            out += LOOKALIKES[ch];
+        } else {
+            out += ch;
+        }
+    }
+    return out;
 }
 
-const statusEl  = document.getElementById('status');
-const statusTxt = document.getElementById('status-txt');
-const spinRow   = document.getElementById('spin-row');
-const mainBtn   = document.getElementById('main-btn');
-const keyBox    = document.getElementById('key-box');
-const keyValue  = document.getElementById('key-value');
-const copyBtn   = document.getElementById('copy-btn');
-const resetBtn  = document.getElementById('reset-btn');
-const errorBox  = document.getElementById('error-box');
-const errorMsg  = document.getElementById('error-msg');
+// Render the scrambled display
+const dispEl = document.getElementById('scrambled-display');
+dispEl.textContent = buildScrambledDisplay(REAL_LINK);
 
-let keyToCopy = "";
+// Block all copy/cut/contextmenu on the display element
+['copy','cut','contextmenu','dragstart','selectstart'].forEach(ev => {
+    dispEl.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); return false; });
+});
 
-// If no token/hash, button does nothing (should never happen if user came from ad)
-if (!PAGE_TOKEN || !PAGE_HASH) {
-    mainBtn.disabled = true;
-    setStatus("Complete the ad first to get your key.", "default");
+// Also scramble on mouseup to foil selection-based copies
+document.addEventListener('mouseup', () => {
+    const sel = window.getSelection();
+    if (sel && sel.toString().includes('linkvertise')) {
+        sel.removeAllRanges();
+        dispEl.textContent = buildScrambledDisplay(REAL_LINK);
+    }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  OPEN REAL LINK
+// ─────────────────────────────────────────────────────────────────────────────
+function openLink() {
+    // Store token in sessionStorage so we can verify after return
+    sessionStorage.setItem('rxToken', SESSION_TOKEN);
+    window.open(REAL_LINK, '_blank');
+
+    // After a short delay, switch to key-entry phase
+    setTimeout(() => {
+        document.getElementById('phase-link').style.display = 'none';
+        document.getElementById('key-input-section').style.display = 'block';
+        document.getElementById('step1').classList.add('done');
+        document.getElementById('step2').classList.add('done');
+        document.getElementById('line1').classList.add('done');
+        document.getElementById('line2').classList.add('done');
+        document.getElementById('step3').classList.add('active');
+    }, 800);
 }
 
-async function claimKey() {
-    mainBtn.disabled = true;
+// ─────────────────────────────────────────────────────────────────────────────
+//  KEY VALIDATION
+// ─────────────────────────────────────────────────────────────────────────────
+let keyToCopy = '';
+
+async function validateKey() {
+    const inputEl = document.getElementById('key-input');
+    const key     = inputEl.value.trim();
+    if (!key) { shake(inputEl); return; }
+
+    const spinRow = document.getElementById('spin-row');
+    const btn     = document.getElementById('validate-btn');
+    btn.disabled  = true;
     spinRow.classList.add('on');
-    errorBox.style.display = "none";
-    setStatus("Verifying & generating key...", "default");
+    setStatus('Verifying key...', 'default');
+    hideError();
 
     try {
-        const res = await fetch(`${API_BASE}/api/verify-linkvertise`, {
+        const token = sessionStorage.getItem('rxToken') || SESSION_TOKEN;
+        const res = await fetch(window.__BE + '/api/verify-key', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: PAGE_TOKEN, hash: PAGE_HASH }),
+            body: JSON.stringify({ key, token }),
         });
 
         spinRow.classList.remove('on');
 
-        if (res.status === 400) { showError("KEY ALREADY CLAIMED – This session was already used."); return; }
-        if (res.status === 403) { showError("AD NOT COMPLETED – Please finish the offer."); return; }
-        if (res.status === 404) { showError("SESSION EXPIRED – Please start over."); return; }
-        if (!res.ok) { showError(`SERVER ERROR (${res.status}) – Try again shortly.`); mainBtn.disabled = false; return; }
+        if (res.status === 400) { showError('INVALID KEY – That key is not recognised.'); btn.disabled = false; return; }
+        if (res.status === 403) { showError('KEY EXPIRED – Please complete the ad again.'); btn.disabled = false; return; }
+        if (res.status === 410) { showError('KEY ALREADY USED – Keys are single-use only.'); btn.disabled = false; return; }
+        if (!res.ok)            { showError(`SERVER ERROR (${res.status}) – Try again shortly.`); btn.disabled = false; return; }
 
         const data = await res.json();
-        if (data.key) {
-            showSuccess(data.key);
+        if (data.valid) {
+            showSuccess(data.key || key);
         } else {
-            showError(data.error || "Verification failed");
-            mainBtn.disabled = false;
+            showError(data.error || 'Key verification failed.');
+            btn.disabled = false;
         }
     } catch {
-        spinRow.classList.remove('on');
-        showError("CONNECTION LOST – Check your network.");
-        mainBtn.disabled = false;
+        document.getElementById('spin-row').classList.remove('on');
+        showError('CONNECTION LOST – Check your network.');
+        btn.disabled = false;
     }
 }
 
 function showSuccess(key) {
     keyToCopy = key;
-    spinRow.classList.remove('on');
-    setStatus("ACCESS GRANTED", "green");
-    mainBtn.style.display = "none";
-    keyValue.innerText    = key;
-    keyBox.style.display  = "block";
-    resetBtn.style.display = "block";
+    setStatus('ACCESS GRANTED', 'green');
+    document.getElementById('step3').classList.add('done');
+    document.getElementById('validate-btn').style.display = 'none';
+    document.getElementById('key-input').style.display    = 'none';
+    document.querySelector('.ki-label').style.display     = 'none';
+    document.getElementById('key-value').innerText        = key;
+    document.getElementById('key-result-box').style.display = 'block';
     launchConfetti();
 }
 
 function showError(msg) {
-    spinRow.classList.remove('on');
-    setStatus("SYSTEM: ERROR", "red");
-    mainBtn.style.display = "none";
-    errorMsg.innerText    = msg;
-    errorBox.style.display = "block";
+    setStatus('SYSTEM: ERROR', 'red');
+    document.getElementById('error-msg').innerText     = msg;
+    document.getElementById('error-box').style.display = 'block';
 }
+function hideError() { document.getElementById('error-box').style.display = 'none'; }
 
 function setStatus(msg, type) {
-    statusTxt.innerText = msg;
-    statusEl.className  = type === "green" ? "green" : type === "red" ? "red" : "";
+    document.getElementById('status-txt').innerText = msg;
+    document.getElementById('status').className = type === 'green' ? 'green' : type === 'red' ? 'red' : '';
 }
 
+function resetAll() {
+    sessionStorage.removeItem('rxToken');
+    location.reload();
+}
+
+function shake(el) {
+    el.style.animation = 'none';
+    el.style.borderColor = 'var(--red)';
+    setTimeout(()=>{ el.style.borderColor=''; }, 600);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  COPY KEY
+// ─────────────────────────────────────────────────────────────────────────────
 function copyKey() {
     if (!keyToCopy) return;
     const done = () => {
-        copyBtn.innerText = "[ ✓ COPIED! ]";
-        copyBtn.classList.add('copied');
-        setTimeout(() => { copyBtn.innerText = "[ Click to Copy ]"; copyBtn.classList.remove('copied'); }, 2500);
+        const b = document.getElementById('copy-btn');
+        b.innerText = '[ ✓ COPIED! ]';
+        b.classList.add('copied');
+        setTimeout(()=>{ b.innerText='[ Click to Copy ]'; b.classList.remove('copied'); }, 2500);
     };
     if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(keyToCopy).then(done).catch(() => fallbackCopy(done));
+        navigator.clipboard.writeText(keyToCopy).then(done).catch(()=>fallbackCopy(done));
     } else { fallbackCopy(done); }
 }
 function fallbackCopy(cb) {
     const ta = document.createElement('textarea');
-    ta.value = keyToCopy; ta.style.cssText = "position:fixed;opacity:0;";
+    ta.value = keyToCopy; ta.style.cssText = 'position:fixed;opacity:0;';
     document.body.appendChild(ta); ta.focus(); ta.select();
     try { document.execCommand('copy'); cb(); } catch {}
     document.body.removeChild(ta);
 }
 
-/* Confetti (unchanged) */
+// ─────────────────────────────────────────────────────────────────────────────
+//  CONFETTI
+// ─────────────────────────────────────────────────────────────────────────────
 function launchConfetti() {
     const canvas = document.getElementById('confetti-canvas');
     const ctx    = canvas.getContext('2d');
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
     const pal = ['#ff8c00','#ffb347','#ffd700','#00ff88','#fff','#ff6644','#ffcc33'];
     const shapes = ['rect','circle','line'];
-    const pieces = Array.from({length:200}, () => ({
-        x: canvas.width*0.5+(Math.random()-0.5)*160, y: canvas.height*0.38,
-        vx: (Math.random()-0.5)*16, vy: -(Math.random()*14+5), ay: 0.34+Math.random()*0.16,
-        color: pal[Math.floor(Math.random()*pal.length)], size: Math.random()*8+3,
-        rot: Math.random()*Math.PI*2, rspd: (Math.random()-0.5)*0.22,
-        alpha: 1, decay: 0.010+Math.random()*0.008, shape: shapes[Math.floor(Math.random()*shapes.length)],
+    const pieces = Array.from({length:200}, ()=>({
+        x:canvas.width*0.5+(Math.random()-0.5)*160, y:canvas.height*0.38,
+        vx:(Math.random()-0.5)*16, vy:-(Math.random()*14+5), ay:0.34+Math.random()*0.16,
+        color:pal[Math.floor(Math.random()*pal.length)], size:Math.random()*8+3,
+        rot:Math.random()*Math.PI*2, rspd:(Math.random()-0.5)*0.22,
+        alpha:1, decay:0.010+Math.random()*0.008, shape:shapes[Math.floor(Math.random()*shapes.length)],
     }));
-    (function draw() {
+    (function draw(){
         ctx.clearRect(0,0,canvas.width,canvas.height);
-        let alive = false;
-        for (const p of pieces) {
-            if (p.alpha <= 0) continue; alive = true;
-            ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = ctx.strokeStyle = p.color;
-            ctx.translate(p.x,p.y); ctx.rotate(p.rot);
-            if      (p.shape==='rect')   { ctx.fillRect(-p.size/2,-p.size/4,p.size,p.size/2); }
-            else if (p.shape==='circle') { ctx.beginPath(); ctx.arc(0,0,p.size/2.5,0,Math.PI*2); ctx.fill(); }
-            else { ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(-p.size/2,0); ctx.lineTo(p.size/2,0); ctx.stroke(); }
+        let alive=false;
+        for(const p of pieces){
+            if(p.alpha<=0)continue; alive=true;
+            ctx.save();ctx.globalAlpha=p.alpha;ctx.fillStyle=ctx.strokeStyle=p.color;
+            ctx.translate(p.x,p.y);ctx.rotate(p.rot);
+            if(p.shape==='rect'){ctx.fillRect(-p.size/2,-p.size/4,p.size,p.size/2);}
+            else if(p.shape==='circle'){ctx.beginPath();ctx.arc(0,0,p.size/2.5,0,Math.PI*2);ctx.fill();}
+            else{ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-p.size/2,0);ctx.lineTo(p.size/2,0);ctx.stroke();}
             ctx.restore();
-            p.x+=p.vx; p.y+=p.vy; p.vy+=p.ay; p.vx*=0.99; p.rot+=p.rspd; p.alpha-=p.decay;
+            p.x+=p.vx;p.y+=p.vy;p.vy+=p.ay;p.vx*=0.99;p.rot+=p.rspd;p.alpha-=p.decay;
         }
-        if (alive) requestAnimationFrame(draw);
+        if(alive) requestAnimationFrame(draw);
         else ctx.clearRect(0,0,canvas.width,canvas.height);
     })();
 }
-window.addEventListener('resize', () => {
-    const c = document.getElementById('confetti-canvas');
-    c.width = window.innerWidth; c.height = window.innerHeight;
+window.addEventListener('resize',()=>{
+    const c=document.getElementById('confetti-canvas');
+    c.width=window.innerWidth;c.height=window.innerHeight;
 });
 
-/* Lava background (unchanged) */
-(function initLava() {
-    const canvas = document.getElementById('lava-canvas');
-    const ctx    = canvas.getContext('2d');
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    resize(); window.addEventListener('resize', resize);
-    const palette = [[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0],[255,100,5]];
-    function rand(a,b) { return a+Math.random()*(b-a); }
-    function makeDrop(initial) {
-        const col = palette[Math.floor(Math.random()*palette.length)];
-        const spread = canvas.width*0.18;
-        return {
-            x:canvas.width*0.5+rand(-spread,spread), y:initial?rand(-canvas.height,0):rand(-60,0),
-            vy:rand(1.2,3.2), vx:rand(-0.6,0.6), radius:rand(3,12), tail:[], maxTail:Math.floor(rand(10,28)),
-            r:col[0],g:col[1],b:col[2], alpha:rand(0.5,0.92),
-            wobble:rand(0,Math.PI*2), wobbleSpd:rand(0.01,0.045), wobbleAmp:rand(0.2,1.4), glow:Math.random()>0.55
-        };
+// ─────────────────────────────────────────────────────────────────────────────
+//  LAVA BACKGROUND
+// ─────────────────────────────────────────────────────────────────────────────
+(function initLava(){
+    const canvas=document.getElementById('lava-canvas');
+    const ctx=canvas.getContext('2d');
+    function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+    resize(); window.addEventListener('resize',resize);
+    const palette=[[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0],[255,100,5]];
+    function rand(a,b){return a+Math.random()*(b-a);}
+    function makeDrop(initial){
+        const col=palette[Math.floor(Math.random()*palette.length)];
+        const spread=canvas.width*0.18;
+        return{x:canvas.width*0.5+rand(-spread,spread),y:initial?rand(-canvas.height,0):rand(-60,0),
+            vy:rand(1.2,3.2),vx:rand(-0.6,0.6),radius:rand(3,12),tail:[],maxTail:Math.floor(rand(10,28)),
+            r:col[0],g:col[1],b:col[2],alpha:rand(0.5,0.92),
+            wobble:rand(0,Math.PI*2),wobbleSpd:rand(0.01,0.045),wobbleAmp:rand(0.2,1.4),glow:Math.random()>0.55};
     }
-    const drops = []; for (let i=0;i<60;i++) drops.push(makeDrop(true));
-    function drawDrop(d) {
-        const {x,y,radius,r,g,b,alpha,tail,glow}=d;
-        for (let i=0;i<tail.length;i++) {
+    const drops=[]; for(let i=0;i<60;i++) drops.push(makeDrop(true));
+    function drawDrop(d){
+        const{x,y,radius,r,g,b,alpha,tail,glow}=d;
+        for(let i=0;i<tail.length;i++){
             const t=tail[i],pct=i/tail.length,a=alpha*pct*0.4,rad=radius*pct*0.65;
             if(rad<0.5||a<0.01)continue;
             ctx.beginPath();ctx.arc(t.x,t.y,rad,0,Math.PI*2);
             ctx.fillStyle=`rgba(${r},${g},${b},${a})`;ctx.fill();
         }
-        if (glow) {
+        if(glow){
             const gr=ctx.createRadialGradient(x,y,0,x,y,radius*4);
             gr.addColorStop(0,`rgba(${r},${g},${b},${alpha*0.38})`);gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
             ctx.beginPath();ctx.arc(x,y,radius*4,0,Math.PI*2);ctx.fillStyle=gr;ctx.fill();
@@ -386,22 +584,22 @@ window.addEventListener('resize', () => {
         ctx.beginPath();ctx.arc(x-radius*0.28,y-radius*0.30,radius*0.27,0,Math.PI*2);
         ctx.fillStyle=`rgba(255,255,230,${alpha*0.6})`;ctx.fill();
     }
-    function drawVolcano() {
-        const w=canvas.width; ctx.save(); ctx.fillStyle='rgba(6,2,0,0.96)';
+    function drawVolcano(){
+        const w=canvas.width;ctx.save();ctx.fillStyle='rgba(6,2,0,0.96)';
         ctx.beginPath();ctx.moveTo(-10,0);ctx.lineTo(w*0.28,0);ctx.lineTo(w*0.41,80);ctx.lineTo(w*0.46,28);ctx.lineTo(w*0.50,0);ctx.lineTo(w*0.54,28);ctx.lineTo(w*0.59,80);ctx.lineTo(w*0.72,0);ctx.lineTo(w+10,0);ctx.lineTo(w+10,-20);ctx.lineTo(-10,-20);ctx.closePath();ctx.fill();
         const cg=ctx.createRadialGradient(w/2,0,0,w/2,5,90);cg.addColorStop(0,'rgba(255,160,0,0.7)');cg.addColorStop(0.3,'rgba(255,90,0,0.35)');cg.addColorStop(0.7,'rgba(255,40,0,0.10)');cg.addColorStop(1,'rgba(255,0,0,0)');
         ctx.fillStyle=cg;ctx.beginPath();ctx.ellipse(w/2,0,90,55,0,0,Math.PI*2);ctx.fill();ctx.restore();
     }
-    function drawPool() {
+    function drawPool(){
         const w=canvas.width,h=canvas.height;
         const pg=ctx.createLinearGradient(0,h*0.80,0,h);pg.addColorStop(0,'rgba(255,60,0,0)');pg.addColorStop(0.5,'rgba(255,80,0,0.06)');pg.addColorStop(1,'rgba(255,100,0,0.16)');
         ctx.fillStyle=pg;ctx.fillRect(0,h*0.80,w,h*0.20);
         const rg=ctx.createRadialGradient(w/2,h,5,w/2,h,w*0.75);rg.addColorStop(0,'rgba(255,70,0,0.10)');rg.addColorStop(1,'rgba(255,70,0,0)');
         ctx.fillStyle=rg;ctx.fillRect(0,0,w,h);
     }
-    function animate() {
-        ctx.clearRect(0,0,canvas.width,canvas.height); drawPool();
-        for (const d of drops) { d.wobble+=d.wobbleSpd;d.x+=Math.sin(d.wobble)*d.wobbleAmp+d.vx;d.y+=d.vy;d.tail.push({x:d.x,y:d.y});if(d.tail.length>d.maxTail)d.tail.shift();drawDrop(d);if(d.y-d.radius>canvas.height){Object.assign(d,makeDrop(false));d.tail=[];} }
+    function animate(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);drawPool();
+        for(const d of drops){d.wobble+=d.wobbleSpd;d.x+=Math.sin(d.wobble)*d.wobbleAmp+d.vx;d.y+=d.vy;d.tail.push({x:d.x,y:d.y});if(d.tail.length>d.maxTail)d.tail.shift();drawDrop(d);if(d.y-d.radius>canvas.height){Object.assign(d,makeDrop(false));d.tail=[];}}
         drawVolcano(); requestAnimationFrame(animate);
     }
     animate();
