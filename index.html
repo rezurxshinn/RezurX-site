@@ -39,13 +39,11 @@
             position: relative;
         }
 
-        /* ── LAVA CANVAS ── */
         #lava-canvas {
             position: fixed; inset: 0;
             width: 100%; height: 100%;
             z-index: 0; pointer-events: none;
         }
-
         .atmos {
             position: fixed; inset: 0; z-index: 1; pointer-events: none;
             background:
@@ -53,7 +51,6 @@
                 radial-gradient(ellipse 70% 40% at 50% 100%, rgba(255,50,0,0.12) 0%, transparent 70%),
                 radial-gradient(ellipse 100% 100% at 50% 50%, transparent 35%, rgba(0,0,0,0.72) 100%);
         }
-
         .scanlines {
             position: fixed; inset: 0; z-index: 2; pointer-events: none;
             background: repeating-linear-gradient(
@@ -61,14 +58,11 @@
                 rgba(0,0,0,0.045) 3px, rgba(0,0,0,0.045) 4px
             );
         }
-
         .gloss {
             position: fixed; top:0; left:0; right:0; height:50vh;
             z-index: 2; pointer-events: none;
             background: linear-gradient(180deg, rgba(255,150,50,0.05) 0%, transparent 100%);
         }
-
-        /* ── CONFETTI ── */
         #confetti-canvas {
             position: fixed; inset: 0;
             width: 100%; height: 100%;
@@ -97,15 +91,12 @@
             from { opacity:0; transform:translateY(22px) scale(0.97); }
             to   { opacity:1; transform:none; }
         }
-
         .panel-gloss {
             position: absolute; top:0; left:0; right:0; height:48%;
             border-radius: 6px 6px 0 0; pointer-events: none;
             background: linear-gradient(180deg, rgba(255,160,80,0.055) 0%, transparent 100%);
             z-index: 1;
         }
-
-        /* Corner brackets */
         .c { position:absolute; width:14px; height:14px; }
         .c-tl { top:-1px;    left:-1px;  border-top:2px solid var(--orange); border-left:2px solid var(--orange);   border-radius:3px 0 0 0; }
         .c-tr { top:-1px;    right:-1px; border-top:2px solid var(--orange); border-right:2px solid var(--orange);  border-radius:0 3px 0 0; }
@@ -125,14 +116,13 @@
             line-height: 1.1;
         }
         .logo-sub { font-size:0.5rem; letter-spacing:5px; color:var(--muted); text-transform:uppercase; margin-top:9px; }
-
         .divider {
             width:100%; height:1px; position:relative; z-index:2;
             background: linear-gradient(90deg, transparent, rgba(255,140,0,0.22), transparent);
             margin-bottom:26px;
         }
 
-        /* ── STEP INDICATORS ── */
+        /* ── STEPS ── */
         .steps {
             display:flex; align-items:center; justify-content:center;
             margin-bottom:24px; position:relative; z-index:2;
@@ -146,35 +136,11 @@
         }
         .step-label { font-size:0.48rem; letter-spacing:1.5px; color:#1e1008; text-transform:uppercase; transition:color 0.4s; }
         .step-line  { width:44px; height:1px; background:#1a0a04; margin:0 3px 20px; transition:background 0.5s; }
-        .step.active .step-num  { border-color:var(--orange); color:var(--orange); box-shadow:0 0 10px var(--orange-glow); }
-        .step.active .step-label{ color:var(--dim); }
-        .step.done .step-num    { border-color:var(--green); color:var(--green); background:rgba(0,255,136,0.06); }
-        .step.done .step-label  { color:rgba(0,255,136,0.35); }
-        .step.done + .step-line { background:rgba(0,255,136,0.18); }
-
-        /* ── BOOT OVERLAY ── */
-        #boot-overlay {
-            position:relative; z-index:2;
-            margin-bottom:18px;
-            padding:16px 16px 13px;
-            background:rgba(255,100,0,0.04);
-            border:1px solid rgba(255,140,0,0.13);
-            border-radius:4px;
-        }
-        .boot-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:9px; }
-        .boot-label { font-size:0.58rem; letter-spacing:2px; color:rgba(255,140,0,0.55); text-transform:uppercase; }
-        #boot-pct   { font-size:0.58rem; color:var(--orange); letter-spacing:1px; font-variant-numeric:tabular-nums; }
-        .boot-track { width:100%; height:3px; background:rgba(255,140,0,0.08); border-radius:2px; overflow:hidden; margin-bottom:8px; }
-        #boot-fill  {
-            height:100%; width:0%;
-            background: linear-gradient(90deg, #aa4400, #ff8c00, #ffb347);
-            border-radius:2px;
-            transition: width 0.5s ease;
-            box-shadow: 0 0 10px rgba(255,140,0,0.7);
-        }
-        #boot-msg { font-size:0.55rem; color:var(--dim); letter-spacing:1px; transition:color 0.4s; }
-        #boot-msg.success { color:rgba(0,255,136,0.55); }
-        #boot-msg.fail    { color:rgba(255,68,85,0.6); }
+        .step.active .step-num   { border-color:var(--orange); color:var(--orange); box-shadow:0 0 10px var(--orange-glow); }
+        .step.active .step-label { color:var(--dim); }
+        .step.done .step-num     { border-color:var(--green); color:var(--green); background:rgba(0,255,136,0.06); }
+        .step.done .step-label   { color:rgba(0,255,136,0.35); }
+        .step.done + .step-line  { background:rgba(0,255,136,0.18); }
 
         /* ── STATUS ── */
         #status {
@@ -190,11 +156,11 @@
         }
         @keyframes sdot { 0%,100%{opacity:1} 50%{opacity:0.25} }
         #status.green { color:var(--green); }
-        #status.green .sdot { background:var(--green); box-shadow:0 0 6px var(--green); animation:sdot 2s ease-in-out infinite; }
+        #status.green .sdot { background:var(--green); box-shadow:0 0 6px var(--green); }
         #status.red   { color:var(--red); }
         #status.red   .sdot { background:var(--red); animation:none; }
 
-        /* ── SPINNER ROW ── */
+        /* ── SPINNER ── */
         .spin-row {
             display:none; align-items:center; justify-content:center;
             gap:12px; margin-bottom:18px; position:relative; z-index:2;
@@ -241,13 +207,23 @@
         #get-key-btn:active:not(:disabled) { transform:scale(0.997); }
         #get-key-btn:disabled { opacity:0.25; cursor:not-allowed; }
 
+        /* ── NO HASH BOX ── */
+        #no-hash-box {
+            display:none; position:relative; z-index:2;
+            padding:16px;
+            background:rgba(255,140,0,0.04);
+            border:1px solid rgba(255,140,0,0.13);
+            border-radius:4px;
+            font-size:0.63rem; color:var(--dim);
+            letter-spacing:1px; line-height:1.8;
+        }
+
         /* ── KEY BOX ── */
         #key-box {
             display:none; margin-top:18px;
             background:var(--green-soft);
             border:1px solid rgba(0,255,136,0.18);
-            border-radius:4px;
-            padding:20px 16px 16px;
+            border-radius:4px; padding:20px 16px 16px;
             position:relative; z-index:2;
             animation:slideUp 0.45s cubic-bezier(0.22,1,0.36,1) both;
         }
@@ -339,14 +315,14 @@
     <div class="divider"></div>
 
     <div class="steps">
-        <div class="step active" id="step-1">
+        <div class="step" id="step-1">
             <div class="step-num">01</div>
-            <div class="step-label">Initiate</div>
+            <div class="step-label">Ad Done</div>
         </div>
         <div class="step-line" id="line-1"></div>
         <div class="step" id="step-2">
             <div class="step-num">02</div>
-            <div class="step-label">Verify</div>
+            <div class="step-label">Claim</div>
         </div>
         <div class="step-line" id="line-2"></div>
         <div class="step" id="step-3">
@@ -355,23 +331,20 @@
         </div>
     </div>
 
-    <div id="boot-overlay">
-        <div class="boot-top">
-            <span class="boot-label">⚙ Server Boot</span>
-            <span id="boot-pct">0%</span>
-        </div>
-        <div class="boot-track"><div id="boot-fill"></div></div>
-        <div id="boot-msg">Waking render server — cold start...</div>
-    </div>
-
     <div class="spin-row" id="spin-row">
         <div class="spinner"></div>
         <div class="spin-txt" id="spin-txt">Processing...</div>
     </div>
 
-    <div id="status"><span class="sdot"></span><span id="status-txt">Connecting to server...</span></div>
+    <div id="status"><span class="sdot"></span><span id="status-txt">Loading...</span></div>
 
-    <button id="get-key-btn" style="display:none" onclick="startSession()">⚡ Get Access Key</button>
+    <!-- Shown when user returns from Linkvertise with a valid hash -->
+    <button id="get-key-btn" style="display:none" onclick="claimKey()">⚡ Get Access Key</button>
+
+    <!-- Shown on a direct/fresh visit with no hash in the URL -->
+    <div id="no-hash-box">
+        Complete the Linkvertise ad first,<br>then return here to claim your key.
+    </div>
 
     <div id="key-box">
         <div class="key-label">▸ Access Key Generated</div>
@@ -393,15 +366,14 @@
 </div>
 
 <script>
-/* ═══════════════════════════════════════════════
+/* ════════════════════════════════════════
    CONFIG
-═══════════════════════════════════════════════ */
-const API_BASE        = "https://rezurx-backend.onrender.com";
-const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
+════════════════════════════════════════ */
+const API_BASE = "https://rezurx-backend.onrender.com";
 
-/* ═══════════════════════════════════════════════
+/* ════════════════════════════════════════
    LAVA BACKGROUND
-═══════════════════════════════════════════════ */
+════════════════════════════════════════ */
 (function initLava() {
     const canvas = document.getElementById('lava-canvas');
     const ctx    = canvas.getContext('2d');
@@ -414,25 +386,19 @@ const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
         [255,80,0],[255,120,10],[255,60,0],
         [220,40,0],[255,155,20],[180,30,0],[255,100,5],
     ];
-    function rand(a,b){ return a + Math.random()*(b-a); }
+    function rand(a,b) { return a + Math.random()*(b-a); }
 
     function makeDrop(initial) {
         const col    = palette[Math.floor(Math.random()*palette.length)];
         const spread = canvas.width * 0.18;
         return {
-            x:       canvas.width*0.5 + rand(-spread, spread),
-            y:       initial ? rand(-canvas.height, 0) : rand(-60, 0),
-            vy:      rand(1.2, 3.2),
-            vx:      rand(-0.6, 0.6),
-            radius:  rand(3, 12),
-            tail:    [],
-            maxTail: Math.floor(rand(10, 28)),
-            r:col[0], g:col[1], b:col[2],
-            alpha:   rand(0.5, 0.92),
-            wobble:  rand(0, Math.PI*2),
-            wobbleSpd: rand(0.01, 0.045),
-            wobbleAmp: rand(0.2, 1.4),
-            glow:    Math.random() > 0.55,
+            x: canvas.width*0.5 + rand(-spread, spread),
+            y: initial ? rand(-canvas.height, 0) : rand(-60, 0),
+            vy: rand(1.2, 3.2), vx: rand(-0.6, 0.6),
+            radius: rand(3, 12), tail: [], maxTail: Math.floor(rand(10, 28)),
+            r:col[0], g:col[1], b:col[2], alpha: rand(0.5, 0.92),
+            wobble: rand(0, Math.PI*2), wobbleSpd: rand(0.01, 0.045),
+            wobbleAmp: rand(0.2, 1.4), glow: Math.random() > 0.55,
         };
     }
 
@@ -441,109 +407,63 @@ const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
 
     function drawDrop(d) {
         const {x, y, radius, r, g, b, alpha, tail, glow} = d;
-
         for (let i=0; i<tail.length; i++) {
-            const t   = tail[i];
-            const pct = i / tail.length;
-            const a   = alpha * pct * 0.4;
-            const rad = radius * pct * 0.65;
-            if (rad < 0.5 || a < 0.01) continue;
-            ctx.beginPath();
-            ctx.arc(t.x, t.y, rad, 0, Math.PI*2);
-            ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
-            ctx.fill();
+            const t=tail[i], pct=i/tail.length, a=alpha*pct*0.4, rad=radius*pct*0.65;
+            if (rad<0.5||a<0.01) continue;
+            ctx.beginPath(); ctx.arc(t.x,t.y,rad,0,Math.PI*2);
+            ctx.fillStyle=`rgba(${r},${g},${b},${a})`; ctx.fill();
         }
-
         if (glow) {
-            const gr = ctx.createRadialGradient(x, y, 0, x, y, radius*4);
-            gr.addColorStop(0, `rgba(${r},${g},${b},${alpha*0.38})`);
-            gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
-            ctx.beginPath();
-            ctx.arc(x, y, radius*4, 0, Math.PI*2);
-            ctx.fillStyle = gr;
-            ctx.fill();
+            const gr=ctx.createRadialGradient(x,y,0,x,y,radius*4);
+            gr.addColorStop(0,`rgba(${r},${g},${b},${alpha*0.38})`);
+            gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
+            ctx.beginPath(); ctx.arc(x,y,radius*4,0,Math.PI*2);
+            ctx.fillStyle=gr; ctx.fill();
         }
-
-        const grMain = ctx.createRadialGradient(
-            x - radius*0.3, y - radius*0.35, 0,
-            x, y, radius
-        );
-        grMain.addColorStop(0,   `rgba(255,210,130,${alpha*0.95})`);
-        grMain.addColorStop(0.35,`rgba(${r},${g},${b},${alpha})`);
-        grMain.addColorStop(1,   `rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
-
-        ctx.beginPath();
-        ctx.arc(x, y, radius, 0, Math.PI*2);
-        ctx.fillStyle = grMain;
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.arc(x - radius*0.28, y - radius*0.30, radius*0.27, 0, Math.PI*2);
-        ctx.fillStyle = `rgba(255,255,230,${alpha*0.6})`;
-        ctx.fill();
+        const gm=ctx.createRadialGradient(x-radius*0.3,y-radius*0.35,0,x,y,radius);
+        gm.addColorStop(0,`rgba(255,210,130,${alpha*0.95})`);
+        gm.addColorStop(0.35,`rgba(${r},${g},${b},${alpha})`);
+        gm.addColorStop(1,`rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
+        ctx.beginPath(); ctx.arc(x,y,radius,0,Math.PI*2); ctx.fillStyle=gm; ctx.fill();
+        ctx.beginPath(); ctx.arc(x-radius*0.28,y-radius*0.30,radius*0.27,0,Math.PI*2);
+        ctx.fillStyle=`rgba(255,255,230,${alpha*0.6})`; ctx.fill();
     }
 
     function drawVolcano() {
-        const w = canvas.width;
-        ctx.save();
-        ctx.fillStyle = 'rgba(6,2,0,0.96)';
+        const w=canvas.width;
+        ctx.save(); ctx.fillStyle='rgba(6,2,0,0.96)';
         ctx.beginPath();
-        ctx.moveTo(-10, 0);
-        ctx.lineTo(w*0.28, 0);
-        ctx.lineTo(w*0.41, 80);
-        ctx.lineTo(w*0.46, 28);
-        ctx.lineTo(w*0.50, 0);
-        ctx.lineTo(w*0.54, 28);
-        ctx.lineTo(w*0.59, 80);
-        ctx.lineTo(w*0.72, 0);
-        ctx.lineTo(w+10, 0);
-        ctx.lineTo(w+10, -20);
-        ctx.lineTo(-10, -20);
-        ctx.closePath();
-        ctx.fill();
-
-        const cg = ctx.createRadialGradient(w/2, 0, 0, w/2, 5, 90);
-        cg.addColorStop(0, 'rgba(255,160,0,0.7)');
-        cg.addColorStop(0.3,'rgba(255,90,0,0.35)');
-        cg.addColorStop(0.7,'rgba(255,40,0,0.10)');
-        cg.addColorStop(1,  'rgba(255,0,0,0)');
-        ctx.fillStyle = cg;
-        ctx.beginPath();
-        ctx.ellipse(w/2, 0, 90, 55, 0, 0, Math.PI*2);
-        ctx.fill();
+        ctx.moveTo(-10,0); ctx.lineTo(w*0.28,0); ctx.lineTo(w*0.41,80);
+        ctx.lineTo(w*0.46,28); ctx.lineTo(w*0.50,0); ctx.lineTo(w*0.54,28);
+        ctx.lineTo(w*0.59,80); ctx.lineTo(w*0.72,0); ctx.lineTo(w+10,0);
+        ctx.lineTo(w+10,-20); ctx.lineTo(-10,-20); ctx.closePath(); ctx.fill();
+        const cg=ctx.createRadialGradient(w/2,0,0,w/2,5,90);
+        cg.addColorStop(0,'rgba(255,160,0,0.7)'); cg.addColorStop(0.3,'rgba(255,90,0,0.35)');
+        cg.addColorStop(0.7,'rgba(255,40,0,0.10)'); cg.addColorStop(1,'rgba(255,0,0,0)');
+        ctx.fillStyle=cg; ctx.beginPath(); ctx.ellipse(w/2,0,90,55,0,0,Math.PI*2); ctx.fill();
         ctx.restore();
     }
 
     function drawPool() {
-        const w = canvas.width, h = canvas.height;
-        const pg = ctx.createLinearGradient(0, h*0.80, 0, h);
-        pg.addColorStop(0, 'rgba(255,60,0,0)');
-        pg.addColorStop(0.5,'rgba(255,80,0,0.06)');
-        pg.addColorStop(1,  'rgba(255,100,0,0.16)');
-        ctx.fillStyle = pg;
-        ctx.fillRect(0, h*0.80, w, h*0.20);
-
-        const rg = ctx.createRadialGradient(w/2, h, 5, w/2, h, w*0.75);
-        rg.addColorStop(0, 'rgba(255,70,0,0.10)');
-        rg.addColorStop(1, 'rgba(255,70,0,0)');
-        ctx.fillStyle = rg;
-        ctx.fillRect(0, 0, w, h);
+        const w=canvas.width, h=canvas.height;
+        const pg=ctx.createLinearGradient(0,h*0.80,0,h);
+        pg.addColorStop(0,'rgba(255,60,0,0)'); pg.addColorStop(0.5,'rgba(255,80,0,0.06)');
+        pg.addColorStop(1,'rgba(255,100,0,0.16)');
+        ctx.fillStyle=pg; ctx.fillRect(0,h*0.80,w,h*0.20);
+        const rg=ctx.createRadialGradient(w/2,h,5,w/2,h,w*0.75);
+        rg.addColorStop(0,'rgba(255,70,0,0.10)'); rg.addColorStop(1,'rgba(255,70,0,0)');
+        ctx.fillStyle=rg; ctx.fillRect(0,0,w,h);
     }
 
     function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0,0,canvas.width,canvas.height);
         drawPool();
         for (const d of drops) {
-            d.wobble += d.wobbleSpd;
-            d.x += Math.sin(d.wobble) * d.wobbleAmp + d.vx;
-            d.y += d.vy;
-            d.tail.push({x: d.x, y: d.y});
-            if (d.tail.length > d.maxTail) d.tail.shift();
+            d.wobble+=d.wobbleSpd; d.x+=Math.sin(d.wobble)*d.wobbleAmp+d.vx; d.y+=d.vy;
+            d.tail.push({x:d.x,y:d.y});
+            if (d.tail.length>d.maxTail) d.tail.shift();
             drawDrop(d);
-            if (d.y - d.radius > canvas.height) {
-                Object.assign(d, makeDrop(false));
-                d.tail = [];
-            }
+            if (d.y-d.radius>canvas.height) { Object.assign(d,makeDrop(false)); d.tail=[]; }
         }
         drawVolcano();
         requestAnimationFrame(animate);
@@ -551,9 +471,9 @@ const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
     animate();
 })();
 
-/* ═══════════════════════════════════════════════
+/* ════════════════════════════════════════
    DOM REFS
-═══════════════════════════════════════════════ */
+════════════════════════════════════════ */
 const statusEl  = document.getElementById('status');
 const statusTxt = document.getElementById('status-txt');
 const spinRow   = document.getElementById('spin-row');
@@ -565,180 +485,75 @@ const copyBtn   = document.getElementById('copy-btn');
 const resetBtn  = document.getElementById('reset-btn');
 const errorBox  = document.getElementById('error-box');
 const errorMsg  = document.getElementById('error-msg');
-const bootWrap  = document.getElementById('boot-overlay');
-const bootFill  = document.getElementById('boot-fill');
-const bootPct   = document.getElementById('boot-pct');
-const bootMsg   = document.getElementById('boot-msg');
+const noHashBox = document.getElementById('no-hash-box');
 
 let keyToCopy   = "";
-let serverReady = false;
-let warmTimer   = null;
-let warmPctVal  = 0;
+let pendingHash  = null;
+let pendingToken = null;
 
-/* ═══════════════════════════════════════════════
-   WARMUP BAR
-═══════════════════════════════════════════════ */
-function startWarmupBar() {
-    warmPctVal = 0;
-    const msgs = [
-        [0,  "Waking render server — cold start..."],
-        [18, "Server booting up..."],
-        [40, "Loading services..."],
-        [62, "Almost ready..."],
-        [80, "Finishing startup..."],
-        [92, "Taking a little longer — hang tight..."],
-    ];
-    const tick = () => {
-        if (serverReady) return;
-        warmPctVal = warmPctVal < 68
-            ? Math.min(warmPctVal + 2.6, 68)
-            : Math.min(warmPctVal + 0.18, 95);
-        bootFill.style.width = warmPctVal + '%';
-        bootPct.innerText    = Math.round(warmPctVal) + '%';
-        for (let i = msgs.length-1; i >= 0; i--) {
-            if (warmPctVal >= msgs[i][0]) { bootMsg.innerText = msgs[i][1]; break; }
-        }
-        warmTimer = setTimeout(tick, 300);
-    };
-    tick();
-}
-
-function finishWarmup(ok) {
-    clearTimeout(warmTimer);
-    serverReady = true;
-    bootFill.style.width = '100%';
-    bootPct.innerText    = '100%';
-
-    if (ok) {
-        bootMsg.innerText = '✓ Server online — ready!';
-        bootMsg.classList.add('success');
-        setStatus("SYSTEM: READY", "default");
-    } else {
-        bootMsg.innerText = '✗ Could not reach server — you can still try';
-        bootMsg.classList.add('fail');
-        setStatus("SERVER DEGRADED", "red");
-    }
-
-    getKeyBtn.style.display = "block";
-    getKeyBtn.disabled      = false;
-
-    setTimeout(() => {
-        bootWrap.style.transition = 'opacity 0.7s';
-        bootWrap.style.opacity    = '0';
-        setTimeout(() => { bootWrap.style.display = 'none'; }, 800);
-    }, 2500);
-}
-
-/* ═══════════════════════════════════════════════
-   PING WITH RETRIES
-═══════════════════════════════════════════════ */
-async function pingUntilAlive() {
-    const MAX    = 12;
-    const GAP    = 4000;
-    const PER_TO = 7000;
-
-    for (let i = 1; i <= MAX; i++) {
-        try {
-            const ctrl = new AbortController();
-            const tid  = setTimeout(() => ctrl.abort(), PER_TO);
-            const res  = await fetch(`${API_BASE}/health`, {
-                method: 'GET', signal: ctrl.signal, cache: 'no-store',
-            });
-            clearTimeout(tid);
-            if (res.status < 500) { finishWarmup(true); return; }
-        } catch { /* retry */ }
-        if (i < MAX) await new Promise(r => setTimeout(r, GAP));
-    }
-    finishWarmup(false);
-}
-
-/* ═══════════════════════════════════════════════
-   BOOT — check for returning Linkvertise user
-═══════════════════════════════════════════════ */
-window.onload = async function () {
+/* ════════════════════════════════════════
+   PAGE LOAD
+   - If ?hash= is in the URL, user just
+     finished the Linkvertise ad. Show button.
+   - Otherwise show the "do the ad first" msg.
+════════════════════════════════════════ */
+window.onload = function () {
     const params = new URLSearchParams(window.location.search);
     const hash   = params.get('hash');
-
-    // Recover token: try URL param first, then sessionStorage fallback
-    const tokenFromUrl     = params.get('token');
-    const tokenFromStorage = sessionStorage.getItem('rezurx_token');
-    const token            = tokenFromUrl || tokenFromStorage;
+    const token  = params.get('token') || sessionStorage.getItem('rezurx_token');
 
     if (hash && token) {
-        // ✅ Returning from Linkvertise with both token + hash — verify now
+        // ✅ Valid return from Linkvertise — store params and show claim button
         window.history.replaceState({}, '', window.location.pathname);
         sessionStorage.removeItem('rezurx_token');
-        bootWrap.style.display = 'none';
+
+        pendingHash  = hash;
+        pendingToken = token;
+
+        noHashBox.style.display = "none";
         setStep(2);
-        await handleVerify(token, hash);
+        setStatus("AD VERIFIED — PRESS BELOW TO CLAIM KEY", "default");
+        getKeyBtn.style.display = "block";
 
     } else if (hash && !token) {
-        // ❌ Hash present but token is gone — session was lost
+        // Hash arrived but session token is gone
         window.history.replaceState({}, '', window.location.pathname);
-        bootWrap.style.display = 'none';
+        noHashBox.style.display = "none";
         showError("SESSION LOST — Please start over and do not close this tab during the ad.");
 
     } else {
-        // Fresh visit — warm up server while user reads the page
-        setStatus("Connecting to server...", "default");
-        startWarmupBar();
-        pingUntilAlive();
+        // Fresh visit with no hash — user hasn't done the ad yet
+        setStep(1);
+        setStatus("COMPLETE AD TO GET KEY", "default");
+        noHashBox.style.display = "block";
     }
 };
 
-/* ═══════════════════════════════════════════════
-   STEP 1 — Initiate session & redirect to Linkvertise
-═══════════════════════════════════════════════ */
-async function startSession() {
-    getKeyBtn.disabled = true;
-    setLoading("GENERATING SECURE TOKEN...");
-    setStep(1);
-
-    try {
-        const res  = await fetch(`${API_BASE}/api/initiate-session`, { method: 'POST' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (!data.token) throw new Error("No token in response");
-
-        // ── Store token in sessionStorage so it survives the redirect ──
-        // Linkvertise appends ?hash=XXXX to the destination URL you set in
-        // your publisher dashboard. Since they don't forward custom query
-        // params from the ?r= redirect parameter reliably, we store the
-        // token client-side and read it back on return.
-        sessionStorage.setItem('rezurx_token', data.token);
-
-        setStatus("REDIRECTING TO LINKVERTISE...", "default");
-
-        // Redirect straight to the Linkvertise link.
-        // Your Linkvertise dashboard destination URL must be:
-        //   https://rezurxshinn.github.io/
-        // Linkvertise will append ?hash=XXXX automatically.
-        window.location.href = LINKVERTISE_URL;
-
-    } catch (err) {
-        console.error('[startSession]', err);
-        showError("SERVER UNREACHABLE — Please wait a moment and try again.");
-        getKeyBtn.style.display = "block";
-        getKeyBtn.disabled      = false;
+/* ════════════════════════════════════════
+   CLAIM KEY
+   Called when user presses "Get Access Key"
+   after returning from Linkvertise.
+════════════════════════════════════════ */
+async function claimKey() {
+    if (!pendingHash || !pendingToken) {
+        showError("SESSION DATA MISSING — Please start over.");
+        return;
     }
-}
 
-/* ═══════════════════════════════════════════════
-   STEP 2 — Verify with backend
-═══════════════════════════════════════════════ */
-async function handleVerify(token, hash) {
-    setLoading("VERIFYING AD COMPLETION...");
+    getKeyBtn.disabled = true;
+    noHashBox.style.display = "none";
+    setLoading("VERIFYING & GENERATING KEY...");
 
     try {
         const res  = await fetch(`${API_BASE}/api/verify-linkvertise`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token, hash }),
+            body: JSON.stringify({ token: pendingToken, hash: pendingHash }),
         });
         const data = await res.json();
 
         if (res.status === 400) {
-            showError("TOKEN ALREADY USED — Each ad completion gives one key. Click Try Again to start fresh.");
+            showError("TOKEN ALREADY USED — Each ad completion gives one key. Start over for a new one.");
             return;
         }
         if (res.status === 403) {
@@ -761,14 +576,15 @@ async function handleVerify(token, hash) {
         }
 
     } catch (err) {
-        console.error('[handleVerify]', err);
+        console.error('[claimKey]', err);
         showError("CONNECTION LOST — Check your network and try again.");
+        getKeyBtn.disabled = false;
     }
 }
 
-/* ═══════════════════════════════════════════════
+/* ════════════════════════════════════════
    UI HELPERS
-═══════════════════════════════════════════════ */
+════════════════════════════════════════ */
 function setLoading(msg) {
     spinRow.classList.add('on');
     spinTxt.innerText       = msg;
@@ -777,14 +593,18 @@ function setLoading(msg) {
     keyBox.style.display    = "none";
     resetBtn.style.display  = "none";
     errorBox.style.display  = "none";
+    noHashBox.style.display = "none";
 }
 
 function showSuccess(key) {
-    keyToCopy = key;
+    keyToCopy    = key;
+    pendingHash  = null;
+    pendingToken = null;
     spinRow.classList.remove('on');
     setStatus("ACCESS GRANTED", "green");
     getKeyBtn.style.display = "none";
     errorBox.style.display  = "none";
+    noHashBox.style.display = "none";
     keyValue.innerText      = key;
     keyBox.style.display    = "block";
     resetBtn.style.display  = "block";
@@ -798,20 +618,23 @@ function showError(msg) {
     getKeyBtn.style.display = "none";
     keyBox.style.display    = "none";
     resetBtn.style.display  = "none";
+    noHashBox.style.display = "none";
     errorMsg.innerText      = msg;
     errorBox.style.display  = "block";
 }
 
 function resetPage() {
-    keyToCopy = "";
+    keyToCopy    = "";
+    pendingHash  = null;
+    pendingToken = null;
     sessionStorage.removeItem('rezurx_token');
     spinRow.classList.remove('on');
     errorBox.style.display  = "none";
     keyBox.style.display    = "none";
     resetBtn.style.display  = "none";
-    getKeyBtn.style.display = "block";
-    getKeyBtn.disabled      = false;
-    setStatus("SYSTEM: READY", "default");
+    getKeyBtn.style.display = "none";
+    noHashBox.style.display = "block";
+    setStatus("COMPLETE AD TO GET KEY", "default");
     setStep(1);
 }
 
@@ -829,9 +652,9 @@ function setStep(n) {
     }
 }
 
-/* ═══════════════════════════════════════════════
+/* ════════════════════════════════════════
    COPY KEY
-═══════════════════════════════════════════════ */
+════════════════════════════════════════ */
 function copyKey() {
     if (!keyToCopy) return;
     const done = () => {
@@ -859,32 +682,30 @@ function fallbackCopy(cb) {
     document.body.removeChild(ta);
 }
 
-/* ═══════════════════════════════════════════════
+/* ════════════════════════════════════════
    CONFETTI
-═══════════════════════════════════════════════ */
+════════════════════════════════════════ */
 function launchConfetti() {
     const canvas  = document.getElementById('confetti-canvas');
     const ctx     = canvas.getContext('2d');
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
-
     const pal    = ['#ff8c00','#ffb347','#ffd700','#00ff88','#fff','#ff6644','#ffcc33'];
     const shapes = ['rect','circle','line'];
     const pieces = Array.from({length:200}, () => ({
-        x:     canvas.width*0.5 + (Math.random()-0.5)*160,
+        x:     canvas.width*0.5+(Math.random()-0.5)*160,
         y:     canvas.height*0.38,
         vx:    (Math.random()-0.5)*16,
         vy:    -(Math.random()*14+5),
-        ay:    0.34 + Math.random()*0.16,
+        ay:    0.34+Math.random()*0.16,
         color: pal[Math.floor(Math.random()*pal.length)],
         size:  Math.random()*8+3,
         rot:   Math.random()*Math.PI*2,
         rspd:  (Math.random()-0.5)*0.22,
         alpha: 1,
-        decay: 0.010 + Math.random()*0.008,
+        decay: 0.010+Math.random()*0.008,
         shape: shapes[Math.floor(Math.random()*shapes.length)],
     }));
-
     (function draw() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
         let alive = false;
@@ -896,7 +717,7 @@ function launchConfetti() {
             ctx.fillStyle = ctx.strokeStyle = p.color;
             ctx.translate(p.x, p.y);
             ctx.rotate(p.rot);
-            if      (p.shape==='rect')   { ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2); }
+            if      (p.shape==='rect')   { ctx.fillRect(-p.size/2,-p.size/4,p.size,p.size/2); }
             else if (p.shape==='circle') { ctx.beginPath(); ctx.arc(0,0,p.size/2.5,0,Math.PI*2); ctx.fill(); }
             else { ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(-p.size/2,0); ctx.lineTo(p.size/2,0); ctx.stroke(); }
             ctx.restore();
