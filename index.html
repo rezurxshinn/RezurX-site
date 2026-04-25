@@ -183,7 +183,7 @@
 
     <div id="status"><span class="sdot"></span><span id="status-txt">Ready</span></div>
 
-    <!-- One button that rules them all -->
+    <!-- Single button that handles everything -->
     <button id="main-btn" onclick="handleButtonClick()">⚡ Get Access Key</button>
 
     <div id="key-box">
@@ -232,18 +232,17 @@ const errorMsg  = document.getElementById('error-msg');
 
 let keyToCopy = "";
 
-// On page load: if already completed ad, update button text
+// On page load: update button text based on completed ad
 window.onload = function () {
     if (PAGE_HASH && PAGE_TOKEN) {
         mainBtn.innerText = "⚡ Claim Your Key";
         setStatus("Ad completed – click to get your key", "default");
     }
-    // otherwise button stays "Get Access Key"
 };
 
 /* ═══ ONE BUTTON HANDLER ═══ */
 async function handleButtonClick() {
-    // If we have both token and hash, claim the key
+    // If we have both token and hash (returned from ad), claim the key
     if (PAGE_HASH && PAGE_TOKEN) {
         await claimKey();
     } else {
@@ -271,10 +270,9 @@ async function startAdFlow() {
         sessionStorage.setItem('rezurx_token', data.token);
         setStatus("Redirecting to verification...", "default");
 
-        // Build the return URL (this exact page) with the token
-        const returnURL = window.location.origin + window.location.pathname + '?token=' + data.token;
-        // Redirect to Linkvertise – they will send the user back with ?hash= after the ad
-        window.location.href = `${LINKVERTISE_URL}?url=${encodeURIComponent(returnURL)}`;
+        // ✅ Correct: pass token as query param to Linkvertise
+        // Linkvertise will use the Destination URL with {token} and {hash} placeholders
+        window.location.href = `${LINKVERTISE_URL}?token=${encodeURIComponent(data.token)}`;
     } catch {
         spinRow.classList.remove('on');
         setStatus("ERROR", "red");
