@@ -3,55 +3,554 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RezurX – Key Generation Test</title>
+    <title>RezurXLab | Key System</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        body { background:#0a0200; color:#fff; font-family:monospace; padding:2rem; text-align:center; }
-        input, button { padding:10px; margin:10px; font-size:1rem; width:80%; max-width:400px; }
-        button { background:#ff8c00; color:#000; border:none; cursor:pointer; font-weight:bold; }
-        #output { margin-top:20px; background:#111; padding:15px; border-radius:5px; word-break:break-all; }
+        :root {
+            --orange:      #ff8c00;
+            --orange-glow: rgba(255,140,0,0.45);
+            --green:       #00ff88;
+            --green-glow:  rgba(0,255,136,0.3);
+            --green-soft:  rgba(0,255,136,0.07);
+            --red:         #ff4455;
+            --red-soft:    rgba(255,68,85,0.08);
+            --bg:          #0a0200;
+            --panel:       rgba(10,4,0,0.93);
+            --muted:       #3a3028;
+            --dim:         #6a5848;
+        }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html, body { height:100%; }
+        body {
+            background: var(--bg);
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #lava-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+        .atmos {
+            position:fixed; inset:0; z-index:1; pointer-events:none;
+            background:
+                radial-gradient(ellipse 90% 50% at 50% 0%,   rgba(255,90,0,0.20) 0%, transparent 65%),
+                radial-gradient(ellipse 70% 40% at 50% 100%, rgba(255,50,0,0.12) 0%, transparent 70%),
+                radial-gradient(ellipse 100% 100% at 50% 50%, transparent 35%, rgba(0,0,0,0.72) 100%);
+        }
+        .scanlines {
+            position:fixed; inset:0; z-index:2; pointer-events:none;
+            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.045) 3px, rgba(0,0,0,0.045) 4px);
+        }
+        .gloss { position:fixed; top:0; left:0; right:0; height:50vh; z-index:2; pointer-events:none; background:linear-gradient(180deg,rgba(255,150,50,0.05) 0%,transparent 100%); }
+        #confetti-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:999; pointer-events:none; }
+
+        .panel {
+            position:relative; z-index:10;
+            background:var(--panel);
+            border:1px solid rgba(255,140,0,0.22);
+            border-radius:6px;
+            padding:42px 38px 34px;
+            width:92%; max-width:480px;
+            text-align:center;
+            box-shadow:
+                0 0 0 1px rgba(0,0,0,0.9),
+                0 8px 40px rgba(0,0,0,0.85),
+                0 0 100px rgba(255,80,0,0.10),
+                inset 0 1px 0 rgba(255,180,80,0.09),
+                inset 0 -1px 0 rgba(0,0,0,0.5);
+            backdrop-filter:blur(3px);
+            animation:panelIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        @keyframes panelIn { from{opacity:0;transform:translateY(18px) scale(0.97);} to{opacity:1;transform:none;} }
+        .panel-gloss { position:absolute; top:0; left:0; right:0; height:48%; border-radius:6px 6px 0 0; pointer-events:none; background:linear-gradient(180deg,rgba(255,160,80,0.055) 0%,transparent 100%); z-index:1; }
+        .c { position:absolute; width:14px; height:14px; }
+        .c-tl { top:-1px;    left:-1px;  border-top:2px solid var(--orange); border-left:2px solid var(--orange);   border-radius:3px 0 0 0; }
+        .c-tr { top:-1px;    right:-1px; border-top:2px solid var(--orange); border-right:2px solid var(--orange);  border-radius:0 3px 0 0; }
+        .c-bl { bottom:-1px; left:-1px;  border-bottom:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:0 0 0 3px; }
+        .c-br { bottom:-1px; right:-1px; border-bottom:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 0 3px 0; }
+
+        .logo-wrap { margin-bottom:30px; position:relative; z-index:2; }
+        .logo-eyebrow { font-size:0.52rem; letter-spacing:4px; color:var(--muted); text-transform:uppercase; margin-bottom:10px; }
+        h1 {
+            font-family:'Orbitron',sans-serif;
+            font-size:1.75rem; font-weight:900; letter-spacing:5px;
+            background:linear-gradient(180deg,#ffd080 0%,#ff9c20 35%,#ff6600 70%,#cc4400 100%);
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+            filter:drop-shadow(0 0 20px rgba(255,140,0,0.55));
+            line-height:1.1;
+        }
+        .logo-sub { font-size:0.5rem; letter-spacing:5px; color:var(--muted); text-transform:uppercase; margin-top:9px; }
+        .divider { width:100%; height:1px; position:relative; z-index:2; background:linear-gradient(90deg,transparent,rgba(255,140,0,0.22),transparent); margin-bottom:26px; }
+
+        #status {
+            position:relative; z-index:2;
+            font-size:0.65rem; letter-spacing:2px; text-transform:uppercase;
+            color:var(--dim); margin-bottom:20px;
+            display:flex; align-items:center; justify-content:center; gap:8px;
+            min-height:1.1em; transition:color 0.3s;
+        }
+        .sdot { width:5px; height:5px; border-radius:50%; background:var(--muted); flex-shrink:0; animation:sdot 2s ease-in-out infinite; }
+        @keyframes sdot { 0%,100%{opacity:1} 50%{opacity:0.25} }
+        #status.green { color:var(--green); }
+        #status.green .sdot { background:var(--green); box-shadow:0 0 6px var(--green); animation:sdot 2s ease-in-out infinite; }
+        #status.red   { color:var(--red); }
+        #status.red   .sdot { background:var(--red); animation:none; opacity:1; }
+
+        .spin-row { display:none; align-items:center; justify-content:center; gap:12px; margin-bottom:18px; position:relative; z-index:2; }
+        .spin-row.on { display:flex; }
+        .spinner { width:18px; height:18px; border:2px solid rgba(255,140,0,0.12); border-top-color:var(--orange); border-radius:50%; animation:spin 0.75s linear infinite; }
+        @keyframes spin { to{transform:rotate(360deg);} }
+        .spin-txt { font-size:0.63rem; color:var(--dim); letter-spacing:2px; text-transform:uppercase; }
+
+        #get-key-btn {
+            display:none; position:relative; overflow:hidden; z-index:2;
+            background:transparent;
+            border:1px solid var(--orange);
+            color:var(--orange);
+            font-family:'Orbitron',sans-serif;
+            font-size:0.78rem; font-weight:700;
+            padding:18px 24px; width:100%;
+            cursor:pointer; letter-spacing:3px; text-transform:uppercase;
+            border-radius:3px;
+            transition:color 0.25s, background 0.25s, box-shadow 0.25s;
+        }
+        #get-key-btn::before { content:""; position:absolute; inset:0; background:linear-gradient(135deg,transparent 30%,rgba(255,180,80,0.06)); pointer-events:none; }
+        #get-key-btn::after  { content:""; position:absolute; top:0; left:-120%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent); animation:shimmer 2.8s ease-in-out infinite; }
+        @keyframes shimmer { 0%{left:-120%} 55%,100%{left:160%} }
+        #get-key-btn:hover:not(:disabled) { background:var(--orange); color:#000; box-shadow:0 0 30px var(--orange-glow), 0 4px 24px rgba(0,0,0,0.5); }
+        #get-key-btn:active:not(:disabled) { transform:scale(0.997); }
+        #get-key-btn:disabled { opacity:0.35; cursor:not-allowed; }
+
+        #start-over-btn {
+            display:none; position:relative; overflow:hidden; z-index:2;
+            background:transparent;
+            border:1px solid rgba(255,140,0,0.35);
+            color:rgba(255,140,0,0.6);
+            font-family:'Orbitron',sans-serif;
+            font-size:0.72rem; font-weight:700;
+            padding:16px 24px; width:100%;
+            cursor:pointer; letter-spacing:3px; text-transform:uppercase;
+            border-radius:3px;
+            transition:color 0.25s, background 0.25s, box-shadow 0.25s;
+        }
+        #start-over-btn:hover { background:rgba(255,140,0,0.07); color:var(--orange); border-color:var(--orange); }
+
+        #key-box {
+            display:none; margin-top:18px;
+            background:var(--green-soft);
+            border:1px solid rgba(0,255,136,0.18);
+            border-radius:4px; padding:20px 16px 16px;
+            position:relative; z-index:2;
+            animation:slideUp 0.45s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        @keyframes slideUp { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:none;} }
+        .key-label { font-size:0.52rem; letter-spacing:3px; color:rgba(0,255,136,0.35); text-transform:uppercase; margin-bottom:12px; }
+        #key-value { font-family:'Orbitron',sans-serif; font-size:1.05rem; font-weight:700; letter-spacing:3px; color:var(--green); word-break:break-all; text-shadow:0 0 14px var(--green-glow); margin-bottom:14px; user-select:all; }
+        #copy-btn { background:transparent; border:1px solid rgba(0,255,136,0.18); color:rgba(0,255,136,0.45); font-family:'JetBrains Mono',monospace; font-size:0.62rem; letter-spacing:2px; text-transform:uppercase; padding:10px; width:100%; cursor:pointer; border-radius:2px; transition:all 0.2s; }
+        #copy-btn:hover  { background:rgba(0,255,136,0.05); color:var(--green); border-color:rgba(0,255,136,0.3); }
+        #copy-btn.copied { color:var(--green); background:rgba(0,255,136,0.07); border-color:rgba(0,255,136,0.35); }
+
+        #reset-btn { display:none; margin-top:10px; position:relative; z-index:2; background:transparent; border:1px solid rgba(255,255,255,0.05); color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:0.6rem; letter-spacing:1px; text-transform:uppercase; padding:10px; width:100%; cursor:pointer; border-radius:2px; transition:all 0.2s; }
+        #reset-btn:hover { border-color:var(--orange); color:var(--orange); }
+
+        #error-box { display:none; margin-top:16px; background:var(--red-soft); border:1px solid rgba(255,68,85,0.18); border-radius:4px; padding:16px; position:relative; z-index:2; animation:slideUp 0.3s ease both; }
+        #error-msg { font-size:0.66rem; color:var(--red); letter-spacing:0.5px; margin-bottom:12px; line-height:1.6; }
+        #try-again-btn { background:transparent; border:1px solid rgba(255,68,85,0.25); color:var(--red); font-family:'JetBrains Mono',monospace; font-size:0.62rem; letter-spacing:1px; text-transform:uppercase; padding:10px; width:100%; cursor:pointer; border-radius:2px; transition:all 0.2s; }
+        #try-again-btn:hover { background:rgba(255,68,85,0.05); }
+
+        .footer { position:relative; z-index:2; margin-top:26px; display:flex; justify-content:center; align-items:center; gap:10px; }
+        .fi { font-size:0.47rem; letter-spacing:1.5px; color:#1c1008; text-transform:uppercase; }
+        .fd { width:2px; height:2px; border-radius:50%; background:#1c1008; }
     </style>
 </head>
 <body>
-    <h1>🔑 Test Key Generation</h1>
-    <p>Enter your <code>ADMIN_SECRET</code> (set in Render environment) and click Generate.</p>
-    <input type="password" id="adminSecret" placeholder="Admin Secret (e.g., Avdi973088)">
-    <button onclick="testGenerateKey()">Generate Key</button>
-    <div id="output"></div>
 
-    <script>
-        const API_BASE = "https://rezurx-backend.onrender.com";
+<canvas id="lava-canvas"></canvas>
+<div class="atmos"></div>
+<div class="scanlines"></div>
+<div class="gloss"></div>
+<canvas id="confetti-canvas"></canvas>
 
-        async function testGenerateKey() {
-            const secret = document.getElementById('adminSecret').value.trim();
-            const out = document.getElementById('output');
+<div class="panel">
+    <div class="panel-gloss"></div>
+    <div class="c c-tl"></div><div class="c c-tr"></div>
+    <div class="c c-bl"></div><div class="c c-br"></div>
 
-            if (!secret) {
-                out.innerHTML = '<span style="color:#ff4455;">Please enter the admin secret.</span>';
-                return;
-            }
+    <div class="logo-wrap">
+        <div class="logo-eyebrow">Access Portal</div>
+        <h1>REZURXLAB</h1>
+        <div class="logo-sub">Key Generation System</div>
+    </div>
 
-            out.innerHTML = 'Requesting...';
+    <div class="divider"></div>
 
-            try {
-                const res = await fetch(`${API_BASE}/api/generate-key`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-admin-token': secret
-                    }
-                });
+    <div class="spin-row" id="spin-row">
+        <div class="spinner"></div>
+        <div class="spin-txt" id="spin-txt">Connecting...</div>
+    </div>
 
-                const data = await res.json();
+    <div id="status"><span class="sdot"></span><span id="status-txt">Connect your wallet...</span></div>
 
-                if (res.ok && data.key) {
-                    out.innerHTML = `<span style="color:#00ff88;">✅ Key generated:</span><br><b>${data.key}</b>`;
-                } else {
-                    out.innerHTML = `<span style="color:#ff4455;">❌ Error:</span> ${data.error || 'Unknown error'}`;
-                }
-            } catch (err) {
-                out.innerHTML = `<span style="color:#ff4455;">❌ Network error:</span> ${err.message}`;
-            }
+    <button id="get-key-btn" onclick="claimKey()">⚡ Get Access Key</button>
+    <button id="start-over-btn" onclick="goToAd()">↩ Complete Ad First</button>
+
+    <div id="key-box">
+        <div class="key-label">▸ Access Key Generated</div>
+        <div id="key-value"></div>
+        <button id="copy-btn" onclick="copyKey()">[ Click to Copy ]</button>
+    </div>
+    <button id="reset-btn" onclick="location.reload()">↩ Generate Another Key</button>
+
+    <div id="error-box">
+        <div id="error-msg"></div>
+        <button id="try-again-btn" onclick="location.reload()">↩ Try Again</button>
+    </div>
+
+    <div class="footer">
+        <span class="fi">AES-256</span><div class="fd"></div>
+        <span class="fi">HWID Lock</span><div class="fd"></div>
+        <span class="fi">V4.2</span>
+    </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   CONFIG
+══════════════════════════════════════════ */
+const API_BASE        = "https://rezurx-backend.onrender.com";
+const LINKVERTISE_URL = "https://link-center.net/5011888/q763gg8u5DCT";
+
+/* ══════════════════════════════════════════
+   READ URL PARAMS
+   Linkvertise sends back: ?token=X&hash=Y
+══════════════════════════════════════════ */
+const _params    = new URLSearchParams(window.location.search);
+const PAGE_TOKEN = _params.get('token') || sessionStorage.getItem('rezurx_token') || null;
+const PAGE_HASH  = _params.get('hash')  || null;
+
+// Clean URL immediately so refresh doesn't reuse old params
+if (PAGE_TOKEN || PAGE_HASH) {
+    window.history.replaceState({}, '', window.location.pathname);
+    if (PAGE_TOKEN) sessionStorage.removeItem('rezurx_token');
+}
+
+/* DOM refs */
+const statusEl     = document.getElementById('status');
+const statusTxt    = document.getElementById('status-txt');
+const spinRow      = document.getElementById('spin-row');
+const spinTxt      = document.getElementById('spin-txt');
+const getKeyBtn    = document.getElementById('get-key-btn');
+const startOverBtn = document.getElementById('start-over-btn');
+const keyBox       = document.getElementById('key-box');
+const keyValue     = document.getElementById('key-value');
+const copyBtn      = document.getElementById('copy-btn');
+const resetBtn     = document.getElementById('reset-btn');
+const errorBox     = document.getElementById('error-box');
+const errorMsg     = document.getElementById('error-msg');
+
+let keyToCopy       = "";
+
+/* ══════════════════════════════════════════
+   PAGE LOAD ROUTING
+══════════════════════════════════════════ */
+(function route() {
+    if (PAGE_HASH && PAGE_TOKEN) {
+        // User returned from ad — show claim button
+        setStatus("Ad verified — claim your key below", "default");
+        getKeyBtn.style.display = "block";
+    } else if (PAGE_HASH && !PAGE_TOKEN) {
+        // Hash is present but token lost (probably closed tab)
+        showError("SESSION LOST\n\nYour session token expired. Please complete the ad again.", true);
+    } else {
+        // Fresh visit, no ad done — show "go to ad" button
+        setStatus("Complete the Linkvertise ad first", "default");
+        startOverBtn.style.display = "block";
+    }
+})();
+
+/* ══════════════════════════════════════════
+   GO TO AD  (called when user clicks "Complete Ad First")
+   Gets a real backend token, stores it, and redirects to Linkvertise
+══════════════════════════════════════════ */
+async function goToAd() {
+    hideAll();
+    spinRow.classList.add('on');
+    spinTxt.innerText = "CONNECTING...";
+    setStatus("Connecting to server...", "default");
+
+    try {
+        const res = await fetch(`${API_BASE}/api/initiate-session`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        if (!res.ok) throw new Error('Server unreachable');
+        const data = await res.json();
+        if (!data.token) throw new Error('No token');
+
+        sessionStorage.setItem('rezurx_token', data.token);
+        setStatus("Redirecting to verification...", "default");
+
+        setTimeout(() => {
+            const returnURL = encodeURIComponent(
+                window.location.origin + window.location.pathname + '?token=' + data.token
+            );
+            window.location.href = `${LINKVERTISE_URL}/${returnURL}`;
+        }, 400);
+    } catch {
+        spinRow.classList.remove('on');
+        showError("SERVER UNREACHABLE\n\nThe key server is waking up. Please wait 30 seconds and refresh.", false);
+    }
+}
+
+/* ══════════════════════════════════════════
+   CLAIM KEY
+══════════════════════════════════════════ */
+async function claimKey() {
+    getKeyBtn.disabled = true;
+    spinRow.classList.add('on');
+    spinTxt.innerText = "VERIFYING...";
+    errorBox.style.display = "none";
+    setStatus("Verifying & generating key...", "default");
+
+    try {
+        const payload = {};
+        if (PAGE_TOKEN) payload.token = PAGE_TOKEN;
+        if (PAGE_HASH)  payload.hash  = PAGE_HASH;
+
+        const res  = await fetch(`${API_BASE}/api/verify-linkvertise`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify(payload),
+        });
+
+        spinRow.classList.remove('on');
+
+        if (res.status === 400) {
+            showError("KEY ALREADY CLAIMED\n\nThis session was already used to generate a key. Complete the ad again.", true);
+            return;
         }
-    </script>
+        if (res.status === 403) {
+            showError("AD NOT COMPLETED\n\nPlease finish all steps of the Linkvertise offer before claiming your key.", true);
+            return;
+        }
+        if (res.status === 404) {
+            showError("SESSION EXPIRED\n\nSessions are valid for 30 minutes. Please complete the ad again.", true);
+            return;
+        }
+        if (res.status === 429) {
+            showError("TOO MANY REQUESTS\n\nPlease wait a minute before trying again.", false);
+            getKeyBtn.disabled = false;
+            return;
+        }
+        if (!res.ok) {
+            showError(`SERVER ERROR (${res.status})\n\nThe key server returned an unexpected error. Please try again in a moment.`, false);
+            getKeyBtn.disabled = false;
+            return;
+        }
+
+        let data;
+        try { data = await res.json(); } catch {
+            showError("INVALID RESPONSE\n\nThe server returned an unreadable response. Please try again.", false);
+            getKeyBtn.disabled = false;
+            return;
+        }
+
+        if (data.key) {
+            showSuccess(data.key);
+        } else {
+            showError((data.error || "Verification failed") + "\n\nCould not generate a key. Please try again.", false);
+            getKeyBtn.disabled = false;
+        }
+    } catch (err) {
+        spinRow.classList.remove('on');
+        showError("CONNECTION LOST\n\nCould not reach the key server. Check your network and try again.", false);
+        getKeyBtn.disabled = false;
+    }
+}
+
+/* ══════════════════════════════════════════
+   UI HELPERS
+══════════════════════════════════════════ */
+function hideAll() {
+    spinRow.classList.remove('on');
+    getKeyBtn.style.display    = "none";
+    startOverBtn.style.display = "none";
+    keyBox.style.display       = "none";
+    resetBtn.style.display     = "none";
+    errorBox.style.display     = "none";
+}
+
+function showSuccess(key) {
+    keyToCopy = key;
+    hideAll();
+    setStatus("ACCESS GRANTED", "green");
+    keyValue.innerText     = key;
+    keyBox.style.display   = "block";
+    resetBtn.style.display = "block";
+    launchConfetti();
+}
+
+function showError(msg, showStartOver) {
+    hideAll();
+    setStatus("SYSTEM: ERROR", "red");
+    errorMsg.innerHTML = msg.replace(/\n\n/g, '<br><br>');
+    errorBox.style.display = "block";
+    if (showStartOver) {
+        startOverBtn.style.display = "block";
+    }
+}
+
+function setStatus(msg, type) {
+    statusTxt.innerText = msg;
+    statusEl.className  = type === "green" ? "green" : type === "red" ? "red" : "";
+}
+
+/* ══════════════════════════════════════════
+   COPY KEY
+══════════════════════════════════════════ */
+function copyKey() {
+    if (!keyToCopy) return;
+    const done = () => {
+        copyBtn.innerText = "[ \u2713 COPIED! ]";
+        copyBtn.classList.add('copied');
+        setTimeout(() => { copyBtn.innerText = "[ Click to Copy ]"; copyBtn.classList.remove('copied'); }, 2500);
+    };
+    if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(keyToCopy).then(done).catch(() => fallbackCopy(done));
+    } else { fallbackCopy(done); }
+}
+function fallbackCopy(cb) {
+    const ta = document.createElement('textarea');
+    ta.value = keyToCopy; ta.style.cssText = "position:fixed;opacity:0;";
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); cb(); } catch {}
+    document.body.removeChild(ta);
+}
+
+/* ══════════════════════════════════════════
+   CONFETTI
+══════════════════════════════════════════ */
+function launchConfetti() {
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx    = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const pal    = ['#ff8c00','#ffb347','#ffd700','#00ff88','#fff','#ff6644','#ffcc33'];
+    const shapes = ['rect','circle','line'];
+    const pieces = Array.from({length:200}, () => ({
+        x: canvas.width*0.5+(Math.random()-0.5)*160, y: canvas.height*0.38,
+        vx: (Math.random()-0.5)*16, vy: -(Math.random()*14+5), ay: 0.34+Math.random()*0.16,
+        color: pal[Math.floor(Math.random()*pal.length)], size: Math.random()*8+3,
+        rot: Math.random()*Math.PI*2, rspd: (Math.random()-0.5)*0.22,
+        alpha: 1, decay: 0.010+Math.random()*0.008, shape: shapes[Math.floor(Math.random()*shapes.length)],
+    }));
+    (function draw() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        let alive = false;
+        for (const p of pieces) {
+            if (p.alpha <= 0) continue; alive = true;
+            ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = ctx.strokeStyle = p.color;
+            ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+            if      (p.shape==='rect')   { ctx.fillRect(-p.size/2,-p.size/4,p.size,p.size/2); }
+            else if (p.shape==='circle') { ctx.beginPath(); ctx.arc(0,0,p.size/2.5,0,Math.PI*2); ctx.fill(); }
+            else { ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(-p.size/2,0); ctx.lineTo(p.size/2,0); ctx.stroke(); }
+            ctx.restore();
+            p.x+=p.vx; p.y+=p.vy; p.vy+=p.ay; p.vx*=0.99; p.rot+=p.rspd; p.alpha-=p.decay;
+        }
+        if (alive) requestAnimationFrame(draw);
+        else ctx.clearRect(0,0,canvas.width,canvas.height);
+    })();
+}
+
+window.addEventListener('resize', () => {
+    const c = document.getElementById('confetti-canvas');
+    c.width = window.innerWidth; c.height = window.innerHeight;
+});
+
+/* ══════════════════════════════════════════
+   LAVA BACKGROUND (unchanged masterpiece)
+══════════════════════════════════════════ */
+(function initLava() {
+    const canvas = document.getElementById('lava-canvas');
+    const ctx    = canvas.getContext('2d');
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resize(); window.addEventListener('resize', resize);
+    const palette = [[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0],[255,100,5]];
+    function rand(a,b) { return a+Math.random()*(b-a); }
+    function makeDrop(initial) {
+        const col = palette[Math.floor(Math.random()*palette.length)];
+        const spread = canvas.width*0.18;
+        return {
+            x:canvas.width*0.5+rand(-spread,spread),
+            y:initial?rand(-canvas.height,0):rand(-60,0),
+            vy:rand(1.2,3.2), vx:rand(-0.6,0.6),
+            radius:rand(3,12), tail:[], maxTail:Math.floor(rand(10,28)),
+            r:col[0],g:col[1],b:col[2], alpha:rand(0.5,0.92),
+            wobble:rand(0,Math.PI*2), wobbleSpd:rand(0.01,0.045),
+            wobbleAmp:rand(0.2,1.4), glow:Math.random()>0.55
+        };
+    }
+    const drops = []; for (let i=0;i<60;i++) drops.push(makeDrop(true));
+    function drawDrop(d) {
+        const {x,y,radius,r,g,b,alpha,tail,glow}=d;
+        for (let i=0;i<tail.length;i++) {
+            const t=tail[i],pct=i/tail.length,a=alpha*pct*0.4,rad=radius*pct*0.65;
+            if(rad<0.5||a<0.01)continue;
+            ctx.beginPath();ctx.arc(t.x,t.y,rad,0,Math.PI*2);
+            ctx.fillStyle=`rgba(${r},${g},${b},${a})`;ctx.fill();
+        }
+        if (glow) {
+            const gr=ctx.createRadialGradient(x,y,0,x,y,radius*4);
+            gr.addColorStop(0,`rgba(${r},${g},${b},${alpha*0.38})`);
+            gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
+            ctx.beginPath();ctx.arc(x,y,radius*4,0,Math.PI*2);
+            ctx.fillStyle=gr;ctx.fill();
+        }
+        const gm=ctx.createRadialGradient(x-radius*0.3,y-radius*0.35,0,x,y,radius);
+        gm.addColorStop(0,`rgba(255,210,130,${alpha*0.95})`);
+        gm.addColorStop(0.35,`rgba(${r},${g},${b},${alpha})`);
+        gm.addColorStop(1,`rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
+        ctx.beginPath();ctx.arc(x,y,radius,0,Math.PI*2);ctx.fillStyle=gm;ctx.fill();
+        ctx.beginPath();ctx.arc(x-radius*0.28,y-radius*0.30,radius*0.27,0,Math.PI*2);
+        ctx.fillStyle=`rgba(255,255,230,${alpha*0.6})`;ctx.fill();
+    }
+    function drawVolcano() {
+        const w=canvas.width; ctx.save(); ctx.fillStyle='rgba(6,2,0,0.96)';
+        ctx.beginPath();ctx.moveTo(-10,0);ctx.lineTo(w*0.28,0);ctx.lineTo(w*0.41,80);
+        ctx.lineTo(w*0.46,28);ctx.lineTo(w*0.50,0);ctx.lineTo(w*0.54,28);
+        ctx.lineTo(w*0.59,80);ctx.lineTo(w*0.72,0);ctx.lineTo(w+10,0);
+        ctx.lineTo(w+10,-20);ctx.lineTo(-10,-20);ctx.closePath();ctx.fill();
+        const cg=ctx.createRadialGradient(w/2,0,0,w/2,5,90);
+        cg.addColorStop(0,'rgba(255,160,0,0.7)');cg.addColorStop(0.3,'rgba(255,90,0,0.35)');
+        cg.addColorStop(0.7,'rgba(255,40,0,0.10)');cg.addColorStop(1,'rgba(255,0,0,0)');
+        ctx.fillStyle=cg;ctx.beginPath();ctx.ellipse(w/2,0,90,55,0,0,Math.PI*2);ctx.fill();ctx.restore();
+    }
+    function drawPool() {
+        const w=canvas.width,h=canvas.height;
+        const pg=ctx.createLinearGradient(0,h*0.80,0,h);
+        pg.addColorStop(0,'rgba(255,60,0,0)');pg.addColorStop(0.5,'rgba(255,80,0,0.06)');pg.addColorStop(1,'rgba(255,100,0,0.16)');
+        ctx.fillStyle=pg;ctx.fillRect(0,h*0.80,w,h*0.20);
+        const rg=ctx.createRadialGradient(w/2,h,5,w/2,h,w*0.75);
+        rg.addColorStop(0,'rgba(255,70,0,0.10)');rg.addColorStop(1,'rgba(255,70,0,0)');
+        ctx.fillStyle=rg;ctx.fillRect(0,0,w,h);
+    }
+    function animate() {
+        ctx.clearRect(0,0,canvas.width,canvas.height); drawPool();
+        for (const d of drops) {
+            d.wobble+=d.wobbleSpd;d.x+=Math.sin(d.wobble)*d.wobbleAmp+d.vx;d.y+=d.vy;
+            d.tail.push({x:d.x,y:d.y});
+            if(d.tail.length>d.maxTail)d.tail.shift();
+            drawDrop(d);
+            if(d.y-d.radius>canvas.height){Object.assign(d,makeDrop(false));d.tail=[];}
+        }
+        drawVolcano(); requestAnimationFrame(animate);
+    }
+    animate();
+})();
+</script>
 </body>
 </html>
