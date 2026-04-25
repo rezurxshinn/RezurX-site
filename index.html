@@ -4,408 +4,689 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RezurX | Key System</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;600;700;900&family=Stardos+Stencil:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --orange:      #ff8c00;
-            --orange-glow: rgba(255,140,0,0.4);
-            --green:       #00ff88;
-            --green-glow:  rgba(0,255,136,0.2);
-            --red:         #ff4444;
-            --bg:          #050505;
-            --panel:       rgba(15,15,15,0.9);
+            --orange:       #ff8c00;
+            --orange-dim:   #cc7000;
+            --orange-glow:  rgba(255,140,0,0.35);
+            --orange-soft:  rgba(255,140,0,0.08);
+            --green:        #00ff88;
+            --green-glow:   rgba(0,255,136,0.25);
+            --green-soft:   rgba(0,255,136,0.07);
+            --red:          #ff4455;
+            --red-soft:     rgba(255,68,85,0.08);
+            --bg:           #040404;
+            --panel:        rgba(10,10,10,0.96);
+            --border:       rgba(255,140,0,0.18);
+            --text-muted:   #555;
+            --text-dim:     #777;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { height: 100%; }
         body {
             background: var(--bg);
-            background-image: radial-gradient(circle at 50% 40%, #1a1000, #050505 70%);
             color: #fff;
             font-family: 'JetBrains Mono', monospace;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background: repeating-linear-gradient(
-                0deg, transparent, transparent 1px,
-                rgba(0,0,0,0.12) 1px, rgba(0,0,0,0.12) 2px
-            );
-            pointer-events: none;
-            z-index: 100;
-        }
-
-        .panel {
-            background: var(--panel);
-            border: 1px solid rgba(255,140,0,0.25);
-            border-radius: 4px;
-            padding: 40px 35px;
-            width: 90%;
-            max-width: 460px;
-            text-align: center;
+            overflow: hidden;
             position: relative;
-            box-shadow: 0 0 40px rgba(0,0,0,0.95);
         }
 
-        .panel::before {
-            content: "";
-            position: absolute;
-            top: -1px; left: -1px;
-            width: 18px; height: 18px;
-            border-top: 2px solid var(--orange);
-            border-left: 2px solid var(--orange);
+        /* Lava canvas background */
+        #lava-canvas {
+            position: fixed; inset: 0; pointer-events: none; z-index: 0;
         }
 
+        /* Prehistoric stone texture overlay */
+        .stone-overlay {
+            position: fixed; inset: 0; pointer-events: none; z-index: 1;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="none"/><path d="M20 20 L30 15 L25 30 Z" fill="rgba(255,255,255,0.03)"/><circle cx="70" cy="40" r="3" fill="rgba(255,255,255,0.02)"/></svg>');
+            opacity: 0.6;
+        }
+
+        /* Panel glow – amber/orange lens */
+        .panel-glow {
+            position: fixed;
+            width: 700px; height: 600px;
+            background: radial-gradient(ellipse 55% 50% at 50% 50%,
+                rgba(255,110,0,0.18) 0%,
+                rgba(255,80,0,0.09) 40%,
+                transparent 70%);
+            filter: blur(40px);
+            transform: translateY(-40px);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* Main panel */
+        .panel {
+            position: relative; z-index: 10;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 44px 40px 36px;
+            width: 92%;
+            max-width: 480px;
+            text-align: center;
+            box-shadow:
+                0 0 0 1px rgba(0,0,0,0.8),
+                0 0 80px rgba(0,0,0,0.95),
+                0 0 120px rgba(255,100,0,0.06),
+                inset 0 1px 0 rgba(255,255,255,0.03);
+            animation: panelIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        @keyframes panelIn {
+            from { opacity: 0; transform: translateY(16px) scale(0.98); }
+            to   { opacity: 1; transform: none; }
+        }
+
+        /* Corner brackets */
+        .panel::before, .panel::after, .corner-br, .corner-bl {
+            content: ""; position: absolute; width: 16px; height: 16px;
+        }
+        .panel::before { top: -1px; left: -1px; border-top: 2px solid var(--orange); border-left: 2px solid var(--orange); border-radius: 2px 0 0 0; }
+        .panel::after  { top: -1px; right: -1px; border-top: 2px solid var(--orange); border-right: 2px solid var(--orange); border-radius: 0 2px 0 0; }
+        .corner-br { bottom: -1px; right: -1px; border-bottom: 2px solid var(--orange); border-right: 2px solid var(--orange); border-radius: 0 0 2px 0; }
+        .corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid var(--orange); border-left: 2px solid var(--orange); border-radius: 0 0 0 2px; }
+
+        /* Header */
+        .logo-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 32px; }
+        .logo-tag { font-size: 0.55rem; letter-spacing: 4px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
         h1 {
-            font-family: 'Orbitron', sans-serif;
-            letter-spacing: 6px;
-            font-size: 1.6rem;
+            font-family: 'Stardos Stencil', cursive;
+            font-size: 2.4rem; font-weight: 700;
+            letter-spacing: 10px;
             color: var(--orange);
-            text-shadow: 0 0 12px var(--orange-glow);
-            margin-bottom: 30px;
+            text-shadow: 0 0 25px var(--orange-glow), 0 0 60px rgba(255,140,0,0.15);
+            line-height: 1;
         }
+        .logo-sub { font-size: 0.52rem; letter-spacing: 5px; color: var(--text-muted); text-transform: uppercase; margin-top: 8px; }
+        .divider { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin-bottom: 28px; }
 
-        /* SPINNER */
-        .spinner {
-            width: 44px; height: 44px;
-            border: 3px solid rgba(255,140,0,0.15);
-            border-top-color: var(--orange);
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            animation: spin 0.9s linear infinite;
-        }
+        /* Spinner */
+        .spinner-wrap { display: none; align-items: center; justify-content: center; gap: 14px; margin-bottom: 20px; }
+        .spinner-wrap.active { display: flex; }
+        .spinner { width: 20px; height: 20px; border: 2px solid rgba(255,140,0,0.15); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner-text { font-size: 0.68rem; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; }
 
-        /* STATUS */
+        /* Status */
         #status {
-            font-size: 0.78rem;
-            color: #666;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-bottom: 24px;
-            min-height: 1.2em;
+            font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;
+            color: var(--text-dim); margin-bottom: 22px; min-height: 1em;
+            display: flex; align-items: center; justify-content: center; gap: 8px; transition: color 0.3s;
         }
+        .status-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        #status.green { color: var(--green); }
+        #status.green .status-dot { background: var(--green); box-shadow: 0 0 6px var(--green); }
+        #status.red   { color: var(--red); }
+        #status.red   .status-dot { background: var(--red); animation: none; }
 
-        /* GET KEY BUTTON */
+        /* Get Key Button */
         #get-key-btn {
-            background: transparent;
-            border: 1px solid var(--orange);
-            color: var(--orange);
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 700;
-            padding: 16px 24px;
-            width: 100%;
-            cursor: pointer;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            transition: all 0.25s;
-            border-radius: 2px;
+            position: relative; overflow: hidden;
+            background: transparent; border: 1px solid var(--orange);
+            color: var(--orange); font-family: 'Orbitron', sans-serif;
+            font-size: 0.78rem; font-weight: 700;
+            padding: 18px 24px; width: 100%; cursor: pointer;
+            letter-spacing: 3px; text-transform: uppercase;
+            border-radius: 3px; transition: color 0.25s, background 0.25s, box-shadow 0.25s;
         }
-        #get-key-btn:hover:not(:disabled) {
-            background: var(--orange);
-            color: #000;
-            box-shadow: 0 0 20px var(--orange-glow);
-        }
-        #get-key-btn:disabled {
-            opacity: 0.45;
-            cursor: not-allowed;
-        }
+        #get-key-btn::before { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 40%, rgba(255,140,0,0.08)); opacity: 0; transition: opacity 0.25s; }
+        #get-key-btn:hover:not(:disabled)::before { opacity: 1; }
+        #get-key-btn:hover:not(:disabled) { background: var(--orange); color: #000; box-shadow: 0 0 30px var(--orange-glow), 0 4px 20px rgba(0,0,0,0.4); }
+        #get-key-btn:active:not(:disabled) { transform: scale(0.995); }
+        #get-key-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+        #get-key-btn::after { content: ""; position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent); animation: shimmer 3s ease-in-out infinite; }
+        @keyframes shimmer { 0%{left:-100%} 60%,100%{left:150%} }
 
-        /* KEY BOX */
+        /* Key Box */
         #key-box {
-            display: none;
-            margin-top: 20px;
-            padding: 20px 16px 16px;
-            background: rgba(0,0,0,0.5);
-            border: 1px solid var(--green);
-            box-shadow: 0 0 20px var(--green-glow);
-            border-radius: 2px;
+            display: none; margin-top: 20px;
+            background: var(--green-soft); border: 1px solid rgba(0,255,136,0.2);
+            border-radius: 4px; padding: 22px 18px 18px;
+            animation: slideIn 0.4s cubic-bezier(0.22,1,0.36,1) both;
         }
-        .key-label {
-            font-size: 0.62rem;
-            color: rgba(0,255,136,0.5);
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-        }
-        #key-value {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: var(--green);
-            letter-spacing: 3px;
-            word-break: break-all;
-            text-shadow: 0 0 8px var(--green-glow);
-        }
-        #copy-btn {
-            margin-top: 14px;
-            background: transparent;
-            border: 1px solid rgba(0,255,136,0.3);
-            color: rgba(0,255,136,0.6);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.68rem;
-            padding: 9px 16px;
-            cursor: pointer;
-            width: 100%;
-            letter-spacing: 1px;
-            transition: all 0.2s;
-            border-radius: 2px;
-        }
-        #copy-btn:hover { background: rgba(0,255,136,0.08); color: var(--green); }
-        #copy-btn.copied { color: var(--green); background: rgba(0,255,136,0.1); }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+        .key-label { font-size: 0.55rem; letter-spacing: 3px; color: rgba(0,255,136,0.4); text-transform: uppercase; margin-bottom: 12px; }
+        #key-value { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--green); letter-spacing: 3px; word-break: break-all; text-shadow: 0 0 12px var(--green-glow); margin-bottom: 14px; user-select: all; }
+        #copy-btn { background: transparent; border: 1px solid rgba(0,255,136,0.2); color: rgba(0,255,136,0.5); font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 2px; padding: 10px; width: 100%; cursor: pointer; border-radius: 2px; transition: all 0.2s; text-transform: uppercase; }
+        #copy-btn:hover { background: rgba(0,255,136,0.06); color: var(--green); border-color: rgba(0,255,136,0.35); }
+        #copy-btn.copied { color: var(--green); background: rgba(0,255,136,0.08); border-color: rgba(0,255,136,0.4); }
 
-        /* GET ANOTHER KEY BUTTON */
-        #reset-btn {
-            display: none;
-            margin-top: 12px;
-            background: transparent;
-            border: 1px solid #333;
-            color: #555;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.68rem;
-            padding: 9px 16px;
-            cursor: pointer;
-            width: 100%;
-            letter-spacing: 1px;
-            transition: all 0.2s;
-            border-radius: 2px;
-        }
+        /* Reset Button */
+        #reset-btn { display: none; margin-top: 10px; background: transparent; border: 1px solid rgba(255,255,255,0.06); color: var(--text-muted); font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 1px; padding: 10px; width: 100%; cursor: pointer; border-radius: 2px; transition: all 0.2s; text-transform: uppercase; }
         #reset-btn:hover { border-color: var(--orange); color: var(--orange); }
 
-        /* ERROR STATE */
-        #error-box {
-            display: none;
-            margin-top: 16px;
-            padding: 14px;
-            border: 1px solid rgba(255,68,68,0.3);
-            background: rgba(255,68,68,0.05);
-            border-radius: 2px;
-        }
-        #error-msg {
-            font-size: 0.72rem;
-            color: var(--red);
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-        }
-        #try-again-btn {
-            background: transparent;
-            border: 1px solid var(--red);
-            color: var(--red);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.72rem;
-            padding: 10px;
-            width: 100%;
-            cursor: pointer;
-            letter-spacing: 1px;
-            transition: all 0.2s;
-            border-radius: 2px;
-        }
-        #try-again-btn:hover { background: rgba(255,68,68,0.08); }
+        /* Error Box */
+        #error-box { display: none; margin-top: 16px; background: var(--red-soft); border: 1px solid rgba(255,68,85,0.2); border-radius: 4px; padding: 16px; animation: slideIn 0.3s ease both; }
+        #error-msg { font-size: 0.68rem; color: var(--red); letter-spacing: 0.5px; margin-bottom: 12px; line-height: 1.5; }
+        #try-again-btn { background: transparent; border: 1px solid rgba(255,68,85,0.3); color: var(--red); font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; padding: 10px; width: 100%; cursor: pointer; letter-spacing: 1px; border-radius: 2px; transition: all 0.2s; text-transform: uppercase; }
+        #try-again-btn:hover { background: rgba(255,68,85,0.06); }
 
-        .footer {
-            margin-top: 28px;
-            font-size: 0.58rem;
-            color: #222;
-            letter-spacing: 1px;
-        }
+        /* Steps */
+        .steps { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 28px; }
+        .step { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .step-num { width: 26px; height: 26px; border-radius: 50%; border: 1px solid #222; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: #333; transition: all 0.4s; }
+        .step-label { font-size: 0.5rem; letter-spacing: 1px; color: #2a2a2a; text-transform: uppercase; transition: color 0.4s; }
+        .step-line { width: 40px; height: 1px; background: #1a1a1a; margin: 0 4px 20px; transition: background 0.4s; }
+        .step.active .step-num { border-color: var(--orange); color: var(--orange); box-shadow: 0 0 8px var(--orange-glow); }
+        .step.active .step-label { color: var(--text-muted); }
+        .step.done .step-num { border-color: var(--green); color: var(--green); background: rgba(0,255,136,0.07); }
+        .step.done .step-label { color: rgba(0,255,136,0.4); }
+        .step.done + .step-line { background: rgba(0,255,136,0.2); }
+
+        /* Warmup bar */
+        #warmup-wrap { display: none; margin-bottom: 14px; background: rgba(255,140,0,0.04); border: 1px solid rgba(255,140,0,0.12); border-radius: 3px; padding: 10px 14px; }
+        #warmup-wrap.visible { display: block; }
+        .warmup-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
+        .warmup-label { font-size: 0.57rem; letter-spacing: 2px; color: var(--orange); opacity: 0.7; text-transform: uppercase; }
+        #warmup-pct { font-size: 0.57rem; color: var(--orange); opacity: 0.5; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
+        .warmup-track { width: 100%; height: 2px; background: rgba(255,140,0,0.1); border-radius: 2px; overflow: hidden; }
+        #warmup-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--orange-dim), var(--orange)); border-radius: 2px; transition: width 0.5s ease; box-shadow: 0 0 8px var(--orange-glow); }
+        #warmup-msg { font-size: 0.54rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 6px; text-align: right; transition: color 0.3s; }
+        #warmup-msg.ok { color: rgba(0,255,136,0.5); }
     </style>
 </head>
 <body>
-<div class="panel">
-    <h1>REZURX</h1>
+    <canvas id="lava-canvas"></canvas>
+    <div class="stone-overlay"></div>
+    <div class="panel-glow"></div>
+    <canvas id="confetti-canvas" style="position:fixed; inset:0; pointer-events:none; z-index:999;"></canvas>
 
-    <div class="spinner" id="spinner"></div>
-    <div id="status">SYSTEM: READY</div>
+    <div class="panel">
+        <div class="corner-br"></div>
+        <div class="corner-bl"></div>
 
-    <!-- Default state: fresh visitor -->
-    <button id="get-key-btn" onclick="startSession()">⚡ Get Key</button>
+        <div class="logo-wrap">
+            <div class="logo-tag">Access System</div>
+            <h1>REZURX</h1>
+            <div class="logo-sub">Key Generation Portal</div>
+        </div>
+        <div class="divider"></div>
 
-    <!-- Success state: key shown here on same page -->
-    <div id="key-box">
-        <div class="key-label">ACCESS KEY GENERATED</div>
-        <div id="key-value"></div>
-        <button id="copy-btn" onclick="copyKey()">[ CLICK TO COPY ]</button>
+        <div class="steps" id="steps">
+            <div class="step active" id="step-1"><div class="step-num">01</div><div class="step-label">Initiate</div></div>
+            <div class="step-line" id="line-1"></div>
+            <div class="step" id="step-2"><div class="step-num">02</div><div class="step-label">Verify</div></div>
+            <div class="step-line" id="line-2"></div>
+            <div class="step" id="step-3"><div class="step-num">03</div><div class="step-label">Access</div></div>
+        </div>
+
+        <div class="spinner-wrap" id="spinner-wrap">
+            <div class="spinner"></div>
+            <div class="spinner-text" id="spinner-text">Processing...</div>
+        </div>
+
+        <div id="status"><span class="status-dot"></span><span id="status-text">SYSTEM: READY</span></div>
+
+        <div id="warmup-wrap">
+            <div class="warmup-header"><span class="warmup-label">⚙ Waking Server</span><span id="warmup-pct">0%</span></div>
+            <div class="warmup-track"><div id="warmup-fill"></div></div>
+            <div id="warmup-msg">Render cold-start — please wait...</div>
+        </div>
+
+        <button id="get-key-btn" onclick="startSession()">⚡ Get Access Key</button>
+
+        <div id="key-box">
+            <div class="key-label">▸ Access Key Generated</div>
+            <div id="key-value"></div>
+            <button id="copy-btn" onclick="copyKey()">[ Click to Copy ]</button>
+        </div>
+        <button id="reset-btn" onclick="resetPage()">↩ Generate Another Key</button>
+
+        <div id="error-box">
+            <div id="error-msg"></div>
+            <button id="try-again-btn" onclick="resetPage()">↩ Try Again</button>
+        </div>
     </div>
-    <button id="reset-btn" onclick="resetPage()">↩ Get Another Key</button>
 
-    <!-- Error state -->
-    <div id="error-box">
-        <div id="error-msg"></div>
-        <button id="try-again-btn" onclick="resetPage()">↩ TRY AGAIN</button>
-    </div>
+    <script>
+        // ── LAVA RAIN (prehistoric liquid fire) ────────────────
+        (function() {
+            const canvas = document.getElementById('lava-canvas');
+            const ctx = canvas.getContext('2d');
+            let W, H;
+            const drops = [];
+            const COLORS = ['#ff6a00','#ff8c00','#ff4500','#ff3300','#ff9500','#cc3300'];
+            const SPLATS = [];
 
-    <div class="footer">AES-256 SECURED &nbsp;|&nbsp; HWID_LOCK: ON &nbsp;|&nbsp; V4.2</div>
-</div>
+            function resize() {
+                W = canvas.width  = window.innerWidth;
+                H = canvas.height = window.innerHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize);
 
-<script>
-    const API_BASE        = "https://rezurx-backend.onrender.com";
-    const LINKVERTISE_URL = "https://linkvertise.com/5011888/rezurxlab"; // 👈 your link
-
-    const spinner     = document.getElementById('spinner');
-    const statusEl    = document.getElementById('status');
-    const getKeyBtn   = document.getElementById('get-key-btn');
-    const keyBox      = document.getElementById('key-box');
-    const keyValue    = document.getElementById('key-value');
-    const copyBtn     = document.getElementById('copy-btn');
-    const resetBtn    = document.getElementById('reset-btn');
-    const errorBox    = document.getElementById('error-box');
-    const errorMsg    = document.getElementById('error-msg');
-
-    let keyToCopy = "";
-
-    // ── BOOT: detect which state we're in ─────────────
-    window.onload = async function () {
-        const params = new URLSearchParams(window.location.search);
-        const token  = params.get('token');
-        const hash   = params.get('hash');
-
-        if (token && hash) {
-            // Returning from Linkvertise — verify automatically
-            setLoading("VERIFYING AD COMPLETION...");
-            await verifyKey(token, hash);
-        } else {
-            // Fresh visitor — show Get Key button
-            setIdle();
-        }
-    };
-
-    // ── STEP 1: Generate session → redirect to Linkvertise ──
-    async function startSession() {
-        getKeyBtn.disabled = true;
-        setLoading("GENERATING SECURE TOKEN...");
-
-        try {
-            const res  = await fetch(`${API_BASE}/api/initiate-session`, { method: 'POST' });
-
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
-
-            if (!data.token) throw new Error("No token returned");
-
-            statusEl.innerText = "REDIRECTING TO VERIFICATION...";
-            // Linkvertise will append ?hash=... and preserve ?token= when it redirects back
-            window.location.href = `${LINKVERTISE_URL}?token=${data.token}`;
-
-        } catch {
-            showError("SERVER UNREACHABLE — Is Render awake? Wait 30s and try again.");
-        }
-    }
-
-    // ── STEP 2: Verify with backend → show key on this page ──
-    async function verifyKey(token, hash) {
-        // Clean URL immediately so token/hash aren't visible
-        window.history.replaceState({}, '', window.location.pathname);
-
-        try {
-            const res = await fetch(`${API_BASE}/api/verify-linkvertise`, {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify({ token, hash })
-            });
-
-            const data = await res.json();
-
-            if (res.status === 400) { showError("TOKEN ALREADY USED — Each ad completion gives one key."); return; }
-            if (res.status === 403) { showError("AD NOT COMPLETED — Please finish the full Linkvertise offer."); return; }
-            if (res.status === 404) { showError("SESSION EXPIRED — Please start over."); return; }
-            if (!res.ok)            { showError(`SERVER ERROR (${res.status}) — Try again shortly.`); return; }
-
-            if (data.key) {
-                showSuccess(data.key);
-            } else {
-                showError(data.error ? data.error.toUpperCase() : "VERIFICATION FAILED — UNKNOWN REASON");
+            function spawnDrop() {
+                const x = Math.random() * W;
+                const size = Math.random() * 6 + 3;
+                const speed = Math.random() * 4 + 2;
+                const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+                const tail = Math.random() * 40 + 20;
+                drops.push({ x, y: -tail, size, speed, color, tail, alpha: Math.random() * 0.5 + 0.35 });
             }
 
-        } catch {
-            showError("CONNECTION LOST — Check your network and try again.");
+            function spawnSplat(x, y, color) {
+                const count = Math.floor(Math.random() * 5) + 3;
+                for (let i = 0; i < count; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const spd = Math.random() * 3 + 1;
+                    SPLATS.push({
+                        x, y, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd - 2,
+                        r: Math.random() * 3 + 1.5, color,
+                        alpha: 0.8, decay: Math.random() * 0.04 + 0.03
+                    });
+                }
+            }
+
+            for (let i = 0; i < 60; i++) {
+                const d = {
+                    x: Math.random() * (typeof W !== 'undefined' ? W : window.innerWidth),
+                    y: Math.random() * (typeof H !== 'undefined' ? H : window.innerHeight),
+                    size: Math.random() * 6 + 3,
+                    speed: Math.random() * 4 + 2,
+                    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+                    tail: Math.random() * 40 + 20,
+                    alpha: Math.random() * 0.5 + 0.35
+                };
+                drops.push(d);
+            }
+
+            let frameCount = 0;
+            function draw() {
+                ctx.clearRect(0, 0, W, H);
+                frameCount++;
+                if (frameCount % 3 === 0) spawnDrop();
+
+                // Drops
+                for (let i = drops.length - 1; i >= 0; i--) {
+                    const d = drops[i];
+                    d.y += d.speed;
+
+                    ctx.save();
+                    ctx.globalAlpha = d.alpha * 0.25;
+                    const grd = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.size * 3);
+                    grd.addColorStop(0, d.color);
+                    grd.addColorStop(1, 'transparent');
+                    ctx.fillStyle = grd;
+                    ctx.beginPath();
+                    ctx.arc(d.x, d.y, d.size * 3, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+
+                    ctx.save();
+                    ctx.globalAlpha = d.alpha * 0.7;
+                    const grad = ctx.createLinearGradient(d.x, d.y - d.tail, d.x, d.y);
+                    grad.addColorStop(0, 'transparent');
+                    grad.addColorStop(1, d.color);
+                    ctx.strokeStyle = grad;
+                    ctx.lineWidth = d.size * 0.6;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(d.x, d.y - d.tail);
+                    ctx.lineTo(d.x, d.y);
+                    ctx.stroke();
+                    ctx.restore();
+
+                    ctx.save();
+                    ctx.globalAlpha = d.alpha;
+                    ctx.fillStyle = d.color;
+                    ctx.shadowColor = d.color;
+                    ctx.shadowBlur = 12;
+                    ctx.beginPath();
+                    ctx.arc(d.x, d.y, d.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+
+                    if (d.y > H + 10) {
+                        spawnSplat(d.x, H - 4, d.color);
+                        drops.splice(i, 1);
+                    }
+                }
+
+                // Splats
+                for (let i = SPLATS.length - 1; i >= 0; i--) {
+                    const s = SPLATS[i];
+                    s.x += s.vx;
+                    s.y += s.vy;
+                    s.vy += 0.18;
+                    s.alpha -= s.decay;
+                    if (s.alpha <= 0) { SPLATS.splice(i, 1); continue; }
+
+                    ctx.save();
+                    ctx.globalAlpha = s.alpha;
+                    ctx.fillStyle = s.color;
+                    ctx.shadowColor = s.color;
+                    ctx.shadowBlur = 6;
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                requestAnimationFrame(draw);
+            }
+            draw();
+        })();
+
+        // ── CONFIG ────────────────────────────────────────────
+        const API_BASE        = "https://rezurx-backend.onrender.com";
+        const LINKVERTISE_URL = "https://linkvertise.com/5011888/rezurxlab"; // ← REPLACE with your actual Linkvertise link
+
+        // ── DOM ───────────────────────────────────────────────
+        const statusEl    = document.getElementById('status');
+        const statusText  = document.getElementById('status-text');
+        const spinnerWrap = document.getElementById('spinner-wrap');
+        const spinnerTxt  = document.getElementById('spinner-text');
+        const getKeyBtn   = document.getElementById('get-key-btn');
+        const keyBox      = document.getElementById('key-box');
+        const keyValue    = document.getElementById('key-value');
+        const copyBtn     = document.getElementById('copy-btn');
+        const resetBtn    = document.getElementById('reset-btn');
+        const errorBox    = document.getElementById('error-box');
+        const errorMsg    = document.getElementById('error-msg');
+        const warmupWrap  = document.getElementById('warmup-wrap');
+        const warmupFill  = document.getElementById('warmup-fill');
+        const warmupPct   = document.getElementById('warmup-pct');
+        const warmupMsg   = document.getElementById('warmup-msg');
+
+        let keyToCopy    = "";
+        let serverReady  = false;
+        let warmupTimer  = null;
+        let warmupPct_v  = 0;
+
+        // ── WARMUP (optional – can be skipped if server always on) ──
+        function startWarmup() {
+            warmupWrap.classList.add('visible');
+            getKeyBtn.disabled = true;
+            setStatus("WAKING SERVER...", "default");
+            warmupPct_v = 0;
+            const tick = () => {
+                if (serverReady) return;
+                warmupPct_v = warmupPct_v < 70 ? warmupPct_v + 2.5 : warmupPct_v + 0.3;
+                warmupPct_v = Math.min(warmupPct_v, 95);
+                warmupFill.style.width = warmupPct_v + '%';
+                warmupPct.innerText = Math.round(warmupPct_v) + '%';
+                const msgs = [
+                    [0, "Render cold-start — please wait..."],
+                    [30, "Server starting up..."],
+                    [55, "Almost there..."],
+                    [75, "Finishing boot sequence..."],
+                    [90, "This is taking longer than usual..."]
+                ];
+                for (let i = msgs.length-1; i>=0; i--) {
+                    if (warmupPct_v >= msgs[i][0]) { warmupMsg.innerText = msgs[i][1]; break; }
+                }
+                warmupTimer = setTimeout(tick, 300);
+            };
+            tick();
         }
-    }
 
-    // ── UI STATES ──────────────────────────────────────
-    function setLoading(msg) {
-        spinner.style.display  = "block";
-        statusEl.innerText     = msg;
-        statusEl.style.color   = "#666";
-        getKeyBtn.style.display = "none";
-        keyBox.style.display   = "none";
-        resetBtn.style.display = "none";
-        errorBox.style.display = "none";
-    }
-
-    function setIdle() {
-        spinner.style.display   = "none";
-        statusEl.innerText      = "SYSTEM: READY";
-        statusEl.style.color    = "#666";
-        getKeyBtn.style.display = "block";
-        getKeyBtn.disabled      = false;
-        keyBox.style.display    = "none";
-        resetBtn.style.display  = "none";
-        errorBox.style.display  = "none";
-    }
-
-    function showSuccess(key) {
-        keyToCopy = key;
-        spinner.style.display   = "none";
-        statusEl.innerText      = "ACCESS GRANTED";
-        statusEl.style.color    = "var(--green)";
-        getKeyBtn.style.display = "none";
-        errorBox.style.display  = "none";
-        keyValue.innerText      = key;
-        keyBox.style.display    = "block";
-        resetBtn.style.display  = "block";
-    }
-
-    function showError(msg) {
-        spinner.style.display   = "none";
-        statusEl.innerText      = "SYSTEM: ERROR";
-        statusEl.style.color    = "var(--red)";
-        getKeyBtn.style.display = "none";
-        keyBox.style.display    = "none";
-        resetBtn.style.display  = "none";
-        errorMsg.innerText      = msg;
-        errorBox.style.display  = "block";
-    }
-
-    function resetPage() {
-        keyToCopy = "";
-        setIdle();
-    }
-
-    // ── COPY KEY ───────────────────────────────────────
-    function copyKey() {
-        if (!keyToCopy) return;
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(keyToCopy).then(flashCopied).catch(fallbackCopy);
-        } else {
-            fallbackCopy();
+        function finishWarmup(success) {
+            clearTimeout(warmupTimer);
+            serverReady = true;
+            warmupFill.style.width = '100%';
+            warmupPct.innerText = '100%';
+            if (success) {
+                warmupMsg.innerText = '✓ Server online — ready!';
+                warmupMsg.classList.add('ok');
+                setStatus("SYSTEM: READY", "default");
+                getKeyBtn.disabled = false;
+            } else {
+                warmupMsg.innerText = '⚠ Server slow — will retry';
+                setStatus("SERVER SLOW", "red");
+                getKeyBtn.disabled = false;
+            }
+            setTimeout(() => {
+                warmupWrap.style.transition = 'opacity 0.6s';
+                warmupWrap.style.opacity = '0';
+                setTimeout(() => warmupWrap.classList.remove('visible'), 700);
+            }, 2500);
         }
-    }
 
-    function fallbackCopy() {
-        const ta = document.createElement('textarea');
-        ta.value = keyToCopy;
-        ta.style.cssText = "position:fixed;opacity:0;";
-        document.body.appendChild(ta);
-        ta.focus(); ta.select();
-        try { document.execCommand('copy'); flashCopied(); }
-        catch { copyBtn.innerText = "[ COPY MANUALLY ]"; }
-        document.body.removeChild(ta);
-    }
+        async function pingServer() {
+            const controller = new AbortController();
+            const tid = setTimeout(() => controller.abort(), 30000);
+            try {
+                const res = await fetch(`${API_BASE}/health`, { method: 'GET', signal: controller.signal, cache: 'no-store' });
+                clearTimeout(tid);
+                finishWarmup(res.ok || res.status < 500);
+            } catch {
+                clearTimeout(tid);
+                finishWarmup(false);
+            }
+        }
 
-    function flashCopied() {
-        copyBtn.innerText = "[ ✓ COPIED! ]";
-        copyBtn.classList.add('copied');
-        setTimeout(() => {
-            copyBtn.innerText = "[ CLICK TO COPY ]";
-            copyBtn.classList.remove('copied');
-        }, 2500);
-    }
-</script>
+        // ── INIT ──────────────────────────────────────────────
+        window.onload = function () {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+            const hash = params.get('hash');
+
+            if (token && hash) {
+                // Returning from Linkvertise with anti-bypass parameters
+                window.history.replaceState({}, '', window.location.pathname);
+                setStep(2);
+                verifyLinkvertise(token, hash);
+            } else {
+                setIdle();
+                startWarmup();
+                pingServer();
+            }
+        };
+
+        // ── STEP 1: Initiate session ─────────────────────────
+        async function startSession() {
+            getKeyBtn.disabled = true;
+            setLoading("GENERATING SECURE TOKEN...");
+            setStep(1);
+
+            try {
+                const controller = new AbortController();
+                const tid = setTimeout(() => controller.abort(), 15000);
+                const res = await fetch(`${API_BASE}/api/initiate-session`, {
+                    method: 'POST',
+                    signal: controller.signal,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                clearTimeout(tid);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                if (!data.token) throw new Error("No token");
+
+                setStatus("REDIRECTING TO VERIFICATION...", "default");
+                // Redirect to Linkvertise – the token will be passed as query param
+                // so that Linkvertise can return it in the destination URL with &hash=...
+                window.location.href = `${LINKVERTISE_URL}?token=${data.token}`;
+            } catch (err) {
+                if (err.name === 'AbortError') {
+                    showError("SERVER TIMEOUT — The server took too long. Wait 30 seconds and try again.");
+                } else {
+                    showError("SERVER UNREACHABLE — Wait 30 seconds and try again.");
+                }
+            }
+        }
+
+        // ── STEP 2: Verify with Linkvertise (anti-bypass) ────
+        async function verifyLinkvertise(token, hash) {
+            getKeyBtn.style.display = 'none';
+            setLoading("VERIFYING AD COMPLETION...");
+            setStep(2);
+
+            try {
+                const res = await fetch(`${API_BASE}/api/verify-linkvertise`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, hash })
+                });
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.error || 'Verification failed');
+
+                sessionStorage.setItem('used_' + token, data.key);
+                showSuccess(data.key);
+            } catch (err) {
+                showError(err.message || "Verification failed. Please complete the ad properly and try again.");
+            }
+        }
+
+        // ── UI STATES ────────────────────────────────────────
+        function setLoading(msg) {
+            spinnerWrap.classList.add('active');
+            spinnerTxt.innerText = msg;
+            setStatus(msg, "default");
+            getKeyBtn.style.display = "none";
+            keyBox.style.display = "none";
+            resetBtn.style.display = "none";
+            errorBox.style.display = "none";
+        }
+
+        function setIdle() {
+            spinnerWrap.classList.remove('active');
+            setStatus("SYSTEM: READY", "default");
+            getKeyBtn.style.display = "block";
+            getKeyBtn.disabled = !serverReady;
+            keyBox.style.display = "none";
+            resetBtn.style.display = "none";
+            errorBox.style.display = "none";
+        }
+
+        function showSuccess(key) {
+            keyToCopy = key;
+            spinnerWrap.classList.remove('active');
+            setStatus("ACCESS GRANTED", "green");
+            getKeyBtn.style.display = "none";
+            errorBox.style.display = "none";
+            keyValue.innerText = key;
+            keyBox.style.display = "block";
+            resetBtn.style.display = "block";
+            setStep(3);
+            launchConfetti();
+        }
+
+        function showError(msg) {
+            spinnerWrap.classList.remove('active');
+            setStatus("SYSTEM: ERROR", "red");
+            getKeyBtn.style.display = "none";
+            keyBox.style.display = "none";
+            resetBtn.style.display = "block";
+            errorMsg.innerText = msg;
+            errorBox.style.display = "block";
+        }
+
+        function setStatus(msg, type) {
+            statusText.innerText = msg;
+            statusEl.className = type === "green" ? "green" : type === "red" ? "red" : "";
+        }
+
+        function resetPage() {
+            keyToCopy = "";
+            setStep(1);
+            serverReady = false;
+            setIdle();
+            startWarmup();
+            pingServer();
+        }
+
+        function setStep(n) {
+            for (let i = 1; i <= 3; i++) {
+                const el = document.getElementById('step-' + i);
+                el.className = 'step';
+                if (i < n) el.classList.add('done');
+                if (i === n) el.classList.add('active');
+            }
+        }
+
+        function copyKey() {
+            if (!keyToCopy) return;
+            const write = () => {
+                copyBtn.innerText = "[ ✓ COPIED! ]";
+                copyBtn.classList.add('copied');
+                setTimeout(() => { copyBtn.innerText = "[ Click to Copy ]"; copyBtn.classList.remove('copied'); }, 2500);
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(keyToCopy).then(write).catch(() => fallbackCopy(write));
+            } else {
+                fallbackCopy(write);
+            }
+        }
+        function fallbackCopy(cb) {
+            const ta = document.createElement('textarea');
+            ta.value = keyToCopy;
+            ta.style.cssText = "position:fixed;opacity:0;";
+            document.body.appendChild(ta);
+            ta.focus(); ta.select();
+            try { document.execCommand('copy'); cb(); } catch {}
+            document.body.removeChild(ta);
+        }
+
+        // ── CONFETTI ─────────────────────────────────────────
+        function launchConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const colors = ['#ff8c00','#ffb347','#00ff88','#00cc66','#ffffff','#ffdd57','#ff6688','#66aaff'];
+            const shapes = ['rect','circle','line'];
+            const pieces = [];
+            for (let i=0; i<180; i++) {
+                pieces.push({
+                    x: canvas.width*0.5 + (Math.random()-0.5)*200,
+                    y: canvas.height*0.35,
+                    vx: (Math.random()-0.5)*14,
+                    vy: -(Math.random()*14+4),
+                    ay: 0.38+Math.random()*0.12,
+                    color: colors[Math.floor(Math.random()*colors.length)],
+                    size: Math.random()*7+4,
+                    rot: Math.random()*Math.PI*2,
+                    rspd: (Math.random()-0.5)*0.18,
+                    alpha: 1,
+                    shape: shapes[Math.floor(Math.random()*shapes.length)],
+                    decay: 0.012+Math.random()*0.006
+                });
+            }
+            let frame;
+            function drawC() {
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                let alive = false;
+                for (const p of pieces) {
+                    if (p.alpha <= 0) continue;
+                    alive = true;
+                    ctx.save();
+                    ctx.globalAlpha = p.alpha;
+                    ctx.fillStyle = p.color;
+                    ctx.strokeStyle = p.color;
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rot);
+                    if (p.shape === 'rect') {
+                        ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
+                    } else if (p.shape === 'circle') {
+                        ctx.beginPath(); ctx.arc(0,0, p.size/2.5, 0, Math.PI*2); ctx.fill();
+                    } else {
+                        ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(-p.size/2,0); ctx.lineTo(p.size/2,0); ctx.stroke();
+                    }
+                    ctx.restore();
+                    p.x += p.vx; p.y += p.vy; p.vy += p.ay; p.vx *= 0.99; p.rot += p.rspd; p.alpha -= p.decay;
+                }
+                if (alive) frame = requestAnimationFrame(drawC);
+                else ctx.clearRect(0,0,canvas.width,canvas.height);
+            }
+            cancelAnimationFrame(frame);
+            drawC();
+        }
+
+        window.addEventListener('resize', () => {
+            const canvas = document.getElementById('confetti-canvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
 </body>
 </html>
