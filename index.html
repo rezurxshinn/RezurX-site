@@ -3,17 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#0a0200">
     <title>RezurXLab | Key System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --orange:      #ff8c00;
+            --orange-2:    #ffb347;
             --orange-dim:  #cc6600;
             --orange-glow: rgba(255,140,0,0.45);
             --green:       #00ff88;
-            --green-glow:  rgba(0,255,136,0.3);
+            --green-2:     #5fffaa;
+            --green-glow:  rgba(0,255,136,0.35);
             --green-soft:  rgba(0,255,136,0.07);
             --red:         #ff4455;
+            --red-glow:    rgba(255,68,85,0.35);
             --red-soft:    rgba(255,68,85,0.08);
             --bg:          #0a0200;
             --panel:       rgba(10,4,0,0.93);
@@ -29,9 +36,11 @@
             display:flex; flex-direction:column;
             justify-content:center; align-items:center;
             min-height:100vh; overflow:hidden; position:relative;
+            -webkit-font-smoothing:antialiased;
         }
 
-        #lava-canvas  { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+        /* ── BACKGROUND LAYERS ── */
+        #lava-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
         .atmos {
             position:fixed; inset:0; z-index:1; pointer-events:none;
             background:
@@ -60,15 +69,19 @@
                 0 8px 40px rgba(0,0,0,0.85),
                 0 0 100px rgba(255,80,0,0.10),
                 inset 0 1px 0 rgba(255,180,80,0.09);
-            backdrop-filter:blur(3px);
-            animation:panelIn .5s cubic-bezier(0.22,1,0.36,1) both;
+            backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);
+            animation:panelIn .55s cubic-bezier(0.22,1,0.36,1) both;
         }
         @keyframes panelIn { from{opacity:0;transform:translateY(18px) scale(0.97);} to{opacity:1;transform:none;} }
 
+        @media (max-width:480px) {
+            .panel { padding:32px 22px 26px; }
+        }
+
         /* ── CORNER BRACKETS ── */
         .c { position:absolute; width:14px; height:14px; }
-        .c-tl { top:-1px;    left:-1px;  border-top:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:3px 0 0 0; }
-        .c-tr { top:-1px;    right:-1px; border-top:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 3px 0 0; }
+        .c-tl { top:-1px; left:-1px;  border-top:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:3px 0 0 0; }
+        .c-tr { top:-1px; right:-1px; border-top:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 3px 0 0; }
         .c-bl { bottom:-1px; left:-1px;  border-bottom:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:0 0 0 3px; }
         .c-br { bottom:-1px; right:-1px; border-bottom:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 0 3px 0; }
 
@@ -79,30 +92,43 @@
             background:linear-gradient(180deg,#ffd080 0%,#ff9c20 35%,#ff6600 70%,#cc4400 100%);
             -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
             filter:drop-shadow(0 0 20px rgba(255,140,0,0.55)); line-height:1.1;
+            animation:logoBreath 4s ease-in-out infinite;
+        }
+        @keyframes logoBreath {
+            0%,100% { filter:drop-shadow(0 0 20px rgba(255,140,0,0.55)); }
+            50%     { filter:drop-shadow(0 0 32px rgba(255,140,0,0.85)); }
         }
         .logo-sub { font-size:.5rem; letter-spacing:5px; color:var(--muted); text-transform:uppercase; margin-top:9px; margin-bottom:28px; }
         .divider  { width:100%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,140,0,0.22),transparent); margin-bottom:22px; }
 
-        /* ── WARMUP BAR ── */
+        /* ── WARMUP ── */
         #warmup-wrap {
             display:none; margin-bottom:16px;
             background:rgba(255,140,0,0.04);
             border:1px solid rgba(255,140,0,0.12);
             border-radius:3px; padding:12px 14px;
+            transition:opacity .4s ease, transform .4s ease;
         }
         #warmup-wrap.show { display:block; }
+        #warmup-wrap.fade { opacity:0; transform:translateY(-4px); }
         .wh { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
         .wl { font-size:.55rem; letter-spacing:2px; color:var(--orange); opacity:.7; text-transform:uppercase; }
         #wpct { font-size:.55rem; color:var(--orange); letter-spacing:1px; font-variant-numeric:tabular-nums; }
-        .wtrack { width:100%; height:3px; background:rgba(255,140,0,0.1); border-radius:2px; overflow:hidden; }
+        .wtrack { width:100%; height:3px; background:rgba(255,140,0,0.1); border-radius:2px; overflow:hidden; position:relative; }
         #wbar {
             height:100%; width:0%;
-            background:linear-gradient(90deg,var(--orange-dim),var(--orange),#ffb347);
+            background:linear-gradient(90deg,var(--orange-dim),var(--orange),var(--orange-2));
             border-radius:2px; transition:width .5s ease;
             box-shadow:0 0 10px var(--orange-glow);
         }
+        #wbar::after {
+            content:""; position:absolute; top:0; right:0; bottom:0; width:30%;
+            background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
+            animation:barShine 1.4s linear infinite;
+        }
+        @keyframes barShine { 0%{transform:translateX(-100%)} 100%{transform:translateX(200%)} }
         #wmsg { font-size:.52rem; color:var(--dim); letter-spacing:1px; margin-top:7px; text-align:right; transition:color .3s; }
-        #wmsg.ok  { color:rgba(0,255,136,0.55); }
+        #wmsg.ok  { color:rgba(0,255,136,0.6); }
         #wmsg.bad { color:rgba(255,68,85,0.6); }
 
         /* ── SPINNER ── */
@@ -126,27 +152,36 @@
         .sdot { width:5px; height:5px; border-radius:50%; background:var(--muted); flex-shrink:0; animation:pulse 2s ease-in-out infinite; }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
         #status.green { color:var(--green); }
-        #status.green .sdot { background:var(--green); box-shadow:0 0 6px var(--green); }
+        #status.green .sdot { background:var(--green); box-shadow:0 0 8px var(--green-glow); }
         #status.red   { color:var(--red); }
-        #status.red   .sdot { background:var(--red); animation:none; }
+        #status.red   .sdot { background:var(--red); box-shadow:0 0 8px var(--red-glow); animation:none; }
+        #status.amber { color:var(--orange); }
+        #status.amber .sdot { background:var(--orange); box-shadow:0 0 8px var(--orange-glow); }
 
         /* ── BUTTONS ── */
-        #start-btn, #claim-btn {
+        .btn-main {
             position:relative; overflow:hidden; background:transparent;
             border:1px solid var(--orange); color:var(--orange);
             font-family:'Orbitron',sans-serif; font-size:.78rem; font-weight:700;
             padding:18px 24px; width:100%; cursor:pointer;
             letter-spacing:3px; text-transform:uppercase; border-radius:3px;
-            transition:color .25s,background .25s,box-shadow .25s,opacity .25s;
+            transition:color .25s,background .25s,box-shadow .25s,opacity .25s,transform .15s;
+            display:none;
         }
-        #start-btn::after, #claim-btn::after {
+        .btn-main.show { display:block; animation:fadeUp .35s ease both; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:none;} }
+        .btn-main::after {
             content:""; position:absolute; top:0; left:-120%; width:60%; height:100%;
             background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);
             animation:shimmer 2.8s ease-in-out infinite;
         }
         @keyframes shimmer { 0%{left:-120%} 55%,100%{left:160%} }
-        #start-btn:hover:not(:disabled), #claim-btn:hover:not(:disabled) { background:var(--orange); color:#000; box-shadow:0 0 30px var(--orange-glow); }
-        #start-btn:disabled, #claim-btn:disabled { opacity:.28; cursor:not-allowed; }
+        .btn-main:hover:not(:disabled) {
+            background:var(--orange); color:#000;
+            box-shadow:0 0 30px var(--orange-glow);
+        }
+        .btn-main:active:not(:disabled) { transform:scale(.98); }
+        .btn-main:disabled { opacity:.28; cursor:not-allowed; }
 
         /* ── KEY BOX ── */
         #key-box {
@@ -154,37 +189,46 @@
             background:var(--green-soft);
             border:1px solid rgba(0,255,136,0.18);
             border-radius:4px; padding:20px 16px 16px;
-            animation:slideUp .45s cubic-bezier(0.22,1,0.36,1) both;
         }
-        @keyframes slideUp { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:none;} }
-        .key-label { font-size:.5rem; letter-spacing:3px; color:rgba(0,255,136,0.35); text-transform:uppercase; margin-bottom:12px; }
+        #key-box.show {
+            display:block;
+            animation:slideUp .55s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        @keyframes slideUp { from{opacity:0;transform:translateY(14px) scale(.98);} to{opacity:1;transform:none;} }
+        .key-label { font-size:.5rem; letter-spacing:3px; color:rgba(0,255,136,0.4); text-transform:uppercase; margin-bottom:12px; }
         #key-value {
             font-family:'Orbitron',sans-serif; font-size:1.05rem; font-weight:700; letter-spacing:3px;
             color:var(--green); word-break:break-all; text-shadow:0 0 14px var(--green-glow);
-            margin-bottom:14px; user-select:all;
+            margin-bottom:14px; user-select:all; cursor:text;
+            padding:8px; border-radius:3px; transition:background .2s;
         }
-        #copy-btn, #again-btn {
-            background:transparent; border:1px solid rgba(0,255,136,0.2); color:rgba(0,255,136,0.5);
+        #key-value:hover { background:rgba(0,255,136,0.05); }
+        .secondary-btn {
+            background:transparent; border:1px solid rgba(0,255,136,0.2); color:rgba(0,255,136,0.55);
             font-family:'JetBrains Mono',monospace; font-size:.62rem; letter-spacing:2px; text-transform:uppercase;
-            padding:10px; width:100%; cursor:pointer; border-radius:2px; transition:all .2s; margin-top:8px; display:block;
+            padding:10px; width:100%; cursor:pointer; border-radius:2px;
+            transition:all .2s; margin-top:8px; display:block;
         }
-        #copy-btn:hover, #again-btn:hover { background:rgba(0,255,136,0.05); color:var(--green); border-color:rgba(0,255,136,0.35); }
-        #copy-btn.copied { color:var(--green); background:rgba(0,255,136,0.08); }
+        .secondary-btn:hover { background:rgba(0,255,136,0.05); color:var(--green); border-color:rgba(0,255,136,0.4); }
+        .secondary-btn:active { transform:scale(.99); }
+        #copy-btn.copied { color:var(--green); background:rgba(0,255,136,0.1); border-color:rgba(0,255,136,0.4); }
 
         /* ── ERROR ── */
         #error-box {
             display:none; margin-top:14px;
-            background:var(--red-soft); border:1px solid rgba(255,68,85,0.2);
+            background:var(--red-soft); border:1px solid rgba(255,68,85,0.25);
             border-radius:4px; padding:14px;
-            animation:slideUp .3s ease both;
         }
+        #error-box.show { display:block; animation:slideUp .35s ease both; }
         #error-msg { font-size:.65rem; color:var(--red); letter-spacing:.5px; margin-bottom:10px; line-height:1.55; }
         #retry-btn {
             background:transparent; border:1px solid rgba(255,68,85,0.3); color:var(--red);
             font-family:'JetBrains Mono',monospace; font-size:.62rem; padding:9px; width:100%;
-            cursor:pointer; letter-spacing:1px; border-radius:2px; transition:all .2s; text-transform:uppercase;
+            cursor:pointer; letter-spacing:1px; border-radius:2px;
+            transition:all .2s; text-transform:uppercase;
         }
-        #retry-btn:hover { background:rgba(255,68,85,0.06); }
+        #retry-btn:hover { background:rgba(255,68,85,0.08); }
+        #retry-btn:active { transform:scale(.99); }
 
         /* ── FOOTER ── */
         .footer { margin-top:24px; display:flex; justify-content:center; align-items:center; gap:10px; }
@@ -208,43 +252,36 @@
     <div class="logo-sub">Key Generation System</div>
     <div class="divider"></div>
 
-    <!-- Warmup bar (shown while Render wakes up) -->
-    <div id="warmup-wrap" class="show">
+    <div id="warmup-wrap">
         <div class="wh">
-            <span class="wl">⚙ Waking Server</span>
+            <span class="wl">⚙ Server Status</span>
             <span id="wpct">0%</span>
         </div>
         <div class="wtrack"><div id="wbar"></div></div>
-        <div id="wmsg">Render cold-start — please wait...</div>
+        <div id="wmsg">Initializing...</div>
     </div>
 
-    <!-- Spinner -->
     <div class="spin-row" id="spin-row">
         <div class="spinner"></div>
         <div class="spin-txt" id="spin-txt">Processing...</div>
     </div>
 
-    <!-- Status line -->
     <div id="status"><span class="sdot"></span><span id="status-txt"></span></div>
 
-    <!-- Main button (Fresh visit → "Go to Ad") -->
-    <button id="start-btn" style="display:none" onclick="startAd()">⚡ Go to Ad & Get Key</button>
+    <button id="start-btn" class="btn-main" type="button">⚡ Go to Ad &amp; Get Key</button>
+    <button id="claim-btn" class="btn-main" type="button">⚡ Claim Your Key</button>
 
-    <!-- Claim button (Returning from ad) -->
-    <button id="claim-btn" style="display:none" onclick="claimKey()">⚡ Claim Your Key</button>
-
-    <!-- Key display -->
     <div id="key-box">
         <div class="key-label">▸ Your Access Key</div>
-        <div id="key-value"></div>
-        <button id="copy-btn">[ Copy Key ]</button>
+        <div id="key-value" tabindex="0"></div>
+        <button id="copy-btn" class="secondary-btn" type="button">[ Copy Key ]</button>
     </div>
-    <button id="again-btn" style="display:none" onclick="location.reload()">↩ Get Another Key</button>
 
-    <!-- Error -->
+    <button id="again-btn" class="secondary-btn" type="button" style="display:none">↩ Get Another Key</button>
+
     <div id="error-box">
         <div id="error-msg"></div>
-        <button id="retry-btn" onclick="location.reload()">↩ Try Again</button>
+        <button id="retry-btn" type="button">↩ Try Again</button>
     </div>
 
     <div class="footer">
@@ -255,255 +292,587 @@
 </div>
 
 <script>
-    const API_BASE        = "https://rezurx-backend.onrender.com";
-    const LINKVERTISE_SHORTLINK = "https://link-center.net/5011888/q763gg8u5DCT"; // your shortlink
+(() => {
+    'use strict';
 
-    // ── DOM references ──────────────────────────────
-    const warmupWrap = document.getElementById('warmup-wrap');
-    const wbar = document.getElementById('wbar'), wpct = document.getElementById('wpct'), wmsg = document.getElementById('wmsg');
-    const startBtn = document.getElementById('start-btn');
-    const claimBtn = document.getElementById('claim-btn');
-    const spinRow = document.getElementById('spin-row');
-    const spinTxt = document.getElementById('spin-txt');
-    const statusEl = document.getElementById('status');
-    const statusTxt = document.getElementById('status-txt');
-    const keyBox = document.getElementById('key-box');
-    const keyValueEl = document.getElementById('key-value');
-    const copyBtn = document.getElementById('copy-btn');
-    const againBtn = document.getElementById('again-btn');
-    const errorBox = document.getElementById('error-box');
-    const errorMsgEl = document.getElementById('error-msg');
+    // ═══════════════════════════════════════════════════════
+    // CONFIGURATION
+    // ═══════════════════════════════════════════════════════
+    const API_BASE = "https://rezurx-backend.onrender.com";
+    const LINKVERTISE_SHORTLINK = "https://link-center.net/5011888/q763gg8u5DCT";
+    const STORAGE_KEY = 'rzx_token_v2';
+    const STORAGE_BACKUP = 'rzx_token_backup_v2';
 
+    // Validation patterns (matches backend output)
+    const TOKEN_PATTERN = /^[a-f0-9]{16,128}$/i;
+    const HASH_PATTERN  = /^[A-Za-z0-9_\-=.]{6,512}$/;
+
+    // ═══════════════════════════════════════════════════════
+    // DOM
+    // ═══════════════════════════════════════════════════════
+    const $ = (id) => document.getElementById(id);
+    const warmupWrap = $('warmup-wrap');
+    const wbar = $('wbar'), wpct = $('wpct'), wmsg = $('wmsg');
+    const startBtn = $('start-btn');
+    const claimBtn = $('claim-btn');
+    const spinRow = $('spin-row');
+    const spinTxt = $('spin-txt');
+    const statusEl = $('status');
+    const statusTxtEl = $('status-txt');
+    const keyBox = $('key-box');
+    const keyValueEl = $('key-value');
+    const copyBtn = $('copy-btn');
+    const againBtn = $('again-btn');
+    const errorBox = $('error-box');
+    const errorMsgEl = $('error-msg');
+    const retryBtn = $('retry-btn');
+
+    // ═══════════════════════════════════════════════════════
+    // STATE
+    // ═══════════════════════════════════════════════════════
     let currentKey = '';
+    let starting = false;
+    let claiming = false;
+    let serverWarm = false;
+    let warmupAbort = false;
 
-    // ── Helpers ─────────────────────────────────────
+    // ═══════════════════════════════════════════════════════
+    // STORAGE HELPERS (with try/catch — some browsers block it)
+    // ═══════════════════════════════════════════════════════
+    const store = {
+        save(token) {
+            try { sessionStorage.setItem(STORAGE_KEY, token); } catch (_) {}
+            try { localStorage.setItem(STORAGE_BACKUP, token); } catch (_) {}
+        },
+        load() {
+            try {
+                const t = sessionStorage.getItem(STORAGE_KEY);
+                if (t) return t;
+            } catch (_) {}
+            try { return localStorage.getItem(STORAGE_BACKUP); } catch (_) {}
+            return null;
+        },
+        clear() {
+            try { sessionStorage.removeItem(STORAGE_KEY); } catch (_) {}
+            try { localStorage.removeItem(STORAGE_BACKUP); } catch (_) {}
+        }
+    };
+
+    // ═══════════════════════════════════════════════════════
+    // UI HELPERS
+    // ═══════════════════════════════════════════════════════
     function showSpinner(msg) { spinRow.classList.add('on'); spinTxt.textContent = msg; }
     function hideSpinner() { spinRow.classList.remove('on'); }
-    function setStatus(msg, type = '') { statusTxt.textContent = msg; statusEl.className = type; }
+    function setStatus(msg, type = '') {
+        statusTxtEl.textContent = msg;
+        statusEl.className = type;
+    }
+    function showError(msg) {
+        errorMsgEl.textContent = msg;
+        errorBox.classList.add('show');
+        setStatus('ERROR', 'red');
+    }
+    function hideError() { errorBox.classList.remove('show'); }
+    function showButton(btn) { btn.style.display = 'block'; btn.classList.add('show'); }
+    function hideButton(btn) { btn.style.display = 'none'; btn.classList.remove('show'); }
 
-    // ── Warmup Render server ────────────────────────
-    async function wakeServer() {
-        const maxAttempts = 15;
-        const gap = 4000;
-        const timeout = 7000;
+    // ═══════════════════════════════════════════════════════
+    // SAFE FETCH (timeout + abort)
+    // ═══════════════════════════════════════════════════════
+    async function safeFetch(url, opts = {}, timeoutMs = 15000) {
+        const ctrl = new AbortController();
+        const tid = setTimeout(() => ctrl.abort(), timeoutMs);
+        try {
+            return await fetch(url, { ...opts, signal: ctrl.signal });
+        } finally {
+            clearTimeout(tid);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // SERVER WARMUP
+    // ═══════════════════════════════════════════════════════
+    async function wakeServer(maxAttempts = 15, gap = 4000, timeout = 7000) {
+        warmupWrap.classList.remove('fade');
         warmupWrap.classList.add('show');
+        warmupWrap.style.display = 'block';
+        wmsg.classList.remove('ok', 'bad');
+
         for (let i = 1; i <= maxAttempts; i++) {
+            if (warmupAbort) return false;
+
             const pct = Math.round((i / maxAttempts) * 90);
             wbar.style.width = pct + '%';
             wpct.textContent = pct + '%';
-            wmsg.textContent = i < maxAttempts ? 'Waking server...' : 'Server is up!';
+            wmsg.textContent = `Waking server... (${i}/${maxAttempts})`;
+
             try {
-                const res = await fetch(API_BASE + '/health', { signal: AbortSignal.timeout(timeout) });
+                const res = await safeFetch(API_BASE + '/health', {}, timeout);
                 if (res.status < 500) {
                     wbar.style.width = '100%';
                     wpct.textContent = '100%';
                     wmsg.textContent = '✓ Server online — ready!';
                     wmsg.classList.add('ok');
-                    warmupWrap.style.display = 'none';
+                    serverWarm = true;
+                    setTimeout(() => {
+                        warmupWrap.classList.add('fade');
+                        setTimeout(() => { warmupWrap.style.display = 'none'; }, 400);
+                    }, 600);
                     return true;
                 }
-            } catch (_) { /* still waking */ }
+            } catch (_) {}
+
             if (i < maxAttempts) await new Promise(r => setTimeout(r, gap));
         }
-        wmsg.textContent = '⚠ Server may be slow; you can try anyway.';
+
+        wmsg.textContent = '⚠ Server slow — proceed anyway.';
         wmsg.classList.add('bad');
-        warmupWrap.style.display = 'none';
+        setTimeout(() => {
+            warmupWrap.classList.add('fade');
+            setTimeout(() => { warmupWrap.style.display = 'none'; }, 400);
+        }, 1400);
         return false;
     }
 
-    // ── Start the ad flow ───────────────────────────
+    // ═══════════════════════════════════════════════════════
+    // START AD FLOW
+    // ═══════════════════════════════════════════════════════
     async function startAd() {
+        if (starting) return;
+        starting = true;
         startBtn.disabled = true;
-        showSpinner('CREATING SESSION...');
-        setStatus('Connecting to server...', '');
+        hideError();
+        showSpinner('CREATING SECURE SESSION...');
+        setStatus('Connecting to server...', 'amber');
 
         try {
-            const res = await fetch(API_BASE + '/api/initiate-session', {
+            const res = await safeFetch(API_BASE + '/api/initiate-session', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: '{}'
-            });
-            if (!res.ok) throw new Error('Server error');
-            const data = await res.json();
-            if (!data.token) throw new Error('No token');
+            }, 20000);
 
-            sessionStorage.setItem('rzx_token', data.token);
-            window.location.href = LINKVERTISE_SHORTLINK + '?token=' + encodeURIComponent(data.token);
+            if (!res.ok) throw new Error(`Server error (${res.status})`);
+
+            const data = await res.json().catch(() => ({}));
+            if (!data || typeof data.token !== 'string' || !TOKEN_PATTERN.test(data.token)) {
+                throw new Error('Invalid token from server');
+            }
+
+            store.save(data.token);
+            setStatus('Redirecting to ad...', 'amber');
+            showSpinner('REDIRECTING...');
+
+            // Brief pause so user perceives the action
+            await new Promise(r => setTimeout(r, 500));
+            window.location.href = LINKVERTISE_SHORTLINK;
+
         } catch (err) {
             hideSpinner();
             startBtn.disabled = false;
-            errorMsgEl.textContent = 'Server unreachable. Wait 30s and try again.';
-            errorBox.style.display = 'block';
-            setStatus('ERROR', 'red');
+            starting = false;
+            const isTimeout = err && err.name === 'AbortError';
+            showError(isTimeout
+                ? 'Server response timed out. Wait 30 seconds and retry.'
+                : (err.message || 'Server unreachable. Try again shortly.'));
         }
     }
 
-    // ── After ad: verify and get key ────────────────
+    // ═══════════════════════════════════════════════════════
+    // CLAIM KEY
+    // ═══════════════════════════════════════════════════════
     async function claimKey() {
-        const token = new URLSearchParams(window.location.search).get('token') || sessionStorage.getItem('rzx_token');
-        const hash = new URLSearchParams(window.location.search).get('hash');
-        if (!token || !hash) {
-            errorMsgEl.textContent = 'Missing ad verification. Please start over.';
-            errorBox.style.display = 'block';
+        if (claiming) return;
+
+        const params = new URLSearchParams(window.location.search);
+        const hash = params.get('hash');
+        const token = store.load();
+
+        if (!hash) {
+            showError('Missing ad verification. Please complete the ad and return.');
+            return;
+        }
+        if (!token) {
+            showError('Session expired. Please start over.');
+            return;
+        }
+        if (!TOKEN_PATTERN.test(token)) {
+            showError('Invalid session token. Please start over.');
+            store.clear();
+            return;
+        }
+        if (!HASH_PATTERN.test(hash)) {
+            showError('Invalid verification hash. Please complete the ad properly.');
             return;
         }
 
+        claiming = true;
         claimBtn.disabled = true;
-        showSpinner('VERIFYING AD...');
-        setStatus('Verifying…', '');
+        hideError();
+        showSpinner('VERIFYING AD COMPLETION...');
+        setStatus('Verifying with Linkvertise...', 'amber');
+
+        // Ensure server is warm
+        if (!serverWarm) {
+            try {
+                await safeFetch(API_BASE + '/health', {}, 8000);
+                serverWarm = true;
+            } catch (_) {}
+        }
+
+        // Animated status sequence
+        const statusSequence = [
+            { text: 'Verifying with Linkvertise...', delay: 0 },
+            { text: 'Confirming ad completion...',   delay: 1200 },
+            { text: 'Generating your key...',        delay: 2400 }
+        ];
+        const statusTimeouts = statusSequence.map(s =>
+            setTimeout(() => { if (claiming) setStatus(s.text, 'amber'); }, s.delay)
+        );
 
         try {
-            const res = await fetch(API_BASE + '/api/verify-linkvertise', {
+            const res = await safeFetch(API_BASE + '/api/verify-linkvertise', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify({ token, hash })
-            });
-            const data = await res.json();
+            }, 25000);
 
-            if (!res.ok) throw new Error(data.error || 'Verification failed');
+            statusTimeouts.forEach(clearTimeout);
 
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok) {
+                const msg = data.error || `Verification failed (${res.status})`;
+                throw new Error(msg);
+            }
+            if (!data.key || typeof data.key !== 'string') {
+                throw new Error('Invalid key response from server');
+            }
+
+            // SUCCESS
             currentKey = data.key;
             keyValueEl.textContent = currentKey;
-            keyBox.style.display = 'block';
-            claimBtn.style.display = 'none';
-            againBtn.style.display = 'block';
-            setStatus('ACCESS GRANTED', 'green');
+            hideButton(claimBtn);
+            keyBox.classList.add('show');
+            showButton(againBtn);
+            setStatus('✓ ACCESS GRANTED', 'green');
+
+            // Cleanup
+            store.clear();
+            window.history.replaceState({}, '', window.location.pathname);
+
+            // Celebration
             launchConfetti();
 
-            sessionStorage.removeItem('rzx_token');
-            window.history.replaceState({}, '', window.location.pathname);
+            // Focus the key for accessibility
+            setTimeout(() => keyValueEl.focus(), 600);
+
         } catch (err) {
-            hideSpinner();
+            statusTimeouts.forEach(clearTimeout);
+            const isTimeout = err && err.name === 'AbortError';
+            showError(isTimeout
+                ? 'Verification timed out. Click "Claim Your Key" again.'
+                : (err.message || 'Verification failed. Try again.'));
             claimBtn.disabled = false;
-            errorMsgEl.textContent = err.message;
-            errorBox.style.display = 'block';
-            setStatus('ERROR', 'red');
+            claiming = false;
         } finally {
             hideSpinner();
         }
     }
 
-    copyBtn.addEventListener('click', () => {
+    // ═══════════════════════════════════════════════════════
+    // COPY KEY
+    // ═══════════════════════════════════════════════════════
+    function copyKey() {
         if (!currentKey) return;
-        navigator.clipboard.writeText(currentKey).then(() => {
-            copyBtn.textContent = '[ ✓ Copied! ]';
+        const ok = () => {
+            copyBtn.textContent = '[ ✓ Copied to clipboard! ]';
             copyBtn.classList.add('copied');
-            setTimeout(() => { copyBtn.textContent = '[ Copy Key ]'; copyBtn.classList.remove('copied'); }, 2500);
-        }).catch(() => {});
+            setTimeout(() => {
+                copyBtn.textContent = '[ Copy Key ]';
+                copyBtn.classList.remove('copied');
+            }, 2500);
+        };
+        const fallback = () => {
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = currentKey;
+                ta.style.position = 'fixed'; ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select(); document.execCommand('copy');
+                document.body.removeChild(ta);
+                ok();
+            } catch (_) {
+                copyBtn.textContent = '[ ✗ Copy failed — select manually ]';
+                setTimeout(() => copyBtn.textContent = '[ Copy Key ]', 2500);
+            }
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(currentKey).then(ok).catch(fallback);
+        } else {
+            fallback();
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // EVENT BINDINGS
+    // ═══════════════════════════════════════════════════════
+    startBtn.addEventListener('click', startAd);
+    claimBtn.addEventListener('click', claimKey);
+    copyBtn.addEventListener('click', copyKey);
+    againBtn.addEventListener('click', () => location.reload());
+    retryBtn.addEventListener('click', () => location.reload());
+
+    // Triple-click selects entire key
+    keyValueEl.addEventListener('click', (e) => {
+        if (e.detail === 3) {
+            const range = document.createRange();
+            range.selectNodeContents(keyValueEl);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
     });
 
-    window.onload = async function() {
-        const params = new URLSearchParams(window.location.search);
-        const token = params.get('token');
-        const hash = params.get('hash');
-
-        if (token || hash) window.history.replaceState({}, '', window.location.pathname);
-
-        if (token && hash) {
-            claimBtn.style.display = 'block';
-            setStatus('Ad completed – claim your key below', '');
-        } else {
-            setStatus('Waking server…', '');
-            const serverAlive = await wakeServer();
-            startBtn.style.display = 'block';
-            setStatus(serverAlive ? 'Ready' : 'Server may be slow', serverAlive ? 'green' : 'red');
+    // Re-check server when tab becomes visible
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && !serverWarm && !claiming && !starting) {
+            safeFetch(API_BASE + '/health', {}, 5000)
+                .then(r => { if (r.ok) serverWarm = true; })
+                .catch(() => {});
         }
-    };
+    });
 
+    // ═══════════════════════════════════════════════════════
+    // INIT
+    // ═══════════════════════════════════════════════════════
+    window.addEventListener('load', async () => {
+        const params = new URLSearchParams(window.location.search);
+        const hash = params.get('hash');
+        const token = store.load();
+
+        // CASE 1: Returning from ad with valid hash + stored token
+        if (hash && HASH_PATTERN.test(hash) && token && TOKEN_PATTERN.test(token)) {
+            warmupWrap.style.display = 'none';
+            showButton(claimBtn);
+            setStatus('Ad completed — claim your key below', 'green');
+
+            // Background warmup (non-blocking)
+            safeFetch(API_BASE + '/health', {}, 6000)
+                .then(r => { if (r.ok) serverWarm = true; })
+                .catch(() => {});
+            return;
+        }
+
+        // CASE 2: Hash present but no/invalid token (someone pasted a return URL)
+        if (hash) {
+            warmupWrap.style.display = 'none';
+            showError('No active session found. Please start fresh — click below to begin.');
+            // Still show the start button so they can recover
+            setTimeout(() => {
+                hideError();
+                showButton(startBtn);
+                setStatus('Ready — start a new session', 'amber');
+            }, 3500);
+            window.history.replaceState({}, '', window.location.pathname);
+            return;
+        }
+
+        // CASE 3: Stale URL params, clean them
+        if (params.toString()) {
+            window.history.replaceState({}, '', window.location.pathname);
+        }
+
+        // CASE 4: Fresh visit
+        setStatus('Initializing system...', 'amber');
+        const ok = await wakeServer();
+        showButton(startBtn);
+        setStatus(ok ? 'Ready' : 'Server may be slow — proceed anyway', ok ? 'green' : 'red');
+    });
+
+    // ═══════════════════════════════════════════════════════
+    // CONFETTI (enhanced)
+    // ═══════════════════════════════════════════════════════
     function launchConfetti() {
-        const canvas = document.getElementById('confetti-canvas');
+        const canvas = $('confetti-canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = innerWidth; canvas.height = innerHeight;
-        const pal = ['#ff8c00','#ffb347','#ffd700','#00ff88','#fff','#ff6644','#ffcc33'];
-        const shapes = ['rect','circle','line'];
-        const pieces = Array.from({length:180}, () => ({
-            x: innerWidth*.5+(Math.random()-.5)*160, y: innerHeight*.4,
-            vx:(Math.random()-.5)*16, vy:-(Math.random()*14+5), ay:.35+Math.random()*.15,
-            color:pal[Math.floor(Math.random()*pal.length)], size:Math.random()*8+3,
-            rot:Math.random()*Math.PI*2, rspd:(Math.random()-.5)*.22,
-            alpha:1, decay:.011+Math.random()*.007, shape:shapes[Math.floor(Math.random()*shapes.length)]
+        const pal = ['#ff8c00','#ffb347','#ffd700','#00ff88','#ffffff','#ff6644','#ffcc33','#ff9920'];
+        const shapes = ['rect','circle','line','triangle'];
+        const count = 240;
+        const pieces = Array.from({ length: count }, () => ({
+            x: innerWidth*.5 + (Math.random()-.5)*200,
+            y: innerHeight*.45,
+            vx: (Math.random()-.5)*18,
+            vy: -(Math.random()*16+6),
+            ay: .32 + Math.random()*.18,
+            color: pal[Math.floor(Math.random()*pal.length)],
+            size: Math.random()*9+3,
+            rot: Math.random()*Math.PI*2,
+            rspd: (Math.random()-.5)*.28,
+            alpha: 1,
+            decay: .009 + Math.random()*.006,
+            shape: shapes[Math.floor(Math.random()*shapes.length)]
         }));
         (function draw() {
-            ctx.clearRect(0,0,canvas.width,canvas.height); let alive=false;
-            for(const p of pieces) {
-                if(p.alpha<=0) continue; alive=true;
-                ctx.save(); ctx.globalAlpha=p.alpha; ctx.fillStyle=ctx.strokeStyle=p.color;
-                ctx.translate(p.x,p.y); ctx.rotate(p.rot);
-                if(p.shape==='rect')        ctx.fillRect(-p.size/2,-p.size/4,p.size,p.size/2);
-                else if(p.shape==='circle'){ctx.beginPath();ctx.arc(0,0,p.size/2.5,0,Math.PI*2);ctx.fill();}
-                else{ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-p.size/2,0);ctx.lineTo(p.size/2,0);ctx.stroke();}
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            let alive = false;
+            for (const p of pieces) {
+                if (p.alpha <= 0) continue;
+                alive = true;
+                ctx.save();
+                ctx.globalAlpha = p.alpha;
+                ctx.fillStyle = ctx.strokeStyle = p.color;
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rot);
+                if (p.shape === 'rect') {
+                    ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
+                } else if (p.shape === 'circle') {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, p.size/2.5, 0, Math.PI*2);
+                    ctx.fill();
+                } else if (p.shape === 'triangle') {
+                    ctx.beginPath();
+                    ctx.moveTo(0, -p.size/2);
+                    ctx.lineTo(p.size/2, p.size/2);
+                    ctx.lineTo(-p.size/2, p.size/2);
+                    ctx.closePath();
+                    ctx.fill();
+                } else {
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(-p.size/2, 0);
+                    ctx.lineTo(p.size/2, 0);
+                    ctx.stroke();
+                }
                 ctx.restore();
-                p.x+=p.vx;p.y+=p.vy;p.vy+=p.ay;p.vx*=.99;p.rot+=p.rspd;p.alpha-=p.decay;
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += p.ay;
+                p.vx *= .99;
+                p.rot += p.rspd;
+                p.alpha -= p.decay;
             }
-            if(alive) requestAnimationFrame(draw);
+            if (alive) requestAnimationFrame(draw);
             else ctx.clearRect(0,0,canvas.width,canvas.height);
         })();
     }
     window.addEventListener('resize', () => {
-        const c = document.getElementById('confetti-canvas');
+        const c = $('confetti-canvas');
         c.width = innerWidth; c.height = innerHeight;
     });
 
+    // ═══════════════════════════════════════════════════════
+    // LAVA BACKGROUND
+    // ═══════════════════════════════════════════════════════
     (function(){
-        const cv=document.getElementById('lava-canvas'),ctx=cv.getContext('2d');
-        function resize(){cv.width=innerWidth;cv.height=innerHeight;}
-        resize(); window.addEventListener('resize',resize);
-        const pal=[[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0]];
-        const rnd=(a,b)=>a+Math.random()*(b-a);
-        function mk(init){
-            const c=pal[Math.floor(Math.random()*pal.length)],sp=cv.width*.18;
-            return{x:cv.width*.5+rnd(-sp,sp),y:init?rnd(-cv.height,0):rnd(-60,0),
-                vy:rnd(1.2,3.2),vx:rnd(-.6,.6),radius:rnd(3,12),tail:[],maxTail:Math.floor(rnd(10,28)),
-                r:c[0],g:c[1],b:c[2],alpha:rnd(.5,.92),w:rnd(0,Math.PI*2),
-                wS:rnd(.01,.045),wA:rnd(.2,1.4),glow:Math.random()>.55};
+        const cv = $('lava-canvas'), ctx = cv.getContext('2d');
+        function resize(){ cv.width = innerWidth; cv.height = innerHeight; }
+        resize(); window.addEventListener('resize', resize);
+        const pal = [[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0]];
+        const rnd = (a,b) => a + Math.random()*(b-a);
+        function mk(init) {
+            const c = pal[Math.floor(Math.random()*pal.length)], sp = cv.width*.18;
+            return {
+                x: cv.width*.5 + rnd(-sp,sp),
+                y: init ? rnd(-cv.height,0) : rnd(-60,0),
+                vy: rnd(1.2,3.2), vx: rnd(-.6,.6),
+                radius: rnd(3,12), tail: [], maxTail: Math.floor(rnd(10,28)),
+                r: c[0], g: c[1], b: c[2],
+                alpha: rnd(.5,.92), w: rnd(0,Math.PI*2),
+                wS: rnd(.01,.045), wA: rnd(.2,1.4),
+                glow: Math.random() > .55
+            };
         }
-        const drops=[]; for(let i=0;i<60;i++) drops.push(mk(true));
-        function drawDrop(d){
-            const{x,y,radius:rd,r,g,b,alpha,tail,glow}=d;
-            for(let i=0;i<tail.length;i++){
-                const t=tail[i],pct=i/tail.length,a=alpha*pct*.4,rad=rd*pct*.65;
-                if(rad<.5||a<.01) continue;
-                ctx.beginPath();ctx.arc(t.x,t.y,rad,0,Math.PI*2);
-                ctx.fillStyle=`rgba(${r},${g},${b},${a})`;ctx.fill();
+        const drops = [];
+        for (let i = 0; i < 60; i++) drops.push(mk(true));
+        function drawDrop(d) {
+            const { x, y, radius:rd, r, g, b, alpha, tail, glow } = d;
+            for (let i = 0; i < tail.length; i++) {
+                const t = tail[i], pct = i/tail.length, a = alpha*pct*.4, rad = rd*pct*.65;
+                if (rad < .5 || a < .01) continue;
+                ctx.beginPath();
+                ctx.arc(t.x, t.y, rad, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
+                ctx.fill();
             }
-            if(glow){
-                const gr=ctx.createRadialGradient(x,y,0,x,y,rd*4);
-                gr.addColorStop(0,`rgba(${r},${g},${b},${alpha*.38})`);
-                gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
-                ctx.beginPath();ctx.arc(x,y,rd*4,0,Math.PI*2);ctx.fillStyle=gr;ctx.fill();
+            if (glow) {
+                const gr = ctx.createRadialGradient(x, y, 0, x, y, rd*4);
+                gr.addColorStop(0, `rgba(${r},${g},${b},${alpha*.38})`);
+                gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
+                ctx.beginPath();
+                ctx.arc(x, y, rd*4, 0, Math.PI*2);
+                ctx.fillStyle = gr;
+                ctx.fill();
             }
-            const gm=ctx.createRadialGradient(x-rd*.3,y-rd*.35,0,x,y,rd);
-            gm.addColorStop(0,`rgba(255,210,130,${alpha*.95})`);
-            gm.addColorStop(.35,`rgba(${r},${g},${b},${alpha})`);
-            gm.addColorStop(1,`rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
-            ctx.beginPath();ctx.arc(x,y,rd,0,Math.PI*2);ctx.fillStyle=gm;ctx.fill();
-            ctx.beginPath();ctx.arc(x-rd*.28,y-rd*.3,rd*.27,0,Math.PI*2);
-            ctx.fillStyle=`rgba(255,255,230,${alpha*.6})`;ctx.fill();
+            const gm = ctx.createRadialGradient(x-rd*.3, y-rd*.35, 0, x, y, rd);
+            gm.addColorStop(0, `rgba(255,210,130,${alpha*.95})`);
+            gm.addColorStop(.35, `rgba(${r},${g},${b},${alpha})`);
+            gm.addColorStop(1, `rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
+            ctx.beginPath();
+            ctx.arc(x, y, rd, 0, Math.PI*2);
+            ctx.fillStyle = gm;
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x-rd*.28, y-rd*.3, rd*.27, 0, Math.PI*2);
+            ctx.fillStyle = `rgba(255,255,230,${alpha*.6})`;
+            ctx.fill();
         }
-        function drawVolcano(){
-            const w=cv.width;ctx.save();ctx.fillStyle='rgba(6,2,0,0.96)';
-            ctx.beginPath();ctx.moveTo(-10,0);ctx.lineTo(w*.28,0);ctx.lineTo(w*.41,80);
-            ctx.lineTo(w*.46,28);ctx.lineTo(w*.5,0);ctx.lineTo(w*.54,28);ctx.lineTo(w*.59,80);
-            ctx.lineTo(w*.72,0);ctx.lineTo(w+10,0);ctx.lineTo(w+10,-20);ctx.lineTo(-10,-20);
-            ctx.closePath();ctx.fill();
-            const cg=ctx.createRadialGradient(w/2,0,0,w/2,5,90);
-            cg.addColorStop(0,'rgba(255,160,0,0.7)');cg.addColorStop(1,'rgba(255,0,0,0)');
-            ctx.fillStyle=cg;ctx.beginPath();ctx.ellipse(w/2,0,90,55,0,0,Math.PI*2);ctx.fill();
+        function drawVolcano() {
+            const w = cv.width;
+            ctx.save();
+            ctx.fillStyle = 'rgba(6,2,0,0.96)';
+            ctx.beginPath();
+            ctx.moveTo(-10,0);    ctx.lineTo(w*.28,0);
+            ctx.lineTo(w*.41,80); ctx.lineTo(w*.46,28);
+            ctx.lineTo(w*.5,0);   ctx.lineTo(w*.54,28);
+            ctx.lineTo(w*.59,80); ctx.lineTo(w*.72,0);
+            ctx.lineTo(w+10,0);   ctx.lineTo(w+10,-20);
+            ctx.lineTo(-10,-20);  ctx.closePath();
+            ctx.fill();
+            const cg = ctx.createRadialGradient(w/2,0,0, w/2,5,90);
+            cg.addColorStop(0, 'rgba(255,160,0,0.7)');
+            cg.addColorStop(1, 'rgba(255,0,0,0)');
+            ctx.fillStyle = cg;
+            ctx.beginPath();
+            ctx.ellipse(w/2, 0, 90, 55, 0, 0, Math.PI*2);
+            ctx.fill();
             ctx.restore();
         }
-        function animate(){
-            ctx.clearRect(0,0,cv.width,cv.height);
-            for(const d of drops){
-                d.w+=d.wS;d.x+=Math.sin(d.w)*d.wA+d.vx;d.y+=d.vy;
-                d.tail.push({x:d.x,y:d.y});
-                if(d.tail.length>d.maxTail) d.tail.shift();
+        function animate() {
+            ctx.clearRect(0, 0, cv.width, cv.height);
+            for (const d of drops) {
+                d.w += d.wS;
+                d.x += Math.sin(d.w)*d.wA + d.vx;
+                d.y += d.vy;
+                d.tail.push({ x: d.x, y: d.y });
+                if (d.tail.length > d.maxTail) d.tail.shift();
                 drawDrop(d);
-                if(d.y-d.radius>cv.height){Object.assign(d,mk(false));d.tail=[];}
+                if (d.y - d.radius > cv.height) {
+                    Object.assign(d, mk(false));
+                    d.tail = [];
+                }
             }
-            drawVolcano();requestAnimationFrame(animate);
+            drawVolcano();
+            requestAnimationFrame(animate);
         }
         animate();
     })();
+})();
 </script>
+
+<!-- Status text element (used by setStatus) -->
+<script>
+    // Tiny patch: ensure status text node exists inside #status
+    (function() {
+        const s = document.getElementById('status');
+        if (!document.getElementById('status-txt')) {
+            const span = document.createElement('span');
+            span.id = 'status-txt';
+            s.appendChild(span);
+        }
+    })();
+</script>
+
 </body>
 </html>
