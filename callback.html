@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RezurXLab | Verifying...</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --orange: #ff8c00;
+            --orange-glow: rgba(255,140,0,0.45);
+            --green: #00ff88;
+            --red: #ff4455;
+            --bg: #0a0200;
+            --panel: rgba(10,4,0,0.96);
+            --muted: #3a3028;
+            --dim: #6a5848;
+        }
+        *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background: var(--bg);
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; overflow: hidden;
+        }
+        .panel {
+            position: relative;
+            background: var(--panel);
+            border: 1px solid rgba(255,140,0,0.22);
+            border-radius: 6px;
+            padding: 48px 40px 40px;
+            width: 92%; max-width: 420px;
+            text-align: center;
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.9), 0 8px 40px rgba(0,0,0,0.85), 0 0 80px rgba(255,80,0,0.08);
+            animation: panelIn .5s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        @keyframes panelIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+        .c { position:absolute; width:13px; height:13px; }
+        .c-tl { top:-1px; left:-1px;  border-top:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:3px 0 0 0; }
+        .c-tr { top:-1px; right:-1px; border-top:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 3px 0 0; }
+        .c-bl { bottom:-1px; left:-1px;  border-bottom:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:0 0 0 3px; }
+        .c-br { bottom:-1px; right:-1px; border-bottom:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 0 3px 0; }
+
+        .logo-eye { font-size:.5rem; letter-spacing:4px; color:var(--muted); text-transform:uppercase; margin-bottom:10px; }
+        h1 {
+            font-family:'Orbitron',sans-serif; font-size:1.5rem; font-weight:900; letter-spacing:5px;
+            background:linear-gradient(180deg,#ffd080 0%,#ff9c20 35%,#ff6600 70%,#cc4400 100%);
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+            filter:drop-shadow(0 0 18px rgba(255,140,0,0.5)); line-height:1.1; margin-bottom:6px;
+        }
+        .logo-sub { font-size:.48rem; letter-spacing:4px; color:var(--muted); text-transform:uppercase; margin-bottom:28px; }
+        .divider { width:100%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,140,0,0.22),transparent); margin-bottom:28px; }
+
+        /* Spinner */
+        .spin-wrap { display:flex; flex-direction:column; align-items:center; gap:18px; margin-bottom:22px; }
+        .spinner {
+            width:38px; height:38px;
+            border:3px solid rgba(255,140,0,0.12);
+            border-top-color:var(--orange);
+            border-radius:50%; animation:spin .9s linear infinite;
+        }
+        @keyframes spin { to{transform:rotate(360deg)} }
+
+        #state-msg {
+            font-size:.72rem; letter-spacing:2px; text-transform:uppercase;
+            color:var(--dim); line-height:1.7; transition:color .3s;
+        }
+        #state-msg.ok  { color:var(--green); }
+        #state-msg.err { color:var(--red); font-size:.65rem; letter-spacing:1px; }
+
+        .progress-track { width:100%; height:3px; background:rgba(255,140,0,0.08); border-radius:2px; overflow:hidden; margin-bottom:22px; }
+        #progress-bar {
+            height:100%; width:0%;
+            background:linear-gradient(90deg,#aa4400,var(--orange),#ffb347);
+            border-radius:2px; transition:width .4s ease;
+            box-shadow:0 0 8px var(--orange-glow);
+        }
+
+        #redirect-note { font-size:.52rem; color:var(--muted); letter-spacing:1px; display:none; }
+        #redirect-note.show { display:block; }
+
+        #error-box {
+            display:none; margin-top:18px;
+            background:rgba(255,68,85,0.07);
+            border:1px solid rgba(255,68,85,0.2);
+            border-radius:4px; padding:16px;
+        }
+        #error-box.show { display:block; animation:slideUp .3s ease both; }
+        @keyframes slideUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+        #error-txt { font-size:.63rem; color:var(--red); line-height:1.6; margin-bottom:12px; letter-spacing:.5px; }
+        #retry-btn {
+            background:transparent; border:1px solid rgba(255,68,85,0.3); color:var(--red);
+            font-family:'JetBrains Mono',monospace; font-size:.6rem; padding:9px 16px;
+            cursor:pointer; border-radius:2px; letter-spacing:1px; text-transform:uppercase;
+            transition:background .2s; width:100%;
+        }
+        #retry-btn:hover { background:rgba(255,68,85,0.07); }
+
+        .footer { margin-top:24px; display:flex; justify-content:center; align-items:center; gap:10px; }
+        .fi { font-size:.44rem; letter-spacing:1.5px; color:#1a0e06; text-transform:uppercase; }
+        .fd { width:2px; height:2px; border-radius:50%; background:#1a0e06; }
+    </style>
+</head>
+<body>
+<div class="panel">
+    <div class="c c-tl"></div><div class="c c-tr"></div>
+    <div class="c c-bl"></div><div class="c c-br"></div>
+
+    <div class="logo-eye">Access Portal</div>
+    <h1>REZURXLAB</h1>
+    <div class="logo-sub">Verification Gateway</div>
+    <div class="divider"></div>
+
+    <div class="spin-wrap">
+        <div class="spinner" id="spinner"></div>
+        <div id="state-msg">Verifying your session...</div>
+    </div>
+
+    <div class="progress-track"><div id="progress-bar"></div></div>
+    <div id="redirect-note">Redirecting to key portal...</div>
+
+    <div id="error-box">
+        <div id="error-txt"></div>
+        <button id="retry-btn" onclick="location.href='https://link-center.net/5011888/q763gg8u5DCT'">
+            ↩ Retry via Linkvertise
+        </button>
+    </div>
+
+    <div class="footer">
+        <span class="fi">AES-256</span><div class="fd"></div>
+        <span class="fi">HWID Lock</span><div class="fd"></div>
+        <span class="fi">V4.2</span>
+    </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════ */
+const API           = "https://rezurx-backend.onrender.com";
+const INDEX_PAGE    = "https://rezurxshinn.github.io/index.html";
+const SESSION_KEY   = "rzx_gate";        // sessionStorage key
+const TOKEN_SECRET  = "rzx_v42_gate";   // salt mixed into the gate token
+
+/* ═══════════════════════════════════════
+   UI HELPERS
+═══════════════════════════════════════ */
+const stateMsg    = document.getElementById('state-msg');
+const progressBar = document.getElementById('progress-bar');
+const errorBox    = document.getElementById('error-box');
+const errorTxt    = document.getElementById('error-txt');
+const spinner     = document.getElementById('spinner');
+const redirectNote = document.getElementById('redirect-note');
+
+function setProgress(pct) { progressBar.style.width = pct + '%'; }
+
+function setMsg(msg, type = '') {
+    stateMsg.textContent = msg;
+    stateMsg.className   = type;
+}
+
+function showError(msg) {
+    spinner.style.display = 'none';
+    setProgress(100);
+    setMsg('Verification failed', 'err');
+    errorTxt.textContent = msg;
+    errorBox.classList.add('show');
+}
+
+/* ═══════════════════════════════════════
+   BROWSER HWID FINGERPRINT
+   Combines stable browser signals into
+   a hash that acts as the HWID for the
+   web-side anti-bypass check.
+═══════════════════════════════════════ */
+async function getBrowserHWID() {
+    const nav = window.navigator;
+    const screen = window.screen;
+
+    const raw = [
+        nav.userAgent,
+        nav.language,
+        nav.hardwareConcurrency,
+        nav.maxTouchPoints,
+        screen.colorDepth,
+        screen.width + 'x' + screen.height,
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+        nav.platform || '',
+        // Canvas fingerprint
+        await canvasFingerprint(),
+    ].join('||');
+
+    return await sha256(raw);
+}
+
+async function canvasFingerprint() {
+    try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 200; canvas.height = 50;
+        const ctx = canvas.getContext('2d');
+        ctx.textBaseline = 'top';
+        ctx.font = '14px Arial';
+        ctx.fillStyle = '#ff8c00';
+        ctx.fillText('RezurXLab🔥', 2, 2);
+        ctx.fillStyle = 'rgba(0,255,136,0.8)';
+        ctx.fillRect(10, 30, 80, 10);
+        return canvas.toDataURL().slice(-64); // last 64 chars of the data URL
+    } catch {
+        return 'no-canvas';
+    }
+}
+
+async function sha256(str) {
+    const buf  = new TextEncoder().encode(str);
+    const hash = await crypto.subtle.digest('SHA-256', buf);
+    return Array.from(new Uint8Array(hash))
+        .map(b => b.toString(16).padStart(2,'0'))
+        .join('');
+}
+
+/* ═══════════════════════════════════════
+   GATE TOKEN
+   A lightweight signed token stored in
+   sessionStorage so index.html can
+   confirm the user came through here.
+═══════════════════════════════════════ */
+async function buildGateToken(hwid, hash) {
+    const payload = JSON.stringify({ hwid, hash, ts: Date.now() });
+    const sig     = await sha256(payload + TOKEN_SECRET);
+    return btoa(payload) + '.' + sig;
+}
+
+/* ═══════════════════════════════════════
+   MAIN FLOW
+═══════════════════════════════════════ */
+window.onload = async function () {
+    const params = new URLSearchParams(window.location.search);
+    const hash   = params.get('hash');
+    const token  = params.get('token') || sessionStorage.getItem('rzx_pending_token');
+
+    // ── 1. Validate URL params ──────────
+    if (!hash) {
+        showError(
+            'No verification hash found in URL.\n\n' +
+            'You must complete the Linkvertise ad first — ' +
+            'do not navigate to this page directly.'
+        );
+        return;
+    }
+
+    if (!token) {
+        showError(
+            'Session token missing.\n\n' +
+            'Please do not close the tab during the ad, ' +
+            'and make sure you started from the Roblox key system.'
+        );
+        return;
+    }
+
+    setProgress(20);
+    setMsg('Collecting device fingerprint...');
+
+    // ── 2. Collect browser HWID ─────────
+    let hwid;
+    try {
+        hwid = await getBrowserHWID();
+    } catch {
+        hwid = await sha256(navigator.userAgent + Date.now());
+    }
+    setProgress(45);
+    setMsg('Verifying with server...');
+
+    // ── 3. Call backend ─────────────────
+    let data;
+    try {
+        const res = await fetch(API + '/api/verify-linkvertise', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, hash, hwid }),
+        });
+        data = await res.json();
+
+        if (res.status === 400) { showError('This session token has already been used.\nPlease go through Linkvertise again.'); return; }
+        if (res.status === 403) { showError('Ad not completed properly.\nPlease finish the Linkvertise offer without skipping.'); return; }
+        if (res.status === 404) { showError('Session expired (sessions last 30 minutes).\nPlease start over from the Roblox script.'); return; }
+        if (!res.ok)            { showError('Server error (' + res.status + ').\nPlease try again shortly.'); return; }
+        if (!data.key)          { showError(data.error || 'Verification failed — please try again.'); return; }
+
+    } catch {
+        showError('Could not reach the verification server.\nCheck your network connection and try again.');
+        return;
+    }
+
+    setProgress(75);
+    setMsg('Securing your session...');
+
+    // ── 4. Build gate token & store it ──
+    // This token proves to index.html that
+    // the user legitimately came through here.
+    const gateToken = await buildGateToken(hwid, hash);
+    sessionStorage.setItem(SESSION_KEY, gateToken);
+
+    // Also store the generated key so index.html
+    // can display it immediately without another API call.
+    sessionStorage.setItem('rzx_key',       data.key);
+    sessionStorage.setItem('rzx_expires',   data.expiresAt || '');
+    sessionStorage.setItem('rzx_hwid',      hwid);
+
+    // Clean up the pending token
+    sessionStorage.removeItem('rzx_pending_token');
+
+    setProgress(100);
+    setMsg('Verified! Redirecting...', 'ok');
+    spinner.style.display = 'none';
+    redirectNote.classList.add('show');
+
+    // ── 5. Redirect to index.html ───────
+    setTimeout(() => {
+        window.location.href = INDEX_PAGE;
+    }, 1200);
+};
+</script>
+</body>
+</html>
