@@ -31,7 +31,6 @@
             min-height:100vh; overflow:hidden; position:relative;
         }
 
-        /* ── BACKGROUND ── */
         #lava-canvas  { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
         .atmos {
             position:fixed; inset:0; z-index:1; pointer-events:none;
@@ -64,66 +63,60 @@
             backdrop-filter:blur(3px);
             animation:panelIn .5s cubic-bezier(0.22,1,0.36,1) both;
         }
-        @keyframes panelIn {
-            from { opacity:0; transform:translateY(18px) scale(0.97); }
-            to   { opacity:1; transform:none; }
-        }
+        @keyframes panelIn { from{opacity:0;transform:translateY(18px) scale(0.97)} to{opacity:1;transform:none} }
 
-        /* Corner brackets */
         .c { position:absolute; width:14px; height:14px; }
-        .c-tl { top:-1px;    left:-1px;  border-top:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:3px 0 0 0; }
-        .c-tr { top:-1px;    right:-1px; border-top:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 3px 0 0; }
+        .c-tl { top:-1px; left:-1px;   border-top:2px solid var(--orange); border-left:2px solid var(--orange);   border-radius:3px 0 0 0; }
+        .c-tr { top:-1px; right:-1px;  border-top:2px solid var(--orange); border-right:2px solid var(--orange);  border-radius:0 3px 0 0; }
         .c-bl { bottom:-1px; left:-1px;  border-bottom:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:0 0 0 3px; }
         .c-br { bottom:-1px; right:-1px; border-bottom:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 0 3px 0; }
 
-        /* ── LOGO ── */
         .logo-eyebrow { font-size:.52rem; letter-spacing:4px; color:var(--muted); text-transform:uppercase; margin-bottom:10px; }
         h1 {
-            font-family:'Orbitron',sans-serif;
-            font-size:1.75rem; font-weight:900; letter-spacing:5px;
+            font-family:'Orbitron',sans-serif; font-size:1.75rem; font-weight:900; letter-spacing:5px;
             background:linear-gradient(180deg,#ffd080 0%,#ff9c20 35%,#ff6600 70%,#cc4400 100%);
             -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-            filter:drop-shadow(0 0 20px rgba(255,140,0,0.55));
-            line-height:1.1;
+            filter:drop-shadow(0 0 20px rgba(255,140,0,0.55)); line-height:1.1;
         }
         .logo-sub { font-size:.5rem; letter-spacing:5px; color:var(--muted); text-transform:uppercase; margin-top:9px; margin-bottom:28px; }
         .divider  { width:100%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,140,0,0.22),transparent); margin-bottom:22px; }
 
-        /* ── WARMUP BAR ── */
-        #warmup-wrap {
+        /* ── BLOCKED STATE ── */
+        #blocked-box {
             display:none;
-            margin-bottom:16px;
-            background:rgba(255,140,0,0.04);
-            border:1px solid rgba(255,140,0,0.12);
-            border-radius:3px; padding:12px 14px;
+            background:rgba(255,68,85,0.07);
+            border:1px solid rgba(255,68,85,0.22);
+            border-radius:4px; padding:20px 18px;
+            margin-bottom:20px;
         }
-        #warmup-wrap.show { display:block; }
-        .wh { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
-        .wl { font-size:.55rem; letter-spacing:2px; color:var(--orange); opacity:.7; text-transform:uppercase; }
-        #wpct { font-size:.55rem; color:var(--orange); letter-spacing:1px; font-variant-numeric:tabular-nums; }
-        .wtrack { width:100%; height:3px; background:rgba(255,140,0,0.1); border-radius:2px; overflow:hidden; }
-        #wbar {
-            height:100%; width:0%;
-            background:linear-gradient(90deg, var(--orange-dim), var(--orange), #ffb347);
-            border-radius:2px; transition:width .5s ease;
-            box-shadow:0 0 10px var(--orange-glow);
+        #blocked-box.show { display:block; animation:slideUp .35s ease both; }
+        @keyframes slideUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+        #blocked-icon { font-size:1.8rem; margin-bottom:10px; }
+        #blocked-title { font-family:'Orbitron',sans-serif; font-size:.75rem; letter-spacing:3px; color:var(--red); margin-bottom:10px; }
+        #blocked-msg { font-size:.6rem; color:rgba(255,68,85,0.7); line-height:1.8; letter-spacing:.5px; margin-bottom:16px; }
+        .lv-btn {
+            display:block; width:100%;
+            background:transparent; border:1px solid var(--orange); color:var(--orange);
+            font-family:'Orbitron',sans-serif; font-size:.7rem; font-weight:700;
+            padding:14px; cursor:pointer; letter-spacing:2px; border-radius:3px;
+            text-transform:uppercase; transition:background .2s,color .2s,box-shadow .2s;
+            text-decoration:none;
         }
-        #wmsg { font-size:.52rem; color:var(--dim); letter-spacing:1px; margin-top:7px; text-align:right; transition:color .3s; }
-        #wmsg.ok  { color:rgba(0,255,136,0.55); }
+        .lv-btn:hover { background:var(--orange); color:#000; box-shadow:0 0 24px var(--orange-glow); }
 
-        /* ── SPINNER ── */
+        /* ── NORMAL STATES ── */
+        #main-content { width:100%; }
+
         .spin-row { display:none; align-items:center; justify-content:center; gap:12px; margin-bottom:16px; }
         .spin-row.on { display:flex; }
         .spinner {
             width:18px; height:18px;
-            border:2px solid rgba(255,140,0,0.15);
-            border-top-color:var(--orange);
+            border:2px solid rgba(255,140,0,0.15); border-top-color:var(--orange);
             border-radius:50%; animation:spin .8s linear infinite; flex-shrink:0;
         }
-        @keyframes spin { to { transform:rotate(360deg); } }
+        @keyframes spin { to{transform:rotate(360deg)} }
         .spin-txt { font-size:.65rem; color:var(--dim); letter-spacing:2px; text-transform:uppercase; }
 
-        /* ── STATUS LINE ── */
         #status {
             font-size:.68rem; letter-spacing:2px; text-transform:uppercase;
             color:var(--dim); margin-bottom:20px;
@@ -137,85 +130,30 @@
         #status.red   { color:var(--red); }
         #status.red   .sdot { background:var(--red); animation:none; }
 
-        /* ── BUTTONS ── */
-        .btn {
-            position:relative; overflow:hidden;
-            background:transparent;
-            border:1px solid var(--orange);
-            color:var(--orange);
-            font-family:'Orbitron',sans-serif;
-            font-size:.78rem; font-weight:700;
-            padding:18px 24px; width:100%;
-            cursor:pointer; letter-spacing:3px; text-transform:uppercase;
-            border-radius:3px;
-            transition:color .25s,background .25s,box-shadow .25s,opacity .25s;
-            margin-bottom:10px;
-            display:block;
-        }
-        .btn::after {
-            content:""; position:absolute; top:0; left:-120%; width:60%; height:100%;
-            background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);
-            animation:shimmer 2.8s ease-in-out infinite;
-        }
-        @keyframes shimmer { 0%{left:-120%} 55%,100%{left:160%} }
-        .btn:hover:not(:disabled)  { background:var(--orange); color:#000; box-shadow:0 0 30px var(--orange-glow); }
-        .btn:active:not(:disabled) { transform:scale(0.997); }
-        .btn:disabled { opacity:.28; cursor:not-allowed; }
-
-        #get-key-btn { display:block; }
-        #link-btns { display:flex; gap:10px; }
-        #link-btns .btn { flex:1; font-size:.7rem; padding:12px; }
-
         /* ── KEY BOX ── */
         #key-box {
-            display:none; margin-top:20px;
+            display:none;
             background:var(--green-soft);
             border:1px solid rgba(0,255,136,0.18);
-            border-radius:4px; padding:20px 16px 16px;
+            border-radius:4px; padding:22px 18px 18px;
             animation:slideUp .45s cubic-bezier(0.22,1,0.36,1) both;
         }
-        @keyframes slideUp { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:none;} }
         .key-label { font-size:.5rem; letter-spacing:3px; color:rgba(0,255,136,0.35); text-transform:uppercase; margin-bottom:12px; }
         #key-value {
-            font-family:'Orbitron',sans-serif;
-            font-size:1.05rem; font-weight:700; letter-spacing:3px;
+            font-family:'Orbitron',sans-serif; font-size:1.05rem; font-weight:700; letter-spacing:3px;
             color:var(--green); word-break:break-all;
             text-shadow:0 0 14px var(--green-glow);
             margin-bottom:8px; user-select:all;
         }
         #key-expiry { font-size:.52rem; color:rgba(0,255,136,0.3); letter-spacing:1px; margin-bottom:14px; }
         #copy-btn {
-            background:transparent;
-            border:1px solid rgba(0,255,136,0.2);
-            color:rgba(0,255,136,0.5);
-            font-family:'JetBrains Mono',monospace;
-            font-size:.62rem; letter-spacing:2px; text-transform:uppercase;
+            background:transparent; border:1px solid rgba(0,255,136,0.2); color:rgba(0,255,136,0.5);
+            font-family:'JetBrains Mono',monospace; font-size:.62rem; letter-spacing:2px; text-transform:uppercase;
             padding:10px; width:100%; cursor:pointer; border-radius:2px; transition:all .2s;
         }
         #copy-btn:hover  { background:rgba(0,255,136,0.05); color:var(--green); border-color:rgba(0,255,136,0.35); }
         #copy-btn.copied { color:var(--green); background:rgba(0,255,136,0.08); }
 
-        /* ── ERROR ── */
-        #error-box {
-            display:none; margin-top:14px;
-            background:var(--red-soft);
-            border:1px solid rgba(255,68,85,0.2);
-            border-radius:4px; padding:14px;
-            animation:slideUp .3s ease both;
-        }
-        #error-msg { font-size:.65rem; color:var(--red); letter-spacing:.5px; margin-bottom:10px; line-height:1.55; }
-        #retry-btn {
-            background:transparent; border:1px solid rgba(255,68,85,0.3); color:var(--red);
-            font-family:'JetBrains Mono',monospace; font-size:.62rem; padding:9px; width:100%;
-            cursor:pointer; letter-spacing:1px; border-radius:2px; transition:all .2s; text-transform:uppercase;
-        }
-        #retry-btn:hover { background:rgba(255,68,85,0.06); }
-
-        /* ── COUNTDOWN ── */
-        #countdown-wrap { display:none; margin-top:10px; }
-        #countdown-timer { font-size:.7rem; color:var(--orange); }
-
-        /* ── FOOTER ── */
         .footer { margin-top:24px; display:flex; justify-content:center; align-items:center; gap:10px; }
         .fi { font-size:.45rem; letter-spacing:1.5px; color:#1a0e06; text-transform:uppercase; }
         .fd { width:2px; height:2px; border-radius:50%; background:#1a0e06; }
@@ -237,54 +175,35 @@
     <div class="logo-sub">Key Generation System</div>
     <div class="divider"></div>
 
-    <!-- Warmup bar -->
-    <div id="warmup-wrap" class="show">
-        <div class="wh">
-            <span class="wl">⚙ Waking Server</span>
-            <span id="wpct">0%</span>
+    <!-- BLOCKED: shown if no valid gate token -->
+    <div id="blocked-box">
+        <div id="blocked-icon">🔒</div>
+        <div id="blocked-title">Access Denied</div>
+        <div id="blocked-msg">
+            You must complete the verification process first.<br>
+            Direct access to this page is not allowed.<br><br>
+            Go through Linkvertise from the Roblox script to get your key.
         </div>
-        <div class="wtrack"><div id="wbar"></div></div>
-        <div id="wmsg">Render cold-start — please wait...</div>
+        <a class="lv-btn" href="https://link-center.net/5011888/q763gg8u5DCT" target="_blank">
+            ⚡ Go To Verification
+        </a>
     </div>
 
-    <!-- Spinner -->
-    <div class="spin-row" id="spin-row">
-        <div class="spinner"></div>
-        <div class="spin-txt" id="spin-txt">Processing...</div>
-    </div>
+    <!-- MAIN: shown only after valid gate token -->
+    <div id="main-content" style="display:none">
+        <div class="spin-row" id="spin-row">
+            <div class="spinner"></div>
+            <div class="spin-txt" id="spin-txt">Loading your key...</div>
+        </div>
 
-    <!-- Status -->
-    <div id="status"><span class="sdot"></span><span id="status-txt">Connecting to server...</span></div>
+        <div id="status"><span class="sdot"></span><span id="status-txt">Verifying session...</span></div>
 
-    <!-- Buttons -->
-    <button id="get-key-btn" class="btn" disabled style="display:none" onclick="getKey()">⚡ Generate Key</button>
-
-    <div id="link-btns">
-        <button class="btn" onclick="window.open('https://link-center.net/5011888/q763gg8u5DCT', '_blank')">🔗 Get Key Link</button>
-        <button class="btn" onclick="window.open('https://work.ink/2hdZ/keysystem', '_blank')">💻 Work.ink</button>
-    </div>
-
-    <!-- Key display -->
-    <div id="key-box">
-        <div class="key-label">▸ Your Access Key</div>
-        <div id="key-value"></div>
-        <div id="key-expiry"></div>
-        <button id="copy-btn" onclick="copyKey()">[ Copy Key ]</button>
-    </div>
-
-    <button id="again-btn" class="btn" style="display:none" onclick="resetUI()">↩ Get Another Key</button>
-
-    <!-- Error -->
-    <div id="error-box">
-        <div id="error-msg"></div>
-        <button id="retry-btn" class="btn" onclick="resetUI()">↩ Try Again</button>
-    </div>
-
-    <!-- Countdown -->
-    <div id="countdown-wrap">
-        <p style="color:var(--orange);">You already have a key. Next key available in:</p>
-        <div id="countdown-timer"></div>
-        <p style="font-size:.5rem; margin-top:8px;">Please go through <a href="https://link-center.net/5011888/q763gg8u5DCT" target="_blank" style="color:var(--orange);">Linkvertise</a> to get another key immediately.</p>
+        <div id="key-box">
+            <div class="key-label">▸ Your Access Key</div>
+            <div id="key-value"></div>
+            <div id="key-expiry"></div>
+            <button id="copy-btn" onclick="copyKey()">[ Copy Key ]</button>
+        </div>
     </div>
 
     <div class="footer">
@@ -296,347 +215,230 @@
 
 <script>
 /* ═══════════════════════════════════════
-   CONFIG
+   CONFIG — must match callback.html exactly
 ═══════════════════════════════════════ */
-const API = "https://rezurx-backend.onrender.com";
+const SESSION_KEY  = "rzx_gate";
+const TOKEN_SECRET = "rzx_v42_gate";
 
 /* ═══════════════════════════════════════
-   DOM
+   HELPERS
 ═══════════════════════════════════════ */
-const getKeyBtn   = document.getElementById('get-key-btn');
-const spinRow     = document.getElementById('spin-row');
-const spinTxt     = document.getElementById('spin-txt');
-const statusEl    = document.getElementById('status');
-const statusTxt   = document.getElementById('status-txt');
-const keyBox      = document.getElementById('key-box');
-const keyValueEl  = document.getElementById('key-value');
-const keyExpiry   = document.getElementById('key-expiry');
-const copyBtn     = document.getElementById('copy-btn');
-const againBtn    = document.getElementById('again-btn');
-const errorBox    = document.getElementById('error-box');
-const errorMsgEl  = document.getElementById('error-msg');
-const warmupWrap  = document.getElementById('warmup-wrap');
-const wbar        = document.getElementById('wbar');
-const wpct        = document.getElementById('wpct');
-const wmsg        = document.getElementById('wmsg');
-const countdownWrap = document.getElementById('countdown-wrap');
-const countdownTimer = document.getElementById('countdown-timer');
+async function sha256(str) {
+    const buf  = new TextEncoder().encode(str);
+    const hash = await crypto.subtle.digest('SHA-256', buf);
+    return Array.from(new Uint8Array(hash))
+        .map(b => b.toString(16).padStart(2,'0'))
+        .join('');
+}
 
-let currentKey = '';
-let keyGeneratedTimestamp = parseInt(sessionStorage.getItem('keyGeneratedTimestamp')) || 0;
+async function verifyGateToken(token) {
+    try {
+        const [payloadB64, sig] = token.split('.');
+        if (!payloadB64 || !sig) return false;
 
-/* ── Helpers ──────────────────────────── */
-function fetchT(url, opts = {}, ms = 10000) {
-    const ctrl = new AbortController();
-    const tid  = setTimeout(() => ctrl.abort(), ms);
-    return fetch(url, { ...opts, signal: ctrl.signal, mode: 'cors', credentials: 'omit' })
-           .finally(() => clearTimeout(tid));
+        const payload  = JSON.parse(atob(payloadB64));
+        const expected = await sha256(JSON.stringify({
+            hwid: payload.hwid,
+            hash: payload.hash,
+            ts:   payload.ts
+        }) + TOKEN_SECRET);
+
+        if (sig !== expected) return false;
+
+        // Tokens expire after 10 minutes — enough to display the key,
+        // not enough to be replayed later
+        const age = Date.now() - payload.ts;
+        if (age > 10 * 60 * 1000) return false;
+
+        return true;
+    } catch {
+        return false;
+    }
 }
 
 function setStatus(msg, type = '') {
-    statusTxt.textContent = msg;
-    statusEl.className    = type;
+    document.getElementById('status-txt').textContent = msg;
+    document.getElementById('status').className = type;
 }
 
-function setBar(pct) {
-    wbar.style.width = pct + '%';
-    wpct.textContent = Math.round(pct) + '%';
-}
+let currentKey = '';
 
-/* ── Warmup ───────────────────────────── */
-async function warmupServer() {
-    const MAX = 22, GAP = 4000, PER = 7000;
-    warmupWrap.classList.add('show');
-    setBar(0);
-
-    for (let i = 1; i <= MAX; i++) {
-        const pct = Math.round((i/MAX)*90);
-        setBar(pct);
-        try {
-            const res = await fetchT(API+'/health', { method:'GET', cache:'no-store' }, PER);
-            if (res.status < 500) { warmupFinish(true); return; }
-        } catch(_) {}
-        if (i < MAX) await new Promise(r => setTimeout(r, GAP));
-    }
-    warmupFinish(false);
-}
-
-function warmupFinish(ok) {
-    setBar(100);
-    if (ok) {
-        wmsg.textContent = '✓ Server online — ready!';
-        wmsg.classList.add('ok');
-        setStatus("SYSTEM: READY", "green");
-    } else {
-        wmsg.textContent = '⚠ Server slow — you can still try.';
-        setStatus("SERVER DEGRADED", "red");
-    }
-    getKeyBtn.style.display = 'block';
-    getKeyBtn.disabled = false;
-    setTimeout(() => {
-        warmupWrap.style.transition = 'opacity .6s';
-        warmupWrap.style.opacity = '0';
-        setTimeout(() => {
-            warmupWrap.classList.remove('show');
-            warmupWrap.style.opacity = '';
-            warmupWrap.style.transition = '';
-        }, 700);
-    }, 2500);
-}
-
-/* ── Get Key ──────────────────────────── */
-async function getKey() {
-    getKeyBtn.disabled = true;
-    keyBox.style.display = 'none';
-    againBtn.style.display = 'none';
-    errorBox.style.display = 'none';
-    countdownWrap.style.display = 'none';
-    spinRow.classList.add('on');
-    spinTxt.textContent = 'GENERATING KEY...';
-    setStatus("GENERATING KEY...", "");
-
-    try {
-        const res  = await fetchT(API+'/api/get-key', {
-            method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'
-        }, 15000);
-        const data = await res.json();
-
-        if (res.status === 429) {
-            // Rate limited – already have a key
-            handleRateLimit();
-            return;
-        }
-        if (!res.ok) {
-            showError((data.error || `Server error ${res.status}`) + ' — Try again shortly.');
-            return;
-        }
-        if (data.key) {
-            // Store generation timestamp for countdown
-            sessionStorage.setItem('keyGeneratedTimestamp', Date.now());
-            keyGeneratedTimestamp = Date.now();
-            showSuccess(data.key, data.expiresAt);
-        } else {
-            showError('Key generation failed — please try again.');
-        }
-    } catch (err) {
-        showError(err.name === 'AbortError'
-            ? 'REQUEST TIMED OUT — The server may be cold. Please wait and try again.'
-            : 'CONNECTION LOST — Check your network and try again.');
-    }
-}
-
-function handleRateLimit() {
-    spinRow.classList.remove('on');
-    getKeyBtn.style.display = 'none';
-    errorBox.style.display = 'none';
-
-    countdownWrap.style.display = 'block';
-    if (keyGeneratedTimestamp) {
-        const expiryTime = keyGeneratedTimestamp + (10 * 60 * 60 * 1000); // 10 hours
-        const updateCountdown = () => {
-            const now = Date.now();
-            const diff = expiryTime - now;
-            if (diff <= 0) {
-                countdownTimer.textContent = "0h 0m 0s — you can now generate a new key.";
-                clearInterval(window._countdownInterval);
-                return;
-            }
-            const h = Math.floor(diff / 3600000);
-            const m = Math.floor((diff % 3600000) / 60000);
-            const s = Math.floor((diff % 60000) / 1000);
-            countdownTimer.textContent = `${h}h ${m}m ${s}s`;
-        };
-        updateCountdown();
-        if (window._countdownInterval) clearInterval(window._countdownInterval);
-        window._countdownInterval = setInterval(updateCountdown, 1000);
-    } else {
-        countdownTimer.textContent = "10 hours (please wait)";
-    }
-}
-
-/* ── UI States ────────────────────────── */
-function showSuccess(key, expiresAt) {
-    currentKey = key;
-    spinRow.classList.remove('on');
-    getKeyBtn.style.display = 'none';
-    errorBox.style.display = 'none';
-
-    keyValueEl.textContent = key;
-    if (expiresAt) {
-        const exp = new Date(expiresAt);
-        keyExpiry.textContent = 'Expires: ' + exp.toLocaleString('en-GB', { hour12: false });
-    }
-    keyBox.style.display = 'block';
-    againBtn.style.display = 'block';
-    setStatus("KEY GENERATED", "green");
-    launchConfetti();
-}
-
-function showError(msg) {
-    spinRow.classList.remove('on');
-    errorMsgEl.textContent = msg;
-    errorBox.style.display = 'block';
-    getKeyBtn.style.display = 'block';
-    getKeyBtn.disabled = false;
-    setStatus("ERROR", "red");
-}
-
-function resetUI() {
-    currentKey = '';
-    spinRow.classList.remove('on');
-    keyBox.style.display = 'none';
-    againBtn.style.display = 'none';
-    errorBox.style.display = 'none';
-    countdownWrap.style.display = 'none';
-    getKeyBtn.style.display = 'block';
-    getKeyBtn.disabled = false;
-    setStatus("SYSTEM: READY", "green");
-}
-
-/* ── Copy ─────────────────────────────── */
 function copyKey() {
     if (!currentKey) return;
-    navigator.clipboard.writeText(currentKey).then(() => {
-        copyBtn.textContent = '[ ✓ Copied! ]';
-        copyBtn.classList.add('copied');
-        setTimeout(() => { copyBtn.textContent = '[ Copy Key ]'; copyBtn.classList.remove('copied'); }, 2500);
-    }).catch(() => {
-        const t = document.createElement('textarea');
-        t.value = currentKey; t.style.cssText = 'position:fixed;opacity:0;';
-        document.body.appendChild(t); t.focus(); t.select();
-        try { document.execCommand('copy'); } catch {}
-        document.body.removeChild(t);
-        copyBtn.textContent = '[ ✓ Copied! ]';
-        setTimeout(() => { copyBtn.textContent = '[ Copy Key ]'; }, 2500);
-    });
+    const btn = document.getElementById('copy-btn');
+    const done = () => {
+        btn.textContent = '[ ✓ Copied! ]';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = '[ Copy Key ]'; btn.classList.remove('copied'); }, 2500);
+    };
+    if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(currentKey).then(done).catch(() => fallbackCopy(done));
+    } else {
+        fallbackCopy(done);
+    }
 }
 
-/* ── Boot ─────────────────────────────── */
-window.onload = function() {
-    setStatus("Connecting to server...", "");
-    // If we already have a recent key, show countdown
-    if (keyGeneratedTimestamp) {
-        const now = Date.now();
-        const expiry = keyGeneratedTimestamp + (10 * 60 * 60 * 1000);
-        if (now < expiry) {
-            // Still within 10-hour window, show countdown immediately
-            countdownWrap.style.display = 'block';
-            getKeyBtn.style.display = 'none';
-            const update = () => {
-                const diff = expiry - Date.now();
-                if (diff <= 0) { countdownTimer.textContent = "0h 0m 0s — new key available."; clearInterval(window._countdownInterval); return; }
-                const h = Math.floor(diff/3600000); const m = Math.floor((diff%3600000)/60000); const s = Math.floor((diff%60000)/1000);
-                countdownTimer.textContent = `${h}h ${m}m ${s}s`;
-            };
-            update();
-            window._countdownInterval = setInterval(update, 1000);
-        } else {
-            // Already expired, clear stored timestamp
-            sessionStorage.removeItem('keyGeneratedTimestamp');
-            keyGeneratedTimestamp = 0;
-        }
+function fallbackCopy(cb) {
+    const t = document.createElement('textarea');
+    t.value = currentKey; t.style.cssText = 'position:fixed;opacity:0;';
+    document.body.appendChild(t); t.focus(); t.select();
+    try { document.execCommand('copy'); cb(); } catch {}
+    document.body.removeChild(t);
+}
+
+/* ═══════════════════════════════════════
+   GATE CHECK — runs before anything else
+═══════════════════════════════════════ */
+window.onload = async function () {
+    const gateToken = sessionStorage.getItem(SESSION_KEY);
+
+    // ── BLOCKED: no token or invalid token ──
+    if (!gateToken || !(await verifyGateToken(gateToken))) {
+        // Wipe anything that may have been stored
+        sessionStorage.removeItem(SESSION_KEY);
+        sessionStorage.removeItem('rzx_key');
+        sessionStorage.removeItem('rzx_expires');
+        sessionStorage.removeItem('rzx_hwid');
+
+        document.getElementById('blocked-box').classList.add('show');
+        initLava(); // still show the lava background
+        return;
     }
-    warmupServer();
+
+    // ── VALID: show the key ──────────────
+    document.getElementById('main-content').style.display = 'block';
+    document.getElementById('spin-row').classList.add('on');
+    setStatus('Loading your key...', '');
+    initLava();
+
+    const key     = sessionStorage.getItem('rzx_key');
+    const expires = sessionStorage.getItem('rzx_expires');
+
+    // Clear session data immediately so it can't be reused
+    sessionStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem('rzx_key');
+    sessionStorage.removeItem('rzx_expires');
+    sessionStorage.removeItem('rzx_hwid');
+
+    if (!key) {
+        setStatus('KEY DATA MISSING', 'red');
+        document.getElementById('spin-row').classList.remove('on');
+        return;
+    }
+
+    // Short artificial delay so it feels intentional
+    await new Promise(r => setTimeout(r, 600));
+
+    document.getElementById('spin-row').classList.remove('on');
+    setStatus('KEY READY', 'green');
+
+    currentKey = key;
+    document.getElementById('key-value').textContent = key;
+
+    if (expires) {
+        const exp = new Date(expires);
+        document.getElementById('key-expiry').textContent =
+            'Expires: ' + exp.toLocaleString('en-GB', { hour12: false });
+    }
+
+    document.getElementById('key-box').style.display = 'block';
+    launchConfetti();
 };
 
-/* ── Confetti ─────────────────────────── */
+/* ═══════════════════════════════════════
+   CONFETTI
+═══════════════════════════════════════ */
 function launchConfetti() {
     const cv = document.getElementById('confetti-canvas'), ctx = cv.getContext('2d');
     cv.width = innerWidth; cv.height = innerHeight;
     const pal = ['#ff8c00','#ffb347','#ffd700','#00ff88','#fff','#ff6644','#ffcc33'];
-    const sh = ['rect','circle','line'];
+    const sh  = ['rect','circle','line'];
     const pieces = Array.from({length:180}, () => ({
-        x: innerWidth*.5 + (Math.random()-.5)*160, y: innerHeight*.4,
-        vx: (Math.random()-.5)*16, vy: -(Math.random()*14+5), ay: .35 + Math.random()*.15,
-        color: pal[Math.floor(Math.random()*pal.length)], size: Math.random()*8+3,
-        rot: Math.random()*Math.PI*2, rspd: (Math.random()-.5)*.22,
-        alpha: 1, decay: .011+Math.random()*.007, shape: sh[Math.floor(Math.random()*sh.length)]
+        x: innerWidth*.5+(Math.random()-.5)*160, y: innerHeight*.4,
+        vx:(Math.random()-.5)*16, vy:-(Math.random()*14+5), ay:.35+Math.random()*.15,
+        color:pal[Math.floor(Math.random()*pal.length)], size:Math.random()*8+3,
+        rot:Math.random()*Math.PI*2, rspd:(Math.random()-.5)*.22,
+        alpha:1, decay:.011+Math.random()*.007, shape:sh[Math.floor(Math.random()*sh.length)]
     }));
     (function draw() {
-        ctx.clearRect(0,0,cv.width,cv.height); let alive = false;
+        ctx.clearRect(0,0,cv.width,cv.height); let alive=false;
         for(const p of pieces) {
-            if(p.alpha <= 0) continue; alive = true;
-            ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = ctx.strokeStyle = p.color;
+            if(p.alpha<=0) continue; alive=true;
+            ctx.save(); ctx.globalAlpha=p.alpha; ctx.fillStyle=ctx.strokeStyle=p.color;
             ctx.translate(p.x,p.y); ctx.rotate(p.rot);
-            if(p.shape === 'rect') ctx.fillRect(-p.size/2,-p.size/4,p.size,p.size/2);
-            else if(p.shape === 'circle') { ctx.beginPath(); ctx.arc(0,0,p.size/2.5,0,Math.PI*2); ctx.fill(); }
-            else { ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-p.size/2,0); ctx.lineTo(p.size/2,0); ctx.stroke(); }
+            if(p.shape==='rect') ctx.fillRect(-p.size/2,-p.size/4,p.size,p.size/2);
+            else if(p.shape==='circle'){ctx.beginPath();ctx.arc(0,0,p.size/2.5,0,Math.PI*2);ctx.fill();}
+            else{ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-p.size/2,0);ctx.lineTo(p.size/2,0);ctx.stroke();}
             ctx.restore();
-            p.x += p.vx; p.y += p.vy; p.vy += p.ay; p.vx *= .99; p.rot += p.rspd; p.alpha -= p.decay;
+            p.x+=p.vx;p.y+=p.vy;p.vy+=p.ay;p.vx*=.99;p.rot+=p.rspd;p.alpha-=p.decay;
         }
         if(alive) requestAnimationFrame(draw); else ctx.clearRect(0,0,cv.width,cv.height);
     })();
 }
-window.addEventListener('resize', () => {
-    const c = document.getElementById('confetti-canvas');
-    c.width = innerWidth; c.height = innerHeight;
+window.addEventListener('resize',()=>{
+    const c=document.getElementById('confetti-canvas');
+    c.width=innerWidth; c.height=innerHeight;
 });
 
-/* ── Lava Background (same as before) ─── */
-(function initLava() {
-    const cv = document.getElementById('lava-canvas'), ctx = cv.getContext('2d');
-    function resize() { cv.width = innerWidth; cv.height = innerHeight; }
-    resize(); window.addEventListener('resize', resize);
-    const pal = [[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0]];
-    const rnd = (a,b) => a+Math.random()*(b-a);
-    function mk(init) {
-        const c = pal[Math.floor(Math.random()*pal.length)], sp = cv.width*.18;
-        return {
-            x: cv.width*.5 + rnd(-sp,sp), y: init ? rnd(-cv.height,0) : rnd(-60,0),
-            vy: rnd(1.2,3.2), vx: rnd(-.6,.6), radius: rnd(3,12),
-            tail:[], maxTail: Math.floor(rnd(10,28)),
-            r: c[0], g: c[1], b: c[2], alpha: rnd(.5,.92),
-            w: rnd(0,Math.PI*2), wS: rnd(.01,.045), wA: rnd(.2,1.4),
-            glow: Math.random()>.55
-        };
+/* ═══════════════════════════════════════
+   LAVA BACKGROUND
+═══════════════════════════════════════ */
+function initLava() {
+    const cv=document.getElementById('lava-canvas'), ctx=cv.getContext('2d');
+    function resize(){cv.width=innerWidth;cv.height=innerHeight;}
+    resize(); window.addEventListener('resize',resize);
+    const pal=[[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0]];
+    const rnd=(a,b)=>a+Math.random()*(b-a);
+    function mk(init){
+        const c=pal[Math.floor(Math.random()*pal.length)],sp=cv.width*.18;
+        return{x:cv.width*.5+rnd(-sp,sp),y:init?rnd(-cv.height,0):rnd(-60,0),
+            vy:rnd(1.2,3.2),vx:rnd(-.6,.6),radius:rnd(3,12),tail:[],maxTail:Math.floor(rnd(10,28)),
+            r:c[0],g:c[1],b:c[2],alpha:rnd(.5,.92),w:rnd(0,Math.PI*2),wS:rnd(.01,.045),wA:rnd(.2,1.4),glow:Math.random()>.55};
     }
-    const drops = []; for (let i=0; i<60; i++) drops.push(mk(true));
-    function drawDrop(d) {
-        const {x,y,radius:rd,r,g,b,alpha,tail,glow} = d;
-        for (let i=0; i<tail.length; i++) {
-            const t = tail[i], pct = i/tail.length, a = alpha*pct*.4, rad = rd*pct*.65;
-            if (rad<.5 || a<.01) continue;
-            ctx.beginPath(); ctx.arc(t.x,t.y,rad,0,Math.PI*2);
-            ctx.fillStyle=`rgba(${r},${g},${b},${a})`; ctx.fill();
+    const drops=[]; for(let i=0;i<60;i++) drops.push(mk(true));
+    function drawDrop(d){
+        const{x,y,radius:rd,r,g,b,alpha,tail,glow}=d;
+        for(let i=0;i<tail.length;i++){
+            const t=tail[i],pct=i/tail.length,a=alpha*pct*.4,rad=rd*pct*.65;
+            if(rad<.5||a<.01) continue;
+            ctx.beginPath();ctx.arc(t.x,t.y,rad,0,Math.PI*2);
+            ctx.fillStyle=`rgba(${r},${g},${b},${a})`;ctx.fill();
         }
-        if (glow) {
-            const gr = ctx.createRadialGradient(x,y,0,x,y,rd*4);
-            gr.addColorStop(0,`rgba(${r},${g},${b},${alpha*.38})`); gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
-            ctx.beginPath(); ctx.arc(x,y,rd*4,0,Math.PI*2); ctx.fillStyle = gr; ctx.fill();
-        }
-        const gm = ctx.createRadialGradient(x-rd*.3,y-rd*.35,0,x,y,rd);
+        if(glow){const gr=ctx.createRadialGradient(x,y,0,x,y,rd*4);
+            gr.addColorStop(0,`rgba(${r},${g},${b},${alpha*.38})`);gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
+            ctx.beginPath();ctx.arc(x,y,rd*4,0,Math.PI*2);ctx.fillStyle=gr;ctx.fill();}
+        const gm=ctx.createRadialGradient(x-rd*.3,y-rd*.35,0,x,y,rd);
         gm.addColorStop(0,`rgba(255,210,130,${alpha*.95})`);
         gm.addColorStop(.35,`rgba(${r},${g},${b},${alpha})`);
         gm.addColorStop(1,`rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
-        ctx.beginPath(); ctx.arc(x,y,rd,0,Math.PI*2); ctx.fillStyle = gm; ctx.fill();
-        ctx.beginPath(); ctx.arc(x-rd*.28,y-rd*.3,rd*.27,0,Math.PI*2);
-        ctx.fillStyle=`rgba(255,255,230,${alpha*.6})`; ctx.fill();
+        ctx.beginPath();ctx.arc(x,y,rd,0,Math.PI*2);ctx.fillStyle=gm;ctx.fill();
+        ctx.beginPath();ctx.arc(x-rd*.28,y-rd*.3,rd*.27,0,Math.PI*2);
+        ctx.fillStyle=`rgba(255,255,230,${alpha*.6})`;ctx.fill();
     }
-    function drawVolcano() {
-        const w = cv.width; ctx.save(); ctx.fillStyle = 'rgba(6,2,0,0.96)';
-        ctx.beginPath(); ctx.moveTo(-10,0); ctx.lineTo(w*.28,0); ctx.lineTo(w*.41,80);
-        ctx.lineTo(w*.46,28); ctx.lineTo(w*.5,0); ctx.lineTo(w*.54,28); ctx.lineTo(w*.59,80);
-        ctx.lineTo(w*.72,0); ctx.lineTo(w+10,0); ctx.lineTo(w+10,-20); ctx.lineTo(-10,-20);
-        ctx.closePath(); ctx.fill();
-        const cg = ctx.createRadialGradient(w/2,0,0,w/2,5,90);
-        cg.addColorStop(0,'rgba(255,160,0,0.7)'); cg.addColorStop(1,'rgba(255,0,0,0)');
-        ctx.fillStyle = cg; ctx.beginPath(); ctx.ellipse(w/2,0,90,55,0,0,Math.PI*2); ctx.fill();
+    function drawVolcano(){
+        const w=cv.width;ctx.save();ctx.fillStyle='rgba(6,2,0,0.96)';
+        ctx.beginPath();ctx.moveTo(-10,0);ctx.lineTo(w*.28,0);ctx.lineTo(w*.41,80);
+        ctx.lineTo(w*.46,28);ctx.lineTo(w*.5,0);ctx.lineTo(w*.54,28);ctx.lineTo(w*.59,80);
+        ctx.lineTo(w*.72,0);ctx.lineTo(w+10,0);ctx.lineTo(w+10,-20);ctx.lineTo(-10,-20);
+        ctx.closePath();ctx.fill();
+        const cg=ctx.createRadialGradient(w/2,0,0,w/2,5,90);
+        cg.addColorStop(0,'rgba(255,160,0,0.7)');cg.addColorStop(1,'rgba(255,0,0,0)');
+        ctx.fillStyle=cg;ctx.beginPath();ctx.ellipse(w/2,0,90,55,0,0,Math.PI*2);ctx.fill();
         ctx.restore();
     }
-    function animate() {
+    function animate(){
         ctx.clearRect(0,0,cv.width,cv.height);
-        for(const d of drops) {
-            d.w += d.wS; d.x += Math.sin(d.w)*d.wA + d.vx; d.y += d.vy;
-            d.tail.push({x:d.x, y:d.y});
-            if(d.tail.length > d.maxTail) d.tail.shift();
+        for(const d of drops){
+            d.w+=d.wS;d.x+=Math.sin(d.w)*d.wA+d.vx;d.y+=d.vy;
+            d.tail.push({x:d.x,y:d.y});
+            if(d.tail.length>d.maxTail) d.tail.shift();
             drawDrop(d);
-            if(d.y - d.radius > cv.height) { Object.assign(d, mk(false)); d.tail = []; }
+            if(d.y-d.radius>cv.height){Object.assign(d,mk(false));d.tail=[];}
         }
-        drawVolcano();
-        requestAnimationFrame(animate);
+        drawVolcano();requestAnimationFrame(animate);
     }
     animate();
-})();
+}
 </script>
 </body>
 </html>
