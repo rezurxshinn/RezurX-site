@@ -63,14 +63,15 @@
             backdrop-filter:blur(3px);
             animation:panelIn .5s cubic-bezier(0.22,1,0.36,1) both;
         }
-        @keyframes panelIn { from{opacity:0;transform:translateY(18px) scale(0.97)} to{opacity:1;transform:none} }
+        @keyframes panelIn { from{opacity:0;transform:translateY(18px) scale(0.97);} to{opacity:1;transform:none;} }
 
         .c { position:absolute; width:14px; height:14px; }
-        .c-tl { top:-1px; left:-1px;   border-top:2px solid var(--orange); border-left:2px solid var(--orange);   border-radius:3px 0 0 0; }
-        .c-tr { top:-1px; right:-1px;  border-top:2px solid var(--orange); border-right:2px solid var(--orange);  border-radius:0 3px 0 0; }
+        .c-tl { top:-1px;    left:-1px;  border-top:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:3px 0 0 0; }
+        .c-tr { top:-1px;    right:-1px; border-top:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 3px 0 0; }
         .c-bl { bottom:-1px; left:-1px;  border-bottom:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:0 0 0 3px; }
         .c-br { bottom:-1px; right:-1px; border-bottom:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 0 3px 0; }
 
+        /* ── LOGO ── */
         .logo-eyebrow { font-size:.52rem; letter-spacing:4px; color:var(--muted); text-transform:uppercase; margin-bottom:10px; }
         h1 {
             font-family:'Orbitron',sans-serif; font-size:1.75rem; font-weight:900; letter-spacing:5px;
@@ -81,32 +82,29 @@
         .logo-sub { font-size:.5rem; letter-spacing:5px; color:var(--muted); text-transform:uppercase; margin-top:9px; margin-bottom:28px; }
         .divider  { width:100%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,140,0,0.22),transparent); margin-bottom:22px; }
 
-        /* ── BLOCKED STATE ── */
-        #blocked-box {
-            display:none;
-            background:rgba(255,68,85,0.07);
-            border:1px solid rgba(255,68,85,0.22);
-            border-radius:4px; padding:20px 18px;
-            margin-bottom:20px;
+        /* ── WARMUP BAR ── */
+        #warmup-wrap {
+            display:none; margin-bottom:16px;
+            background:rgba(255,140,0,0.04);
+            border:1px solid rgba(255,140,0,0.12);
+            border-radius:3px; padding:12px 14px;
         }
-        #blocked-box.show { display:block; animation:slideUp .35s ease both; }
-        @keyframes slideUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
-        #blocked-icon { font-size:1.8rem; margin-bottom:10px; }
-        #blocked-title { font-family:'Orbitron',sans-serif; font-size:.75rem; letter-spacing:3px; color:var(--red); margin-bottom:10px; }
-        #blocked-msg { font-size:.6rem; color:rgba(255,68,85,0.7); line-height:1.8; letter-spacing:.5px; margin-bottom:16px; }
-        .lv-btn {
-            display:block; width:100%;
-            background:transparent; border:1px solid var(--orange); color:var(--orange);
-            font-family:'Orbitron',sans-serif; font-size:.7rem; font-weight:700;
-            padding:14px; cursor:pointer; letter-spacing:2px; border-radius:3px;
-            text-transform:uppercase; transition:background .2s,color .2s,box-shadow .2s;
-            text-decoration:none;
+        #warmup-wrap.show { display:block; }
+        .wh { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+        .wl { font-size:.55rem; letter-spacing:2px; color:var(--orange); opacity:.7; text-transform:uppercase; }
+        #wpct { font-size:.55rem; color:var(--orange); letter-spacing:1px; font-variant-numeric:tabular-nums; }
+        .wtrack { width:100%; height:3px; background:rgba(255,140,0,0.1); border-radius:2px; overflow:hidden; }
+        #wbar {
+            height:100%; width:0%;
+            background:linear-gradient(90deg,var(--orange-dim),var(--orange),#ffb347);
+            border-radius:2px; transition:width .5s ease;
+            box-shadow:0 0 10px var(--orange-glow);
         }
-        .lv-btn:hover { background:var(--orange); color:#000; box-shadow:0 0 24px var(--orange-glow); }
+        #wmsg { font-size:.52rem; color:var(--dim); letter-spacing:1px; margin-top:7px; text-align:right; transition:color .3s; }
+        #wmsg.ok  { color:rgba(0,255,136,0.55); }
+        #wmsg.bad { color:rgba(255,68,85,0.6); }
 
-        /* ── NORMAL STATES ── */
-        #main-content { width:100%; }
-
+        /* ── SPINNER ── */
         .spin-row { display:none; align-items:center; justify-content:center; gap:12px; margin-bottom:16px; }
         .spin-row.on { display:flex; }
         .spinner {
@@ -114,9 +112,10 @@
             border:2px solid rgba(255,140,0,0.15); border-top-color:var(--orange);
             border-radius:50%; animation:spin .8s linear infinite; flex-shrink:0;
         }
-        @keyframes spin { to{transform:rotate(360deg)} }
+        @keyframes spin { to{transform:rotate(360deg);} }
         .spin-txt { font-size:.65rem; color:var(--dim); letter-spacing:2px; text-transform:uppercase; }
 
+        /* ── STATUS ── */
         #status {
             font-size:.68rem; letter-spacing:2px; text-transform:uppercase;
             color:var(--dim); margin-bottom:20px;
@@ -130,19 +129,38 @@
         #status.red   { color:var(--red); }
         #status.red   .sdot { background:var(--red); animation:none; }
 
+        /* ── GET KEY BUTTON ── */
+        #get-btn {
+            position:relative; overflow:hidden; background:transparent;
+            border:1px solid var(--orange); color:var(--orange);
+            font-family:'Orbitron',sans-serif; font-size:.78rem; font-weight:700;
+            padding:18px 24px; width:100%; cursor:pointer;
+            letter-spacing:3px; text-transform:uppercase; border-radius:3px;
+            transition:color .25s,background .25s,box-shadow .25s,opacity .25s;
+        }
+        #get-btn::after {
+            content:""; position:absolute; top:0; left:-120%; width:60%; height:100%;
+            background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);
+            animation:shimmer 2.8s ease-in-out infinite;
+        }
+        @keyframes shimmer { 0%{left:-120%} 55%,100%{left:160%} }
+        #get-btn:hover:not(:disabled)  { background:var(--orange); color:#000; box-shadow:0 0 30px var(--orange-glow); }
+        #get-btn:active:not(:disabled) { transform:scale(0.997); }
+        #get-btn:disabled { opacity:.28; cursor:not-allowed; }
+
         /* ── KEY BOX ── */
         #key-box {
-            display:none;
+            display:none; margin-top:20px;
             background:var(--green-soft);
             border:1px solid rgba(0,255,136,0.18);
-            border-radius:4px; padding:22px 18px 18px;
+            border-radius:4px; padding:20px 16px 16px;
             animation:slideUp .45s cubic-bezier(0.22,1,0.36,1) both;
         }
+        @keyframes slideUp { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:none;} }
         .key-label { font-size:.5rem; letter-spacing:3px; color:rgba(0,255,136,0.35); text-transform:uppercase; margin-bottom:12px; }
         #key-value {
             font-family:'Orbitron',sans-serif; font-size:1.05rem; font-weight:700; letter-spacing:3px;
-            color:var(--green); word-break:break-all;
-            text-shadow:0 0 14px var(--green-glow);
+            color:var(--green); word-break:break-all; text-shadow:0 0 14px var(--green-glow);
             margin-bottom:8px; user-select:all;
         }
         #key-expiry { font-size:.52rem; color:rgba(0,255,136,0.3); letter-spacing:1px; margin-bottom:14px; }
@@ -154,6 +172,31 @@
         #copy-btn:hover  { background:rgba(0,255,136,0.05); color:var(--green); border-color:rgba(0,255,136,0.35); }
         #copy-btn.copied { color:var(--green); background:rgba(0,255,136,0.08); }
 
+        /* ── ANOTHER KEY ── */
+        #again-btn {
+            display:none; margin-top:10px; background:transparent;
+            border:1px solid rgba(255,255,255,0.06); color:var(--muted);
+            font-family:'JetBrains Mono',monospace; font-size:.6rem; letter-spacing:1px; text-transform:uppercase;
+            padding:9px; width:100%; cursor:pointer; border-radius:2px; transition:all .2s;
+        }
+        #again-btn:hover { border-color:var(--orange); color:var(--orange); }
+
+        /* ── ERROR ── */
+        #error-box {
+            display:none; margin-top:14px;
+            background:var(--red-soft); border:1px solid rgba(255,68,85,0.2);
+            border-radius:4px; padding:14px;
+            animation:slideUp .3s ease both;
+        }
+        #error-msg { font-size:.65rem; color:var(--red); letter-spacing:.5px; margin-bottom:10px; line-height:1.55; }
+        #retry-btn {
+            background:transparent; border:1px solid rgba(255,68,85,0.3); color:var(--red);
+            font-family:'JetBrains Mono',monospace; font-size:.62rem; padding:9px; width:100%;
+            cursor:pointer; letter-spacing:1px; border-radius:2px; transition:all .2s; text-transform:uppercase;
+        }
+        #retry-btn:hover { background:rgba(255,68,85,0.06); }
+
+        /* ── FOOTER ── */
         .footer { margin-top:24px; display:flex; justify-content:center; align-items:center; gap:10px; }
         .fi { font-size:.45rem; letter-spacing:1.5px; color:#1a0e06; text-transform:uppercase; }
         .fd { width:2px; height:2px; border-radius:50%; background:#1a0e06; }
@@ -175,35 +218,38 @@
     <div class="logo-sub">Key Generation System</div>
     <div class="divider"></div>
 
-    <!-- BLOCKED: shown if no valid gate token -->
-    <div id="blocked-box">
-        <div id="blocked-icon">🔒</div>
-        <div id="blocked-title">Access Denied</div>
-        <div id="blocked-msg">
-            You must complete the verification process first.<br>
-            Direct access to this page is not allowed.<br><br>
-            Go through Linkvertise from the Roblox script to get your key.
-        </div>
-        <a class="lv-btn" href="https://link-center.net/5011888/q763gg8u5DCT" target="_blank">
-            ⚡ Go To Verification
-        </a>
+    <!-- Warmup bar -->
+    <div id="warmup-wrap">
+        <div class="wh"><span class="wl">⚙ Waking Server</span><span id="wpct">0%</span></div>
+        <div class="wtrack"><div id="wbar"></div></div>
+        <div id="wmsg">Render cold-start — please wait...</div>
     </div>
 
-    <!-- MAIN: shown only after valid gate token -->
-    <div id="main-content" style="display:none">
-        <div class="spin-row" id="spin-row">
-            <div class="spinner"></div>
-            <div class="spin-txt" id="spin-txt">Loading your key...</div>
-        </div>
+    <!-- Spinner -->
+    <div class="spin-row" id="spin-row">
+        <div class="spinner"></div>
+        <div class="spin-txt" id="spin-txt">Processing...</div>
+    </div>
 
-        <div id="status"><span class="sdot"></span><span id="status-txt">Verifying session...</span></div>
+    <!-- Status -->
+    <div id="status"><span class="sdot"></span><span id="status-txt">Connecting to server...</span></div>
 
-        <div id="key-box">
-            <div class="key-label">▸ Your Access Key</div>
-            <div id="key-value"></div>
-            <div id="key-expiry"></div>
-            <button id="copy-btn" onclick="copyKey()">[ Copy Key ]</button>
-        </div>
+    <!-- Button — hidden until server alive -->
+    <button id="get-btn" disabled style="display:none" onclick="startSession()">⚡ Get My Key</button>
+
+    <!-- Key display -->
+    <div id="key-box">
+        <div class="key-label">▸ Your Access Key</div>
+        <div id="key-value"></div>
+        <div id="key-expiry"></div>
+        <button id="copy-btn" onclick="copyKey()">[ Copy Key ]</button>
+    </div>
+    <button id="again-btn" onclick="resetUI()">↩ Get Another Key</button>
+
+    <!-- Error -->
+    <div id="error-box">
+        <div id="error-msg"></div>
+        <button id="retry-btn" onclick="resetUI()">↩ Try Again</button>
     </div>
 
     <div class="footer">
@@ -214,70 +260,300 @@
 </div>
 
 <script>
-/* ═══════════════════════════════════════
-   CONFIG — must match callback.html exactly
-═══════════════════════════════════════ */
-const SESSION_KEY  = "rzx_gate";
-const TOKEN_SECRET = "rzx_v42_gate";
+/* ═══════════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════════ */
+const API           = "https://rezurx-backend.onrender.com";
+const LINKVERTISE   = "https://link-center.net/5011888/q763gg8u5DCT";
 
-/* ═══════════════════════════════════════
-   HELPERS
-═══════════════════════════════════════ */
-async function sha256(str) {
-    const buf  = new TextEncoder().encode(str);
-    const hash = await crypto.subtle.digest('SHA-256', buf);
-    return Array.from(new Uint8Array(hash))
-        .map(b => b.toString(16).padStart(2,'0'))
-        .join('');
-}
-
-async function verifyGateToken(token) {
-    try {
-        const [payloadB64, sig] = token.split('.');
-        if (!payloadB64 || !sig) return false;
-
-        const payload  = JSON.parse(atob(payloadB64));
-        const expected = await sha256(JSON.stringify({
-            hwid: payload.hwid,
-            hash: payload.hash,
-            ts:   payload.ts
-        }) + TOKEN_SECRET);
-
-        if (sig !== expected) return false;
-
-        // Tokens expire after 10 minutes — enough to display the key,
-        // not enough to be replayed later
-        const age = Date.now() - payload.ts;
-        if (age > 10 * 60 * 1000) return false;
-
-        return true;
-    } catch {
-        return false;
-    }
-}
-
-function setStatus(msg, type = '') {
-    document.getElementById('status-txt').textContent = msg;
-    document.getElementById('status').className = type;
-}
+/* ═══════════════════════════════════════════════
+   DOM
+═══════════════════════════════════════════════ */
+const getBtn     = document.getElementById('get-btn');
+const spinRow    = document.getElementById('spin-row');
+const spinTxt    = document.getElementById('spin-txt');
+const statusEl   = document.getElementById('status');
+const statusTxt  = document.getElementById('status-txt');
+const keyBox     = document.getElementById('key-box');
+const keyValueEl = document.getElementById('key-value');
+const keyExpiry  = document.getElementById('key-expiry');
+const copyBtn    = document.getElementById('copy-btn');
+const againBtn   = document.getElementById('again-btn');
+const errorBox   = document.getElementById('error-box');
+const errorMsgEl = document.getElementById('error-msg');
+const warmupWrap = document.getElementById('warmup-wrap');
+const wbar       = document.getElementById('wbar');
+const wpct       = document.getElementById('wpct');
+const wmsg       = document.getElementById('wmsg');
 
 let currentKey = '';
 
-function copyKey() {
-    if (!currentKey) return;
-    const btn = document.getElementById('copy-btn');
-    const done = () => {
-        btn.textContent = '[ ✓ Copied! ]';
-        btn.classList.add('copied');
-        setTimeout(() => { btn.textContent = '[ Copy Key ]'; btn.classList.remove('copied'); }, 2500);
-    };
-    if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(currentKey).then(done).catch(() => fallbackCopy(done));
-    } else {
-        fallbackCopy(done);
+/* ═══════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════ */
+function fetchT(url, opts = {}, ms = 12000) {
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), ms);
+    return fetch(url, { ...opts, signal: ctrl.signal, mode: 'cors', credentials: 'omit' })
+           .finally(() => clearTimeout(tid));
+}
+
+function setStatus(msg, type = '') {
+    statusTxt.textContent = msg;
+    statusEl.className    = type;
+}
+
+function showSpinner(msg) {
+    spinTxt.textContent = msg;
+    spinRow.classList.add('on');
+    keyBox.style.display    = 'none';
+    againBtn.style.display  = 'none';
+    errorBox.style.display  = 'none';
+}
+
+function hideSpinner() { spinRow.classList.remove('on'); }
+
+/* ═══════════════════════════════════════════════
+   BROWSER HWID FINGERPRINT
+   Stable signals hashed together — matches what
+   the Roblox executor sends for HWID binding.
+═══════════════════════════════════════════════ */
+async function getBrowserHWID() {
+    try {
+        // Canvas fingerprint
+        const canvas = document.createElement('canvas');
+        canvas.width = 200; canvas.height = 50;
+        const ctx = canvas.getContext('2d');
+        ctx.font = '14px Arial';
+        ctx.fillStyle = '#ff8c00';
+        ctx.fillText('RezurXLab', 2, 2);
+        ctx.fillStyle = 'rgba(0,255,136,0.8)';
+        ctx.fillRect(10, 30, 80, 10);
+        const canvasFp = canvas.toDataURL().slice(-64);
+
+        const raw = [
+            navigator.userAgent,
+            navigator.language,
+            navigator.hardwareConcurrency || '',
+            navigator.maxTouchPoints || '',
+            screen.colorDepth,
+            screen.width + 'x' + screen.height,
+            Intl.DateTimeFormat().resolvedOptions().timeZone,
+            canvasFp,
+        ].join('||');
+
+        const buf  = new TextEncoder().encode(raw);
+        const hash = await crypto.subtle.digest('SHA-256', buf);
+        return Array.from(new Uint8Array(hash))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+    } catch {
+        // Fallback if SubtleCrypto unavailable
+        return btoa(navigator.userAgent).slice(0, 64);
     }
 }
 
+/* ═══════════════════════════════════════════════
+   WARMUP
+   Pings /health every 4s until Render wakes.
+   Bar fills based on real ping attempts.
+   Button only appears when server responds.
+═══════════════════════════════════════════════ */
+async function warmupServer() {
+    const MAX = 22;    // 22 × 4s ≈ 90s
+    const GAP = 4000;
+    const PER = 7000;
+
+    const msgs = [
+        [0,  "Render cold-start — please wait..."],
+        [15, "Server waking up..."],
+        [35, "Loading services..."],
+        [55, "Almost there..."],
+        [75, "Finishing startup..."],
+        [92, "Taking a little longer — hang tight..."],
+    ];
+
+    function setBar(pct) {
+        wbar.style.width    = pct + '%';
+        wpct.textContent    = Math.round(pct) + '%';
+        for (let i = msgs.length - 1; i >= 0; i--) {
+            if (pct >= msgs[i][0]) { wmsg.textContent = msgs[i][1]; break; }
+        }
+    }
+
+    warmupWrap.classList.add('show');
+    setBar(0);
+
+    for (let i = 1; i <= MAX; i++) {
+        setBar(Math.round((i / MAX) * 90));
+        try {
+            const res = await fetchT(API + '/health', { method: 'GET', cache: 'no-store' }, PER);
+            if (res.status < 500) { warmupDone(true); return; }
+        } catch (_) {}
+        if (i < MAX) await new Promise(r => setTimeout(r, GAP));
+    }
+    warmupDone(false);
+}
+
+function warmupDone(ok) {
+    wbar.style.width    = '100%';
+    wpct.textContent    = '100%';
+    wmsg.textContent    = ok ? '✓ Server online — ready!' : '⚠ Server slow — you can still try.';
+    wmsg.classList.add(ok ? 'ok' : 'bad');
+    setStatus(ok ? "SYSTEM: READY" : "SERVER DEGRADED", ok ? "green" : "red");
+
+    getBtn.style.display = 'block';
+    getBtn.disabled      = false;
+
+    setTimeout(() => {
+        warmupWrap.style.transition = 'opacity .6s';
+        warmupWrap.style.opacity    = '0';
+        setTimeout(() => {
+            warmupWrap.classList.remove('show');
+            warmupWrap.style.opacity    = '';
+            warmupWrap.style.transition = '';
+        }, 700);
+    }, 2500);
+}
+
+/* ═══════════════════════════════════════════════
+   STEP 1 — Start session
+   POST /api/initiate-session → get token
+   → redirect to Linkvertise with ?token=X
+   Linkvertise sends user back here with
+   ?token=X&hash=Y appended to this page's URL
+═══════════════════════════════════════════════ */
+async function startSession() {
+    getBtn.disabled = true;
+    showSpinner('GENERATING TOKEN...');
+    setStatus("GENERATING TOKEN...", "");
+
+    try {
+        const res  = await fetchT(
+            API + '/api/initiate-session',
+            { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' },
+            15000
+        );
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (!data.token) throw new Error('No token received');
+
+        setStatus("REDIRECTING TO AD...", "");
+        // Store token so we can cross-check it when Linkvertise returns
+        sessionStorage.setItem('rzx_pending', data.token);
+        window.location.href = LINKVERTISE + '?token=' + data.token;
+
+    } catch (err) {
+        showError('SERVER UNREACHABLE — ' + (err.message || 'unknown error') + '.\nPlease wait 30 seconds and try again.');
+        getBtn.disabled = false;
+    }
+}
+
+/* ═══════════════════════════════════════════════
+   STEP 2 — Verify after returning from Linkvertise
+   Collects browser HWID fingerprint then POSTs
+   { token, hash, hwid } to /api/verify-linkvertise
+   Backend checks hash with Linkvertise anti-bypass
+   API and returns the generated key on success.
+═══════════════════════════════════════════════ */
+async function verifyAndGetKey(token, hash) {
+    getBtn.style.display = 'none';
+    showSpinner('COLLECTING FINGERPRINT...');
+    setStatus("VERIFYING...", "");
+
+    // Collect browser HWID before hitting the server
+    const hwid = await getBrowserHWID();
+
+    spinTxt.textContent = 'VERIFYING AD COMPLETION...';
+
+    try {
+        const res  = await fetchT(
+            API + '/api/verify-linkvertise',
+            {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ token, hash, hwid }),
+            },
+            20000
+        );
+        const data = await res.json();
+
+        if (res.status === 400) { showError('TOKEN ALREADY USED — Each ad completion gives one key.'); return; }
+        if (res.status === 403) { showError('AD NOT COMPLETED — Please finish the full Linkvertise offer.'); return; }
+        if (res.status === 404) { showError('SESSION EXPIRED — Please start over.'); return; }
+        if (!res.ok)            { showError((data.error || 'Server error ' + res.status) + ' — Try again shortly.'); return; }
+
+        if (data.key) {
+            showSuccess(data.key, data.expiresAt);
+        } else {
+            showError(data.error ? data.error.toUpperCase() : 'VERIFICATION FAILED — Please try again.');
+        }
+
+    } catch (err) {
+        showError(
+            err.name === 'AbortError'
+                ? 'VERIFICATION TIMED OUT — Please try again.'
+                : 'CONNECTION LOST — Check your network and try again.'
+        );
+    }
+}
+
+/* ═══════════════════════════════════════════════
+   UI STATES
+═══════════════════════════════════════════════ */
+function showSuccess(key, expiresAt) {
+    currentKey = key;
+    hideSpinner();
+    getBtn.style.display   = 'none';
+    errorBox.style.display = 'none';
+    keyValueEl.textContent = key;
+    if (expiresAt) {
+        keyExpiry.textContent = 'Expires: ' +
+            new Date(expiresAt).toLocaleString('en-GB', { hour12: false });
+    }
+    keyBox.style.display   = 'block';
+    againBtn.style.display = 'block';
+    setStatus("KEY GENERATED", "green");
+    launchConfetti();
+    // Clear pending token — session is done
+    sessionStorage.removeItem('rzx_pending');
+}
+
+function showError(msg) {
+    hideSpinner();
+    errorMsgEl.textContent = msg;
+    errorBox.style.display = 'block';
+    setStatus("ERROR", "red");
+    // Show button again so they can retry
+    getBtn.style.display = 'block';
+    getBtn.disabled      = false;
+}
+
+function resetUI() {
+    currentKey = '';
+    hideSpinner();
+    keyBox.style.display    = 'none';
+    againBtn.style.display  = 'none';
+    errorBox.style.display  = 'none';
+    getBtn.style.display    = 'block';
+    getBtn.disabled         = false;
+    setStatus("SYSTEM: READY", "green");
+}
+
+/* ═══════════════════════════════════════════════
+   COPY KEY
+═══════════════════════════════════════════════ */
+function copyKey() {
+    if (!currentKey) return;
+    const done = () => {
+        copyBtn.textContent = '[ ✓ Copied! ]';
+        copyBtn.classList.add('copied');
+        setTimeout(() => { copyBtn.textContent = '[ Copy Key ]'; copyBtn.classList.remove('copied'); }, 2500);
+    };
+    if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(currentKey).then(done).catch(() => fallbackCopy(done));
+    } else { fallbackCopy(done); }
+}
 function fallbackCopy(cb) {
     const t = document.createElement('textarea');
     t.value = currentKey; t.style.cssText = 'position:fixed;opacity:0;';
@@ -286,74 +562,61 @@ function fallbackCopy(cb) {
     document.body.removeChild(t);
 }
 
-/* ═══════════════════════════════════════
-   GATE CHECK — runs before anything else
-═══════════════════════════════════════ */
+/* ═══════════════════════════════════════════════
+   BOOT
+   Two cases handled on every page load:
+
+   Case A — URL has ?token=&hash= (returning from
+   Linkvertise). Wipe URL immediately, skip warmup,
+   go straight to verification.
+
+   Case B — Fresh visit. Run warmup, show button.
+═══════════════════════════════════════════════ */
 window.onload = async function () {
-    const gateToken = sessionStorage.getItem(SESSION_KEY);
+    const params = new URLSearchParams(window.location.search);
+    const token  = params.get('token');
+    const hash   = params.get('hash');
 
-    // ── BLOCKED: no token or invalid token ──
-    if (!gateToken || !(await verifyGateToken(gateToken))) {
-        // Wipe anything that may have been stored
-        sessionStorage.removeItem(SESSION_KEY);
-        sessionStorage.removeItem('rzx_key');
-        sessionStorage.removeItem('rzx_expires');
-        sessionStorage.removeItem('rzx_hwid');
+    if (token && hash) {
+        // ── RETURNING FROM LINKVERTISE ──
+        // Wipe params from URL immediately so they
+        // can't be copied and reused by someone else
+        window.history.replaceState({}, '', window.location.pathname);
 
-        document.getElementById('blocked-box').classList.add('show');
-        initLava(); // still show the lava background
-        return;
+        // Guard: token already redeemed in this browser session
+        const pending = sessionStorage.getItem('rzx_pending');
+        if (!pending || pending !== token) {
+            // Token wasn't initiated from this browser — could be a shared link
+            showError('SESSION MISMATCH — Please start fresh from the Get My Key button.');
+            setStatus("SESSION MISMATCH", "red");
+            getBtn.style.display = 'block';
+            getBtn.disabled      = false;
+            warmupServer(); // wake server for the retry
+            return;
+        }
+
+        // Skip warmup — server was alive moments ago when it issued the token
+        warmupWrap.style.display = 'none';
+        setStatus("VERIFYING AD...", "");
+        await verifyAndGetKey(token, hash);
+
+    } else {
+        // ── FRESH VISIT ──
+        setStatus("Connecting to server...", "");
+        warmupServer();
     }
-
-    // ── VALID: show the key ──────────────
-    document.getElementById('main-content').style.display = 'block';
-    document.getElementById('spin-row').classList.add('on');
-    setStatus('Loading your key...', '');
-    initLava();
-
-    const key     = sessionStorage.getItem('rzx_key');
-    const expires = sessionStorage.getItem('rzx_expires');
-
-    // Clear session data immediately so it can't be reused
-    sessionStorage.removeItem(SESSION_KEY);
-    sessionStorage.removeItem('rzx_key');
-    sessionStorage.removeItem('rzx_expires');
-    sessionStorage.removeItem('rzx_hwid');
-
-    if (!key) {
-        setStatus('KEY DATA MISSING', 'red');
-        document.getElementById('spin-row').classList.remove('on');
-        return;
-    }
-
-    // Short artificial delay so it feels intentional
-    await new Promise(r => setTimeout(r, 600));
-
-    document.getElementById('spin-row').classList.remove('on');
-    setStatus('KEY READY', 'green');
-
-    currentKey = key;
-    document.getElementById('key-value').textContent = key;
-
-    if (expires) {
-        const exp = new Date(expires);
-        document.getElementById('key-expiry').textContent =
-            'Expires: ' + exp.toLocaleString('en-GB', { hour12: false });
-    }
-
-    document.getElementById('key-box').style.display = 'block';
-    launchConfetti();
 };
 
-/* ═══════════════════════════════════════
+/* ═══════════════════════════════════════════════
    CONFETTI
-═══════════════════════════════════════ */
+═══════════════════════════════════════════════ */
 function launchConfetti() {
-    const cv = document.getElementById('confetti-canvas'), ctx = cv.getContext('2d');
+    const cv = document.getElementById('confetti-canvas');
+    const ctx = cv.getContext('2d');
     cv.width = innerWidth; cv.height = innerHeight;
     const pal = ['#ff8c00','#ffb347','#ffd700','#00ff88','#fff','#ff6644','#ffcc33'];
     const sh  = ['rect','circle','line'];
-    const pieces = Array.from({length:180}, () => ({
+    const pieces = Array.from({ length: 200 }, () => ({
         x: innerWidth*.5+(Math.random()-.5)*160, y: innerHeight*.4,
         vx:(Math.random()-.5)*16, vy:-(Math.random()*14+5), ay:.35+Math.random()*.15,
         color:pal[Math.floor(Math.random()*pal.length)], size:Math.random()*8+3,
@@ -366,13 +629,14 @@ function launchConfetti() {
             if(p.alpha<=0) continue; alive=true;
             ctx.save(); ctx.globalAlpha=p.alpha; ctx.fillStyle=ctx.strokeStyle=p.color;
             ctx.translate(p.x,p.y); ctx.rotate(p.rot);
-            if(p.shape==='rect') ctx.fillRect(-p.size/2,-p.size/4,p.size,p.size/2);
+            if(p.shape==='rect')        ctx.fillRect(-p.size/2,-p.size/4,p.size,p.size/2);
             else if(p.shape==='circle'){ctx.beginPath();ctx.arc(0,0,p.size/2.5,0,Math.PI*2);ctx.fill();}
             else{ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-p.size/2,0);ctx.lineTo(p.size/2,0);ctx.stroke();}
             ctx.restore();
             p.x+=p.vx;p.y+=p.vy;p.vy+=p.ay;p.vx*=.99;p.rot+=p.rspd;p.alpha-=p.decay;
         }
-        if(alive) requestAnimationFrame(draw); else ctx.clearRect(0,0,cv.width,cv.height);
+        if(alive) requestAnimationFrame(draw);
+        else ctx.clearRect(0,0,cv.width,cv.height);
     })();
 }
 window.addEventListener('resize',()=>{
@@ -380,11 +644,11 @@ window.addEventListener('resize',()=>{
     c.width=innerWidth; c.height=innerHeight;
 });
 
-/* ═══════════════════════════════════════
+/* ═══════════════════════════════════════════════
    LAVA BACKGROUND
-═══════════════════════════════════════ */
-function initLava() {
-    const cv=document.getElementById('lava-canvas'), ctx=cv.getContext('2d');
+═══════════════════════════════════════════════ */
+(function(){
+    const cv=document.getElementById('lava-canvas'),ctx=cv.getContext('2d');
     function resize(){cv.width=innerWidth;cv.height=innerHeight;}
     resize(); window.addEventListener('resize',resize);
     const pal=[[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0]];
@@ -393,7 +657,8 @@ function initLava() {
         const c=pal[Math.floor(Math.random()*pal.length)],sp=cv.width*.18;
         return{x:cv.width*.5+rnd(-sp,sp),y:init?rnd(-cv.height,0):rnd(-60,0),
             vy:rnd(1.2,3.2),vx:rnd(-.6,.6),radius:rnd(3,12),tail:[],maxTail:Math.floor(rnd(10,28)),
-            r:c[0],g:c[1],b:c[2],alpha:rnd(.5,.92),w:rnd(0,Math.PI*2),wS:rnd(.01,.045),wA:rnd(.2,1.4),glow:Math.random()>.55};
+            r:c[0],g:c[1],b:c[2],alpha:rnd(.5,.92),w:rnd(0,Math.PI*2),
+            wS:rnd(.01,.045),wA:rnd(.2,1.4),glow:Math.random()>.55};
     }
     const drops=[]; for(let i=0;i<60;i++) drops.push(mk(true));
     function drawDrop(d){
@@ -404,9 +669,12 @@ function initLava() {
             ctx.beginPath();ctx.arc(t.x,t.y,rad,0,Math.PI*2);
             ctx.fillStyle=`rgba(${r},${g},${b},${a})`;ctx.fill();
         }
-        if(glow){const gr=ctx.createRadialGradient(x,y,0,x,y,rd*4);
-            gr.addColorStop(0,`rgba(${r},${g},${b},${alpha*.38})`);gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
-            ctx.beginPath();ctx.arc(x,y,rd*4,0,Math.PI*2);ctx.fillStyle=gr;ctx.fill();}
+        if(glow){
+            const gr=ctx.createRadialGradient(x,y,0,x,y,rd*4);
+            gr.addColorStop(0,`rgba(${r},${g},${b},${alpha*.38})`);
+            gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
+            ctx.beginPath();ctx.arc(x,y,rd*4,0,Math.PI*2);ctx.fillStyle=gr;ctx.fill();
+        }
         const gm=ctx.createRadialGradient(x-rd*.3,y-rd*.35,0,x,y,rd);
         gm.addColorStop(0,`rgba(255,210,130,${alpha*.95})`);
         gm.addColorStop(.35,`rgba(${r},${g},${b},${alpha})`);
@@ -438,7 +706,7 @@ function initLava() {
         drawVolcano();requestAnimationFrame(animate);
     }
     animate();
-}
+})();
 </script>
 </body>
 </html>
