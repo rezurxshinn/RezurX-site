@@ -12,11 +12,9 @@
     <style>
         :root {
             --orange:      #ff8c00;
-            --orange-2:    #ffb347;
             --orange-dim:  #cc6600;
             --orange-glow: rgba(255,140,0,0.45);
             --green:       #00ff88;
-            --green-2:     #5fffaa;
             --green-glow:  rgba(0,255,136,0.35);
             --green-soft:  rgba(0,255,136,0.07);
             --red:         #ff4455;
@@ -39,31 +37,82 @@
             -webkit-font-smoothing:antialiased;
         }
 
-        /* ── BACKGROUND LAYERS ── */
-        #lava-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+        #lava-canvas     { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
         .atmos {
             position:fixed; inset:0; z-index:1; pointer-events:none;
             background:
-                radial-gradient(ellipse 90% 50% at 50% 0%,  rgba(255,90,0,0.20) 0%, transparent 65%),
+                radial-gradient(ellipse 90% 50% at 50% 0%, rgba(255,90,0,0.20) 0%, transparent 65%),
                 radial-gradient(ellipse 100% 100% at 50% 50%, transparent 35%, rgba(0,0,0,0.72) 100%);
         }
         .scanlines {
             position:fixed; inset:0; z-index:2; pointer-events:none;
-            background:repeating-linear-gradient(
-                0deg,transparent,transparent 3px,rgba(0,0,0,0.045) 3px,rgba(0,0,0,0.045) 4px
-            );
+            background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.045) 3px,rgba(0,0,0,0.045) 4px);
         }
         #confetti-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:999; pointer-events:none; }
 
-        /* ── PANEL ── */
+        /* ══════════════════════════════════════════
+           FULL-SCREEN LOADING OVERLAY
+        ══════════════════════════════════════════ */
+        #loading-overlay {
+            display:none;
+            position:fixed; inset:0; z-index:500;
+            background:rgba(6,2,0,0.97);
+            flex-direction:column;
+            justify-content:center; align-items:center;
+            gap:32px;
+            animation:overlayIn .3s ease both;
+        }
+        #loading-overlay.show { display:flex; }
+        @keyframes overlayIn { from{opacity:0;} to{opacity:1;} }
+
+        .ov-logo {
+            font-family:'Orbitron',sans-serif; font-size:1.3rem; font-weight:900; letter-spacing:6px;
+            background:linear-gradient(180deg,#ffd080 0%,#ff9c20 35%,#ff6600 70%,#cc4400 100%);
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+            filter:drop-shadow(0 0 20px rgba(255,140,0,0.6));
+        }
+
+        /* Dual-ring lava spinner */
+        .ov-ring { width:72px; height:72px; position:relative; }
+        .ov-ring::before, .ov-ring::after { content:""; position:absolute; inset:0; border-radius:50%; }
+        .ov-ring::before { border:3px solid rgba(255,140,0,0.1); }
+        .ov-ring::after  {
+            border:3px solid transparent;
+            border-top-color:var(--orange);
+            border-right-color:rgba(255,140,0,0.4);
+            animation:spin 1s linear infinite;
+            filter:drop-shadow(0 0 6px var(--orange-glow));
+        }
+        @keyframes spin { to{transform:rotate(360deg);} }
+        .ov-inner {
+            position:absolute; inset:12px; border-radius:50%;
+            border:2px solid transparent;
+            border-bottom-color:rgba(255,120,0,0.5);
+            border-left-color:rgba(255,120,0,0.2);
+            animation:spinR .7s linear infinite reverse;
+        }
+        @keyframes spinR { to{transform:rotate(360deg);} }
+
+        .ov-content { text-align:center; display:flex; flex-direction:column; align-items:center; gap:14px; }
+        #ov-status  { font-size:.75rem; letter-spacing:3px; text-transform:uppercase; color:var(--orange); min-height:1.1em; transition:opacity .3s; }
+        .ov-track   { width:280px; height:3px; background:rgba(255,140,0,0.1); border-radius:2px; overflow:hidden; }
+        #ov-bar     {
+            height:100%; width:0%;
+            background:linear-gradient(90deg,var(--orange-dim),var(--orange),#ffb347);
+            border-radius:2px; transition:width .5s ease;
+            box-shadow:0 0 10px var(--orange-glow);
+        }
+        #ov-substatus { font-size:.58rem; letter-spacing:2px; color:var(--dim); text-transform:uppercase; min-height:1em; }
+
+        /* ══════════════════════════════════════════
+           PANEL
+        ══════════════════════════════════════════ */
         .panel {
             position:relative; z-index:10;
             background:var(--panel);
             border:1px solid rgba(255,140,0,0.22);
-            border-radius:6px;
-            padding:42px 38px 34px;
-            width:92%; max-width:480px;
-            text-align:center;
+            border-radius:6px; padding:42px 38px 34px;
+            width:92%; max-width:480px; text-align:center;
             box-shadow:
                 0 0 0 1px rgba(0,0,0,0.9),
                 0 8px 40px rgba(0,0,0,0.85),
@@ -73,7 +122,6 @@
             animation:panelIn .55s cubic-bezier(0.22,1,0.36,1) both;
         }
         @keyframes panelIn { from{opacity:0;transform:translateY(18px) scale(0.97);} to{opacity:1;transform:none;} }
-
         @media (max-width:480px) { .panel { padding:32px 22px 26px; } }
 
         .c { position:absolute; width:14px; height:14px; }
@@ -92,18 +140,9 @@
         }
         @keyframes logoBreath { 0%,100%{filter:drop-shadow(0 0 20px rgba(255,140,0,0.55));} 50%{filter:drop-shadow(0 0 32px rgba(255,140,0,0.85));} }
         .logo-sub { font-size:.5rem; letter-spacing:5px; color:var(--muted); text-transform:uppercase; margin-top:9px; margin-bottom:28px; }
-        .divider { width:100%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,140,0,0.22),transparent); margin-bottom:22px; }
+        .divider  { width:100%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,140,0,0.22),transparent); margin-bottom:22px; }
 
-        .spin-row { display:none; align-items:center; justify-content:center; gap:12px; margin-bottom:16px; }
-        .spin-row.on { display:flex; }
-        .spinner {
-            width:18px; height:18px;
-            border:2px solid rgba(255,140,0,0.15); border-top-color:var(--orange);
-            border-radius:50%; animation:spin .8s linear infinite; flex-shrink:0;
-        }
-        @keyframes spin { to{transform:rotate(360deg);} }
-        .spin-txt { font-size:.65rem; color:var(--dim); letter-spacing:2px; text-transform:uppercase; }
-
+        /* Status */
         #status {
             font-size:.68rem; letter-spacing:2px; text-transform:uppercase;
             color:var(--dim); margin-bottom:20px;
@@ -119,68 +158,37 @@
         #status.amber { color:var(--orange); }
         #status.amber .sdot { background:var(--orange); box-shadow:0 0 8px var(--orange-glow); }
 
-        #claim-btn {
-            position:relative; overflow:hidden; background:transparent;
-            border:1px solid var(--orange); color:var(--orange);
-            font-family:'Orbitron',sans-serif; font-size:.78rem; font-weight:700;
-            padding:18px 24px; width:100%; cursor:pointer;
-            letter-spacing:3px; text-transform:uppercase; border-radius:3px;
-            transition:color .25s,background .25s,box-shadow .25s,opacity .25s,transform .15s;
-            display:none;
-        }
-        #claim-btn.show { display:block; animation:fadeUp .35s ease both; }
-        @keyframes fadeUp { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:none;} }
-        #claim-btn::after {
-            content:""; position:absolute; top:0; left:-120%; width:60%; height:100%;
-            background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);
-            animation:shimmer 2.8s ease-in-out infinite;
-        }
-        @keyframes shimmer { 0%{left:-120%} 55%,100%{left:160%} }
-        #claim-btn:hover:not(:disabled) { background:var(--orange); color:#000; box-shadow:0 0 30px var(--orange-glow); }
-        #claim-btn:active:not(:disabled) { transform:scale(.98); }
-        #claim-btn:disabled { opacity:.28; cursor:not-allowed; }
-
-        #key-box {
-            display:none; margin-top:20px;
-            background:var(--green-soft);
-            border:1px solid rgba(0,255,136,0.18);
-            border-radius:4px; padding:20px 16px 16px;
-        }
+        /* Key box */
+        #key-box { display:none; }
         #key-box.show { display:block; animation:slideUp .55s cubic-bezier(0.22,1,0.36,1) both; }
         @keyframes slideUp { from{opacity:0;transform:translateY(14px) scale(.98);} to{opacity:1;transform:none;} }
         .key-label { font-size:.5rem; letter-spacing:3px; color:rgba(0,255,136,0.4); text-transform:uppercase; margin-bottom:12px; }
         #key-value {
             font-family:'Orbitron',sans-serif; font-size:1.05rem; font-weight:700; letter-spacing:3px;
             color:var(--green); word-break:break-all; text-shadow:0 0 14px var(--green-glow);
-            margin-bottom:14px; user-select:all; cursor:text;
-            padding:8px; border-radius:3px; transition:background .2s;
+            margin-bottom:8px; user-select:all; cursor:text;
+            padding:10px; border-radius:3px; background:var(--green-soft);
+            border:1px solid rgba(0,255,136,0.12); transition:background .2s;
         }
-        #key-value:hover { background:rgba(0,255,136,0.05); }
-        .secondary-btn {
+        #key-value:hover { background:rgba(0,255,136,0.1); }
+        #key-expiry { font-size:.52rem; color:rgba(0,255,136,0.3); letter-spacing:1px; margin-bottom:14px; }
+        #copy-btn {
             background:transparent; border:1px solid rgba(0,255,136,0.2); color:rgba(0,255,136,0.55);
             font-family:'JetBrains Mono',monospace; font-size:.62rem; letter-spacing:2px; text-transform:uppercase;
-            padding:10px; width:100%; cursor:pointer; border-radius:2px;
-            transition:all .2s; margin-top:8px; display:block;
+            padding:10px; width:100%; cursor:pointer; border-radius:2px; transition:all .2s; display:block;
         }
-        .secondary-btn:hover { background:rgba(0,255,136,0.05); color:var(--green); border-color:rgba(0,255,136,0.4); }
-        .secondary-btn:active { transform:scale(.99); }
+        #copy-btn:hover  { background:rgba(0,255,136,0.05); color:var(--green); border-color:rgba(0,255,136,0.4); }
         #copy-btn.copied { color:var(--green); background:rgba(0,255,136,0.1); border-color:rgba(0,255,136,0.4); }
 
-        #error-box {
-            display:none; margin-top:14px;
-            background:var(--red-soft); border:1px solid rgba(255,68,85,0.25);
-            border-radius:4px; padding:14px;
-        }
+        /* Error */
+        #error-box { display:none; }
         #error-box.show { display:block; animation:slideUp .35s ease both; }
-        #error-msg { font-size:.65rem; color:var(--red); letter-spacing:.5px; margin-bottom:10px; line-height:1.55; }
-        #retry-btn {
-            background:transparent; border:1px solid rgba(255,68,85,0.3); color:var(--red);
-            font-family:'JetBrains Mono',monospace; font-size:.62rem; padding:9px; width:100%;
-            cursor:pointer; letter-spacing:1px; border-radius:2px;
-            transition:all .2s; text-transform:uppercase;
+        #error-msg {
+            font-size:.65rem; color:var(--red); letter-spacing:.5px;
+            line-height:1.65; white-space:pre-line;
+            background:var(--red-soft); border:1px solid rgba(255,68,85,0.2);
+            border-radius:4px; padding:16px;
         }
-        #retry-btn:hover { background:rgba(255,68,85,0.08); }
-        #retry-btn:active { transform:scale(.99); }
 
         .footer { margin-top:24px; display:flex; justify-content:center; align-items:center; gap:10px; }
         .fi { font-size:.45rem; letter-spacing:1.5px; color:#1a0e06; text-transform:uppercase; }
@@ -188,6 +196,17 @@
     </style>
 </head>
 <body>
+
+<!-- Loading overlay — visible during auto-verification -->
+<div id="loading-overlay">
+    <div class="ov-logo">REZURXLAB</div>
+    <div class="ov-ring"><div class="ov-inner"></div></div>
+    <div class="ov-content">
+        <div id="ov-status">Waking server...</div>
+        <div class="ov-track"><div id="ov-bar"></div></div>
+        <div id="ov-substatus">Please wait...</div>
+    </div>
+</div>
 
 <canvas id="lava-canvas"></canvas>
 <div class="atmos"></div>
@@ -203,27 +222,20 @@
     <div class="logo-sub">Key Generation System</div>
     <div class="divider"></div>
 
-    <div class="spin-row" id="spin-row">
-        <div class="spinner"></div>
-        <div class="spin-txt" id="spin-txt">Processing...</div>
-    </div>
+    <!-- Status line — only thing shown while loading overlay is active -->
+    <div id="status"><span class="sdot"></span><span id="status-txt">Verifying session...</span></div>
 
-    <div id="status"><span class="sdot"></span><span id="status-txt"></span></div>
-
-    <!-- Only the claim button appears (after ad) -->
-    <button id="claim-btn" class="show" type="button">⚡ Claim Your Key</button>
-
+    <!-- Key — shown after successful verification -->
     <div id="key-box">
         <div class="key-label">▸ Your Access Key</div>
         <div id="key-value" tabindex="0"></div>
-        <button id="copy-btn" class="secondary-btn" type="button">[ Copy Key ]</button>
+        <div id="key-expiry"></div>
+        <button id="copy-btn" type="button">[ Copy Key ]</button>
     </div>
 
-    <button id="again-btn" class="secondary-btn" type="button" style="display:none">↩ Get Another Key</button>
-
+    <!-- Error — shown if session invalid or verification fails -->
     <div id="error-box">
         <div id="error-msg"></div>
-        <button id="retry-btn" type="button">↩ Try Again</button>
     </div>
 
     <div class="footer">
@@ -237,140 +249,89 @@
 (() => {
     'use strict';
 
-    // ═══════════════════════════════════════════════════════
-    // CONFIGURATION
-    // ═══════════════════════════════════════════════════════
-    const API_BASE = "https://rezurx-backend.onrender.com";
+    /* ═══════════════════════════════════════
+       CONFIG
+    ═══════════════════════════════════════ */
+    const API         = "https://rezurx-backend.onrender.com";
     const STORAGE_KEY = 'rzx_token_v2';
-    const STORAGE_BACKUP = 'rzx_token_backup_v2';
+    const STORAGE_BAK = 'rzx_token_backup_v2';
+    const TOKEN_RE    = /^[a-f0-9]{16,128}$/i;
+    const HASH_RE     = /^[A-Za-z0-9_\-=.]{6,512}$/;
 
-    // Validation patterns
-    const TOKEN_PATTERN = /^[a-f0-9]{16,128}$/i;
-    const HASH_PATTERN  = /^[A-Za-z0-9_\-=.]{6,512}$/;
-
-    // ── DOM ──────────────────────────────────────────
-    const $ = (id) => document.getElementById(id);
-    const spinRow = $('spin-row');
-    const spinTxt = $('spin-txt');
-    const statusEl = $('status');
-    const statusTxtEl = $('status-txt');
-    const claimBtn = $('claim-btn');
-    const keyBox = $('key-box');
-    const keyValueEl = $('key-value');
-    const copyBtn = $('copy-btn');
-    const againBtn = $('again-btn');
-    const errorBox = $('error-box');
-    const errorMsgEl = $('error-msg');
-    const retryBtn = $('retry-btn');
+    /* ═══════════════════════════════════════
+       DOM
+    ═══════════════════════════════════════ */
+    const overlay  = document.getElementById('loading-overlay');
+    const ovStatus = document.getElementById('ov-status');
+    const ovBar    = document.getElementById('ov-bar');
+    const ovSub    = document.getElementById('ov-substatus');
+    const statusEl = document.getElementById('status');
+    const statusTx = document.getElementById('status-txt');
+    const keyBox   = document.getElementById('key-box');
+    const keyVal   = document.getElementById('key-value');
+    const keyExp   = document.getElementById('key-expiry');
+    const copyBtn  = document.getElementById('copy-btn');
+    const errorBox = document.getElementById('error-box');
+    const errorMsg = document.getElementById('error-msg');
 
     let currentKey = '';
-    let claiming = false;
-    let serverWarm = false;
 
-    // ── STORAGE HELPERS ──────────────────────────────
-    const store = {
-        save(token) {
-            try { sessionStorage.setItem(STORAGE_KEY, token); } catch (_) {}
-            try { localStorage.setItem(STORAGE_BACKUP, token); } catch (_) {}
-        },
-        load() {
-            try { const t = sessionStorage.getItem(STORAGE_KEY); if (t) return t; } catch (_) {}
-            try { return localStorage.getItem(STORAGE_BACKUP); } catch (_) {}
-            return null;
-        },
-        clear() {
-            try { sessionStorage.removeItem(STORAGE_KEY); } catch (_) {}
-            try { localStorage.removeItem(STORAGE_BACKUP); } catch (_) {}
-        }
-    };
+    /* ═══════════════════════════════════════
+       STORAGE
+    ═══════════════════════════════════════ */
+    function loadToken() {
+        try { const t = sessionStorage.getItem(STORAGE_KEY); if (t) return t; } catch (_) {}
+        try { return localStorage.getItem(STORAGE_BAK); }                       catch (_) {}
+        return null;
+    }
+    function clearToken() {
+        try { sessionStorage.removeItem(STORAGE_KEY); } catch (_) {}
+        try { localStorage.removeItem(STORAGE_BAK);   } catch (_) {}
+    }
 
-    // ── UI HELPERS ───────────────────────────────────
-    function showSpinner(msg) { spinRow.classList.add('on'); spinTxt.textContent = msg; }
-    function hideSpinner() { spinRow.classList.remove('on'); }
-    function setStatus(msg, type = '') { statusTxtEl.textContent = msg; statusEl.className = type; }
+    /* ═══════════════════════════════════════
+       UI HELPERS
+    ═══════════════════════════════════════ */
+    function setStatus(msg, type = '') {
+        statusTx.textContent = msg;
+        statusEl.className   = type;
+    }
+    function setOverlay(status, pct, sub) {
+        ovStatus.textContent = status;
+        ovBar.style.width    = pct + '%';
+        ovSub.textContent    = sub || '';
+    }
+    function showOverlay() { overlay.classList.add('show'); }
+    function hideOverlay(cb) {
+        overlay.style.transition = 'opacity .5s';
+        overlay.style.opacity    = '0';
+        setTimeout(() => {
+            overlay.classList.remove('show');
+            overlay.style.opacity = '';
+            overlay.style.transition = '';
+            if (cb) cb();
+        }, 550);
+    }
     function showError(msg) {
-        errorMsgEl.textContent = msg;
+        errorMsg.textContent = msg;
         errorBox.classList.add('show');
         setStatus('ERROR', 'red');
     }
-    function hideError() { errorBox.classList.remove('show'); }
-    function showButton(btn) { btn.style.display = 'block'; btn.classList.add('show'); }
-    function hideButton(btn) { btn.style.display = 'none'; btn.classList.remove('show'); }
 
-    // ── SAFE FETCH ───────────────────────────────────
-    async function safeFetch(url, opts = {}, timeoutMs = 15000) {
+    /* ═══════════════════════════════════════
+       FETCH WITH TIMEOUT
+    ═══════════════════════════════════════ */
+    async function fetchT(url, opts = {}, ms = 15000) {
         const ctrl = new AbortController();
-        const tid = setTimeout(() => ctrl.abort(), timeoutMs);
-        try { return await fetch(url, { ...opts, signal: ctrl.signal }); }
-        finally { clearTimeout(tid); }
-    }
-
-    // ── CLAIM KEY ────────────────────────────────────
-    async function claimKey() {
-        if (claiming) return;
-
-        const params = new URLSearchParams(window.location.search);
-        const hash = params.get('hash');
-        const token = store.load();
-
-        if (!hash) { showError('Missing ad verification. Please complete the ad and return.'); return; }
-        if (!token) { showError('Session expired. Please start over.'); return; }
-        if (!TOKEN_PATTERN.test(token)) { showError('Invalid session token. Please start over.'); store.clear(); return; }
-        if (!HASH_PATTERN.test(hash)) { showError('Invalid verification hash. Please complete the ad properly.'); return; }
-
-        claiming = true;
-        claimBtn.disabled = true;
-        hideError();
-        showSpinner('VERIFYING AD COMPLETION...');
-        setStatus('Verifying with Linkvertise...', 'amber');
-
-        if (!serverWarm) {
-            try { await safeFetch(API_BASE + '/health', {}, 8000); serverWarm = true; }
-            catch (_) {}
-        }
-
-        const statusSequence = [
-            { text: 'Verifying with Linkvertise...', delay: 0 },
-            { text: 'Confirming ad completion...',   delay: 1200 },
-            { text: 'Generating your key...',        delay: 2400 }
-        ];
-        const statusTimeouts = statusSequence.map(s =>
-            setTimeout(() => { if (claiming) setStatus(s.text, 'amber'); }, s.delay)
-        );
-
+        const tid  = setTimeout(() => ctrl.abort(), ms);
         try {
-            const res = await safeFetch(API_BASE + '/api/verify-linkvertise', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ token, hash })
-            }, 25000);
-
-            statusTimeouts.forEach(clearTimeout);
-            const data = await res.json().catch(() => ({}));
-
-            if (!res.ok) throw new Error(data.error || `Verification failed (${res.status})`);
-            if (!data.key || typeof data.key !== 'string') throw new Error('Invalid key response from server');
-
-            currentKey = data.key;
-            keyValueEl.textContent = currentKey;
-            hideButton(claimBtn);
-            keyBox.classList.add('show');
-            showButton(againBtn);
-            setStatus('✓ ACCESS GRANTED', 'green');
-            store.clear();
-            window.history.replaceState({}, '', window.location.pathname);
-            launchConfetti();
-            setTimeout(() => keyValueEl.focus(), 600);
-        } catch (err) {
-            statusTimeouts.forEach(clearTimeout);
-            const isTimeout = err && err.name === 'AbortError';
-            showError(isTimeout ? 'Verification timed out. Click "Claim Your Key" again.' : (err.message || 'Verification failed. Try again.'));
-            claimBtn.disabled = false;
-            claiming = false;
-        } finally { hideSpinner(); }
+            return await fetch(url, { ...opts, signal: ctrl.signal, mode: 'cors', credentials: 'omit' });
+        } finally { clearTimeout(tid); }
     }
 
-    // ── COPY KEY ─────────────────────────────────────
+    /* ═══════════════════════════════════════
+       COPY
+    ═══════════════════════════════════════ */
     function copyKey() {
         if (!currentKey) return;
         const ok = () => {
@@ -378,168 +339,237 @@
             copyBtn.classList.add('copied');
             setTimeout(() => { copyBtn.textContent = '[ Copy Key ]'; copyBtn.classList.remove('copied'); }, 2500);
         };
-        const fallback = () => {
+        if (navigator.clipboard?.writeText) {
+            navigator.clipboard.writeText(currentKey).then(ok).catch(fallback);
+        } else { fallback(); }
+        function fallback() {
             try {
                 const ta = document.createElement('textarea');
-                ta.value = currentKey; ta.style.position = 'fixed'; ta.style.opacity = '0';
+                ta.value = currentKey; ta.style.cssText = 'position:fixed;opacity:0;';
                 document.body.appendChild(ta); ta.select(); document.execCommand('copy');
                 document.body.removeChild(ta); ok();
-            } catch (_) { copyBtn.textContent = '[ ✗ Copy failed — select manually ]'; setTimeout(() => copyBtn.textContent = '[ Copy Key ]', 2500); }
-        };
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(currentKey).then(ok).catch(fallback);
-        } else fallback();
-    }
-
-    // ── EVENT LISTENERS ──────────────────────────────
-    claimBtn.addEventListener('click', claimKey);
-    copyBtn.addEventListener('click', copyKey);
-    againBtn.addEventListener('click', () => location.reload());
-    retryBtn.addEventListener('click', () => location.reload());
-
-    keyValueEl.addEventListener('click', (e) => {
-        if (e.detail === 3) {
-            const range = document.createRange();
-            range.selectNodeContents(keyValueEl);
-            const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+            } catch (_) { copyBtn.textContent = '[ Select key text above to copy ]'; }
         }
-    });
+    }
+    copyBtn.addEventListener('click', copyKey);
 
-    document.addEventListener('visibilitychange', () => {
-        if (!document.hidden && !serverWarm && !claiming)
-            safeFetch(API_BASE + '/health', {}, 5000).then(r => { if (r.ok) serverWarm = true; }).catch(() => {});
-    });
-
-    // ── INIT ─────────────────────────────────────────
+    /* ═══════════════════════════════════════
+       MAIN — auto-runs on page load
+       No button. Page verifies automatically
+       the moment the user lands after the ad.
+    ═══════════════════════════════════════ */
     window.addEventListener('load', async () => {
         const params = new URLSearchParams(window.location.search);
-        const hash = params.get('hash');
-        const token = store.load();
+        const hash   = params.get('hash');
+        const token  = loadToken();
 
-        if (hash && HASH_PATTERN.test(hash) && token && TOKEN_PATTERN.test(token)) {
-            showButton(claimBtn);
-            setStatus('Ad completed — claim your key below', 'green');
-            safeFetch(API_BASE + '/health', {}, 6000).then(r => { if (r.ok) serverWarm = true; }).catch(() => {});
+        const hashOk  = hash  && HASH_RE.test(hash);
+        const tokenOk = token && TOKEN_RE.test(token);
+
+        // ── SESSION INVALID — no button, just a clear message ──
+        if (!hashOk || !tokenOk) {
+            let msg = '';
+            if (!hashOk && !tokenOk)
+                msg = 'No active session found.\n\nTo get a key you must go through the Linkvertise ad from the beginning. Please return to the script and follow the link.';
+            else if (!hashOk)
+                msg = 'Verification hash missing from URL.\n\nDo not navigate to this page directly. Complete the Linkvertise ad and you will be redirected here automatically.';
+            else
+                msg = 'Session token missing or expired.\n\nSessions last 30 minutes. Please start over from the beginning.';
+
+            showError(msg);
+            setStatus('SESSION INVALID', 'red');
             return;
         }
 
-        // No valid hash/token → show message, no redirect
-        hideButton(claimBtn);
-        setStatus('Complete the ad first to receive your key.', '';
-        // Optionally, show a subtle error box pointing to the ad link
-        showError('You must complete the Linkvertise / Work.ink advertisement before claiming a key.');
+        // ── VALID SESSION — auto-verify immediately ────────────
+        // Wipe URL params so the hash can't be bookmarked/shared
+        window.history.replaceState({}, '', window.location.pathname);
+
+        showOverlay();
+        setOverlay('Waking server...', 5, 'Connecting to Render...');
+        setStatus('VERIFYING...', 'amber');
+
+        // Step 1: Warmup ping
+        try {
+            const h = await fetchT(API + '/health', { method: 'GET', cache: 'no-store' }, 30000);
+            if (h.ok) setOverlay('Server online', 20, 'Connected successfully');
+        } catch (_) {
+            setOverlay('Server slow...', 15, 'Proceeding anyway...');
+        }
+        await new Promise(r => setTimeout(r, 350));
+
+        // Step 2: Animated status while fetch runs
+        const steps = [
+            { pct: 35, status: 'Verifying with Linkvertise...',  sub: 'Checking ad completion...' },
+            { pct: 55, status: 'Confirming ad completion...',    sub: 'Anti-bypass check in progress...' },
+            { pct: 75, status: 'Generating your key...',         sub: 'Almost done...' },
+        ];
+        let si = 0;
+        const stepTick = setInterval(() => {
+            if (si < steps.length) {
+                const s = steps[si++];
+                setOverlay(s.status, s.pct, s.sub);
+            }
+        }, 1300);
+
+        // Step 3: Hit backend
+        try {
+            const res  = await fetchT(
+                API + '/api/verify-linkvertise',
+                {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body:    JSON.stringify({ token, hash }),
+                },
+                25000
+            );
+
+            clearInterval(stepTick);
+            const data = await res.json().catch(() => ({}));
+
+            if (res.status === 400) throw new Error('TOKEN ALREADY USED\nEach ad completion gives one key. Please go through the ad again to get a new key.');
+            if (res.status === 403) throw new Error('AD NOT COMPLETED\nPlease finish the full Linkvertise offer without skipping.');
+            if (res.status === 404) throw new Error('SESSION EXPIRED\nSessions last 30 minutes. Please start over from the beginning.');
+            if (!res.ok)            throw new Error((data.error || 'Server error ' + res.status) + '\n\nPlease try again shortly.');
+            if (!data.key)          throw new Error('Invalid response from server.\nPlease try again.');
+
+            // ── SUCCESS ───────────────────────────────────────
+            setOverlay('Key generated!', 100, 'Opening your key...');
+            await new Promise(r => setTimeout(r, 700));
+
+            currentKey = data.key;
+            clearToken(); // one-time use — clear immediately
+
+            keyVal.textContent = currentKey;
+            if (data.expiresAt) {
+                keyExp.textContent = 'Expires: ' +
+                    new Date(data.expiresAt).toLocaleString('en-GB', { hour12: false });
+            }
+
+            hideOverlay(() => {
+                keyBox.classList.add('show');
+                setStatus('✓ KEY GENERATED', 'green');
+                launchConfetti();
+                setTimeout(() => keyVal.focus(), 600);
+            });
+
+        } catch (err) {
+            clearInterval(stepTick);
+            const msg = err.name === 'AbortError'
+                ? 'VERIFICATION TIMED OUT\nThe server took too long. Please go through the ad again.'
+                : (err.message || 'Verification failed. Please try again.');
+            hideOverlay(() => { showError(msg); });
+        }
     });
 
-    // ── CONFETTI ─────────────────────────────────────
+    /* ═══════════════════════════════════════
+       CONFETTI
+    ═══════════════════════════════════════ */
     function launchConfetti() {
-        const canvas = $('confetti-canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = innerWidth; canvas.height = innerHeight;
-        const pal = ['#ff8c00','#ffb347','#ffd700','#00ff88','#ffffff','#ff6644','#ffcc33','#ff9920'];
+        const cv  = document.getElementById('confetti-canvas');
+        const ctx = cv.getContext('2d');
+        cv.width = innerWidth; cv.height = innerHeight;
+        const pal    = ['#ff8c00','#ffb347','#ffd700','#00ff88','#ffffff','#ff6644','#ffcc33','#ff9920'];
         const shapes = ['rect','circle','line','triangle'];
         const pieces = Array.from({ length: 280 }, () => ({
-            x: innerWidth*.5 + (Math.random()-.5)*200,
-            y: innerHeight*.45,
-            vx: (Math.random()-.5)*18, vy: -(Math.random()*16+6),
-            ay: .32 + Math.random()*.18,
-            color: pal[Math.floor(Math.random()*pal.length)],
-            size: Math.random()*9+3, rot: Math.random()*Math.PI*2,
-            rspd: (Math.random()-.5)*.28, alpha: 1,
-            decay: .009 + Math.random()*.006,
-            shape: shapes[Math.floor(Math.random()*shapes.length)]
+            x: innerWidth*.5+(Math.random()-.5)*200, y: innerHeight*.45,
+            vx:(Math.random()-.5)*18, vy:-(Math.random()*16+6), ay:.32+Math.random()*.18,
+            color:pal[Math.floor(Math.random()*pal.length)], size:Math.random()*9+3,
+            rot:Math.random()*Math.PI*2, rspd:(Math.random()-.5)*.28,
+            alpha:1, decay:.009+Math.random()*.006,
+            shape:shapes[Math.floor(Math.random()*shapes.length)]
         }));
         (function draw() {
-            ctx.clearRect(0,0,canvas.width,canvas.height); let alive = false;
+            ctx.clearRect(0,0,cv.width,cv.height); let alive=false;
             for (const p of pieces) {
-                if (p.alpha <= 0) continue; alive = true;
-                ctx.save(); ctx.globalAlpha = p.alpha;
-                ctx.fillStyle = ctx.strokeStyle = p.color;
-                ctx.translate(p.x, p.y); ctx.rotate(p.rot);
-                if (p.shape === 'rect') ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
-                else if (p.shape === 'circle') { ctx.beginPath(); ctx.arc(0,0, p.size/2.5, 0, Math.PI*2); ctx.fill(); }
-                else if (p.shape === 'triangle') {
-                    ctx.beginPath(); ctx.moveTo(0, -p.size/2); ctx.lineTo(p.size/2, p.size/2); ctx.lineTo(-p.size/2, p.size/2); ctx.closePath(); ctx.fill();
-                } else { ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(-p.size/2,0); ctx.lineTo(p.size/2,0); ctx.stroke(); }
+                if (p.alpha<=0) continue; alive=true;
+                ctx.save(); ctx.globalAlpha=p.alpha; ctx.fillStyle=ctx.strokeStyle=p.color;
+                ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+                if      (p.shape==='rect')     { ctx.fillRect(-p.size/2,-p.size/4,p.size,p.size/2); }
+                else if (p.shape==='circle')   { ctx.beginPath();ctx.arc(0,0,p.size/2.5,0,Math.PI*2);ctx.fill(); }
+                else if (p.shape==='triangle') { ctx.beginPath();ctx.moveTo(0,-p.size/2);ctx.lineTo(p.size/2,p.size/2);ctx.lineTo(-p.size/2,p.size/2);ctx.closePath();ctx.fill(); }
+                else                           { ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-p.size/2,0);ctx.lineTo(p.size/2,0);ctx.stroke(); }
                 ctx.restore();
-                p.x += p.vx; p.y += p.vy; p.vy += p.ay; p.vx *= .99; p.rot += p.rspd; p.alpha -= p.decay;
+                p.x+=p.vx;p.y+=p.vy;p.vy+=p.ay;p.vx*=.99;p.rot+=p.rspd;p.alpha-=p.decay;
             }
             if (alive) requestAnimationFrame(draw);
-            else ctx.clearRect(0,0,canvas.width,canvas.height);
+            else ctx.clearRect(0,0,cv.width,cv.height);
         })();
     }
     window.addEventListener('resize', () => {
-        const c = $('confetti-canvas'); c.width = innerWidth; c.height = innerHeight;
+        const c = document.getElementById('confetti-canvas');
+        c.width = innerWidth; c.height = innerHeight;
     });
 
-    // ── LAVA BACKGROUND (VOLCANO REMOVED, MORE SPEW) ──
-    (function(){
-        const cv = $('lava-canvas'), ctx = cv.getContext('2d');
-        function resize(){ cv.width = innerWidth; cv.height = innerHeight; }
+    /* ═══════════════════════════════════════
+       LAVA BACKGROUND (no volcano, 100 drops)
+    ═══════════════════════════════════════ */
+    (function () {
+        const cv  = document.getElementById('lava-canvas');
+        const ctx = cv.getContext('2d');
+        function resize() { cv.width = innerWidth; cv.height = innerHeight; }
         resize(); window.addEventListener('resize', resize);
-        const pal = [
-            [255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],
-            [180,30,0],[255,140,0],[200,50,0],[255,100,5]
-        ];
-        const rnd = (a,b) => a + Math.random()*(b-a);
+
+        const pal = [[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0],[255,140,0],[200,50,0],[255,100,5]];
+        const rnd = (a, b) => a + Math.random() * (b - a);
+
         function mk(init) {
-            const c = pal[Math.floor(Math.random()*pal.length)];
-            const spread = cv.width*.25;  // wider spread
+            const c  = pal[Math.floor(Math.random() * pal.length)];
+            const sp = cv.width * .25;
             return {
-                x: cv.width*.5 + rnd(-spread, spread),
+                x: cv.width * .5 + rnd(-sp, sp),
                 y: init ? rnd(-cv.height, 0) : rnd(-80, 0),
                 vy: rnd(1.5, 3.8), vx: rnd(-.8, .8),
                 radius: rnd(4, 14), tail: [], maxTail: Math.floor(rnd(14, 32)),
                 r: c[0], g: c[1], b: c[2], alpha: rnd(.5, .95),
-                wobble: rnd(0, Math.PI*2), wobbleSpd: rnd(.008, .05), wobbleAmp: rnd(.3, 1.8),
-                glow: true  // all drops glow now
+                wobble: rnd(0, Math.PI * 2), wobbleSpd: rnd(.008, .05), wobbleAmp: rnd(.3, 1.8),
             };
         }
+
         const drops = [];
-        for (let i = 0; i < 100; i++) drops.push(mk(true));  // more drops
+        for (let i = 0; i < 100; i++) drops.push(mk(true));
+
         function drawDrop(d) {
-            const { x, y, radius:rd, r, g, b, alpha, tail } = d;
-            // Tail
+            const { x, y, radius: rd, r, g, b, alpha, tail } = d;
             for (let i = 0; i < tail.length; i++) {
-                const t = tail[i], pct = i/tail.length, a = alpha*pct*.4, rad = rd*pct*.65;
+                const t = tail[i], pct = i / tail.length;
+                const a = alpha * pct * .4, rad = rd * pct * .65;
                 if (rad < .5 || a < .01) continue;
-                ctx.beginPath(); ctx.arc(t.x, t.y, rad, 0, Math.PI*2);
+                ctx.beginPath(); ctx.arc(t.x, t.y, rad, 0, Math.PI * 2);
                 ctx.fillStyle = `rgba(${r},${g},${b},${a})`; ctx.fill();
             }
-            // Glow
-            const gr = ctx.createRadialGradient(x, y, 0, x, y, rd*5);
-            gr.addColorStop(0, `rgba(${r},${g},${b},${alpha*.45})`);
+            const gr = ctx.createRadialGradient(x, y, 0, x, y, rd * 5);
+            gr.addColorStop(0, `rgba(${r},${g},${b},${alpha * .45})`);
             gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
-            ctx.beginPath(); ctx.arc(x, y, rd*5, 0, Math.PI*2);
+            ctx.beginPath(); ctx.arc(x, y, rd * 5, 0, Math.PI * 2);
             ctx.fillStyle = gr; ctx.fill();
-            // Core
-            const gm = ctx.createRadialGradient(x-rd*.3, y-rd*.35, 0, x, y, rd);
-            gm.addColorStop(0, `rgba(255,220,140,${alpha*.9})`);
+
+            const gm = ctx.createRadialGradient(x - rd * .3, y - rd * .35, 0, x, y, rd);
+            gm.addColorStop(0,   `rgba(255,220,140,${alpha * .9})`);
             gm.addColorStop(.35, `rgba(${r},${g},${b},${alpha})`);
-            gm.addColorStop(1, `rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
-            ctx.beginPath(); ctx.arc(x, y, rd, 0, Math.PI*2);
+            gm.addColorStop(1,   `rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
+            ctx.beginPath(); ctx.arc(x, y, rd, 0, Math.PI * 2);
             ctx.fillStyle = gm; ctx.fill();
-            // Hot spot
-            ctx.beginPath(); ctx.arc(x-rd*.3, y-rd*.32, rd*.25, 0, Math.PI*2);
-            ctx.fillStyle = `rgba(255,255,240,${alpha*.7})`; ctx.fill();
+            ctx.beginPath(); ctx.arc(x - rd * .3, y - rd * .32, rd * .25, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255,255,240,${alpha * .7})`; ctx.fill();
         }
+
         function animate() {
             ctx.clearRect(0, 0, cv.width, cv.height);
             for (const d of drops) {
                 d.wobble += d.wobbleSpd;
-                d.x += Math.sin(d.wobble)*d.wobbleAmp + d.vx;
+                d.x += Math.sin(d.wobble) * d.wobbleAmp + d.vx;
                 d.y += d.vy;
                 d.tail.push({ x: d.x, y: d.y });
                 if (d.tail.length > d.maxTail) d.tail.shift();
                 drawDrop(d);
-                if (d.y - d.radius > cv.height + 20) {
-                    Object.assign(d, mk(false));
-                    d.tail = [];
-                }
+                if (d.y - d.radius > cv.height + 20) { Object.assign(d, mk(false)); d.tail = []; }
             }
             requestAnimationFrame(animate);
         }
         animate();
     })();
+
 })();
 </script>
 </body>
