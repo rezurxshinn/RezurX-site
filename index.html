@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <meta name="theme-color" content="#0a0200">
-    <title>RezurXLab | Key System</title>
+    <title>RezurXLab | Claim Key</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -72,7 +72,6 @@
             filter:drop-shadow(0 0 20px rgba(255,140,0,0.6));
         }
 
-        /* Dual-ring lava spinner */
         .ov-ring { width:72px; height:72px; position:relative; }
         .ov-ring::before, .ov-ring::after { content:""; position:absolute; inset:0; border-radius:50%; }
         .ov-ring::before { border:3px solid rgba(255,140,0,0.1); }
@@ -222,7 +221,7 @@
     <div class="logo-sub">Key Generation System</div>
     <div class="divider"></div>
 
-    <!-- Status line — only thing shown while loading overlay is active -->
+    <!-- Status line — shown while loading overlay is active -->
     <div id="status"><span class="sdot"></span><span id="status-txt">Verifying session...</span></div>
 
     <!-- Key — shown after successful verification -->
@@ -252,11 +251,12 @@
     /* ═══════════════════════════════════════
        CONFIG
     ═══════════════════════════════════════ */
-    const API         = "https://rezurx-backend.onrender.com";
-    const STORAGE_KEY = 'rzx_token_v2';
-    const STORAGE_BAK = 'rzx_token_backup_v2';
-    const TOKEN_RE    = /^[a-f0-9]{16,128}$/i;
-    const HASH_RE     = /^[A-Za-z0-9_\-=.]{6,512}$/;
+    const API          = "https://rezurx-backend.onrender.com";
+    const SESSION_KEY  = 'rzx_session_v3';       // same as start.html
+    const COOLDOWN_KEY = 'rzx_cooldown_v3';      // same as start.html
+    const COOLDOWN_MS  = 10 * 60 * 60 * 1000;     // 10 hours
+    const BIND_SECRET  = 'rzx_fp_bind_9x2';      // same as start.html
+    const HASH_RE      = /^[A-Za-z0-9_\-=.]{6,512}$/;
 
     /* ═══════════════════════════════════════
        DOM
@@ -277,25 +277,67 @@
     let currentKey = '';
 
     /* ═══════════════════════════════════════
+       BROWSER FINGERPRINT (same as start.html)
+    ═══════════════════════════════════════ */
+    async function getFingerprint() {
+        const nav = navigator;
+        const scr = screen;
+        let canvasHash = 'nc';
+        try {
+            const cv = document.createElement('canvas');
+            cv.width = 180; cv.height = 40;
+            const cx = cv.getContext('2d');
+            cx.font = '13px Arial';
+            cx.fillStyle = '#ff8c00';
+            cx.fillText('RezurX🔥fp', 2, 20);
+            cx.fillStyle = 'rgba(0,200,100,0.7)';
+            cx.fillRect(8, 26, 60, 8);
+            canvasHash = cv.toDataURL().slice(-48);
+        } catch (_) {}
+
+        const raw = [
+            nav.userAgent,
+            nav.language,
+            nav.hardwareConcurrency || 0,
+            nav.maxTouchPoints || 0,
+            scr.colorDepth,
+            scr.width + 'x' + scr.height,
+            Intl.DateTimeFormat().resolvedOptions().timeZone,
+            nav.platform || '',
+            canvasHash,
+            BIND_SECRET,
+        ].join('|');
+
+        const buf  = new TextEncoder().encode(raw);
+        const hash = await crypto.subtle.digest('SHA-256', buf);
+        return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+
+    /* ═══════════════════════════════════════
        STORAGE
     ═══════════════════════════════════════ */
-    function loadToken() {
-        try { const t = sessionStorage.getItem(STORAGE_KEY); if (t) return t; } catch (_) {}
-        try { return localStorage.getItem(STORAGE_BAK); }                       catch (_) {}
+    function loadTokenData() {
+        try {
+            const raw = sessionStorage.getItem(SESSION_KEY);
+            if (!raw) return null;
+            const data = JSON.parse(raw);
+            if (data.token && data.fp) return data; // { token, fp }
+        } catch (_) {}
         return null;
     }
-    function clearToken() {
-        try { sessionStorage.removeItem(STORAGE_KEY); } catch (_) {}
-        try { localStorage.removeItem(STORAGE_BAK);   } catch (_) {}
+    function clearTokenData() {
+        try { sessionStorage.removeItem(SESSION_KEY); } catch (_) {}
+    }
+    function setCooldown() {
+        try {
+            localStorage.setItem(COOLDOWN_KEY, JSON.stringify({ ts: Date.now() }));
+        } catch (_) {}
     }
 
     /* ═══════════════════════════════════════
        UI HELPERS
     ═══════════════════════════════════════ */
-    function setStatus(msg, type = '') {
-        statusTx.textContent = msg;
-        statusEl.className   = type;
-    }
+    function setStatus(msg, type = '') { statusTx.textContent = msg; statusEl.className = type; }
     function setOverlay(status, pct, sub) {
         ovStatus.textContent = status;
         ovBar.style.width    = pct + '%';
@@ -330,7 +372,7 @@
     }
 
     /* ═══════════════════════════════════════
-       COPY
+       COPY KEY
     ═══════════════════════════════════════ */
     function copyKey() {
         if (!currentKey) return;
@@ -354,35 +396,32 @@
     copyBtn.addEventListener('click', copyKey);
 
     /* ═══════════════════════════════════════
-       MAIN — auto-runs on page load
-       No button. Page verifies automatically
-       the moment the user lands after the ad.
+       MAIN — auto-verify on page load
     ═══════════════════════════════════════ */
     window.addEventListener('load', async () => {
-        const params = new URLSearchParams(window.location.search);
-        const hash   = params.get('hash');
-        const token  = loadToken();
+        const params   = new URLSearchParams(window.location.search);
+        const hash     = params.get('hash');
+        const tokenData = loadTokenData();
 
-        const hashOk  = hash  && HASH_RE.test(hash);
-        const tokenOk = token && TOKEN_RE.test(token);
-
-        // ── SESSION INVALID — no button, just a clear message ──
-        if (!hashOk || !tokenOk) {
-            let msg = '';
-            if (!hashOk && !tokenOk)
-                msg = 'No active session found.\n\nTo get a key you must go through the Linkvertise ad from the beginning. Please return to the script and follow the link.';
-            else if (!hashOk)
-                msg = 'Verification hash missing from URL.\n\nDo not navigate to this page directly. Complete the Linkvertise ad and you will be redirected here automatically.';
-            else
-                msg = 'Session token missing or expired.\n\nSessions last 30 minutes. Please start over from the beginning.';
-
+        if (!hash || !HASH_RE.test(hash) || !tokenData) {
+            let msg = 'No active session found.\n\nTo get a key you must go through the Linkvertise ad from the beginning. Please return to the script and follow the link.';
+            if (hash && !tokenData) msg = 'Session token missing or expired.\n\nSessions last 30 minutes. Please start over from the beginning.';
+            else if (!hash) msg = 'Verification hash missing.\n\nDo not navigate to this page directly. Complete the Linkvertise ad and you will be redirected here automatically.';
             showError(msg);
             setStatus('SESSION INVALID', 'red');
             return;
         }
 
-        // ── VALID SESSION — auto-verify immediately ────────────
-        // Wipe URL params so the hash can't be bookmarked/shared
+        // ✅ Valid hash + stored token data — compute fingerprint and check binding
+        const currentFp = await getFingerprint();
+        if (currentFp !== tokenData.fp) {
+            showError('Session bound to another browser.\n\nThe token was created on a different device or browser. Please start over from the beginning.');
+            clearTokenData();
+            setStatus('BINDING FAILED', 'red');
+            return;
+        }
+
+        // Clean URL immediately
         window.history.replaceState({}, '', window.location.pathname);
 
         showOverlay();
@@ -398,7 +437,7 @@
         }
         await new Promise(r => setTimeout(r, 350));
 
-        // Step 2: Animated status while fetch runs
+        // Step 2: Animated status while fetching
         const steps = [
             { pct: 35, status: 'Verifying with Linkvertise...',  sub: 'Checking ad completion...' },
             { pct: 55, status: 'Confirming ad completion...',    sub: 'Anti-bypass check in progress...' },
@@ -412,14 +451,14 @@
             }
         }, 1300);
 
-        // Step 3: Hit backend
+        // Step 3: Send token + hash to backend
         try {
             const res  = await fetchT(
                 API + '/api/verify-linkvertise',
                 {
                     method:  'POST',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body:    JSON.stringify({ token, hash }),
+                    body:    JSON.stringify({ token: tokenData.token, hash }),
                 },
                 25000
             );
@@ -438,7 +477,15 @@
             await new Promise(r => setTimeout(r, 700));
 
             currentKey = data.key;
-            clearToken(); // one-time use — clear immediately
+            clearTokenData();           // one-time use
+            setCooldown();              // set cooldown in localStorage
+
+            // Notify start.html (if it's still open) to update its cooldown UI
+            try {
+                const bc = new BroadcastChannel('rzx_channel');
+                bc.postMessage('key_issued');
+                bc.close();
+            } catch (_) {}
 
             keyVal.textContent = currentKey;
             if (data.expiresAt) {
@@ -502,7 +549,7 @@
     });
 
     /* ═══════════════════════════════════════
-       LAVA BACKGROUND (no volcano, 100 drops)
+       LAVA BACKGROUND (same as before)
     ═══════════════════════════════════════ */
     (function () {
         const cv  = document.getElementById('lava-canvas');
