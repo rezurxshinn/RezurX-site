@@ -230,8 +230,7 @@
     }
 
     /* ═══════════════════════════════════════
-       STORAGE — uses localStorage with TTL
-       (sessionStorage doesn't survive Linkvertise redirects)
+       STORAGE
     ═══════════════════════════════════════ */
     function saveSession(token, fp) {
         const data = { token, fp, ts: Date.now() };
@@ -300,10 +299,9 @@
     }
 
     /* ═══════════════════════════════════════
-       INIT — wake server, prepare token
+       INIT
     ═══════════════════════════════════════ */
     async function init() {
-        // Check cooldown first
         if (getCooldown() > 0) { startCooldown(); return; }
 
         setStatus('Waking server...', 'amber');
@@ -341,15 +339,20 @@
                 throw new Error(data.error || 'Failed to create session');
             }
 
-            // Store in localStorage (survives Linkvertise redirect)
             saveSession(data.token, fp);
 
             setStatus('● Redirecting to ad...', 'green');
             setBtn('[ Opening Linkvertise... ]', true);
 
-            // Brief delay so user sees the success state
+            // Append token to Linkvertise URL — Linkvertise will pass it
+            // through to your postback so the backend knows which session
+            // to mark as completed.
+            const sep = LINKVERTISE_URL.includes('?') ? '&' : '?';
+            const finalUrl = LINKVERTISE_URL + sep + 'token=' + encodeURIComponent(data.token);
+            console.log('[RezurX] Redirecting to:', finalUrl);
+
             setTimeout(() => {
-                window.location.href = LINKVERTISE_URL;
+                window.location.href = finalUrl;
             }, 600);
 
         } catch (err) {
@@ -373,7 +376,7 @@
     } catch (_) {}
 
     /* ═══════════════════════════════════════
-       DIAGNOSTIC HELPER (paste-friendly)
+       DIAGNOSTIC
     ═══════════════════════════════════════ */
     window.__rezurxDiag = function() {
         try {
