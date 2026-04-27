@@ -262,7 +262,8 @@
     const SESSION_KEY  = 'rzx_session_v3';
     const COOLDOWN_KEY = 'rzx_cooldown_v3';
     const HASH_RE      = /^[A-Za-z0-9_\-=.#]{6,512}$/;
-    const WITOKEN_RE   = /^[A-Za-z0-9_\-]{4,256}$/;
+    // FIX: loosened to allow base64-like chars (=, +) — matches updated backend regex
+    const WITOKEN_RE   = /^[A-Za-z0-9_\-=+]{4,512}$/;
     const TOKEN_RE     = /^[a-f0-9]{16,128}$/i;
 
     const overlay      = document.getElementById('loading-overlay');
@@ -300,13 +301,13 @@
 
     /* ── Token recovery (multi-source) ── */
     function recoverToken() {
-        // 1. localStorage
+        // 1. localStorage (primary — token stored by start.html / ad.html)
         const session = loadSession();
         if (session && !session.expired && TOKEN_RE.test(session.token)) {
             return { token: session.token, fp: session.fp || '', source: 'storage' };
         }
 
-        // 2. URL fragment fallback (#token=...)
+        // 2. URL fragment fallback (#token=...) — kept as safety net
         const hash = window.location.hash;
         if (hash) {
             const m = hash.match(/token=([a-f0-9]{16,128})/i);
@@ -415,7 +416,7 @@
         const provider = isWorkInk ? 'workink' : 'linkvertise';
         console.log('[RezurX] Token source:', recovered.source, 'Provider:', provider);
 
-        // Wipe URL params + fragment
+        // Wipe URL params + fragment to prevent reuse on manual refresh
         window.history.replaceState({}, '', window.location.pathname);
 
         showOverlay(provider);
