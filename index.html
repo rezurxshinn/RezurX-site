@@ -1,801 +1,848 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
-    <meta name="theme-color" content="#060100">
-    <title>RezurXLab | Access Granted</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --orange:        #ff8c00;
-            --orange-bright: #ffaa33;
-            --orange-deep:   #aa4400;
-            --orange-glow:   rgba(255,140,0,0.45);
-            --gold:          #ffd700;
-            --green:         #00ff88;
-            --green-glow:    rgba(0,255,136,0.45);
-            --red:           #ff4455;
-            --red-glow:      rgba(255,68,85,0.45);
-            --bg:            #060100;
-            --panel:         rgba(8,3,0,0.92);
-            --muted:         #3a3028;
-            --dim:           #6a5848;
-        }
+'use strict';
 
-        *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
-        html,body { height:100%; }
-        body {
-            background:var(--bg); color:#fff;
-            font-family:'JetBrains Mono',monospace;
-            display:flex; flex-direction:column;
-            justify-content:center; align-items:center;
-            min-height:100vh; overflow:hidden; position:relative;
-            -webkit-font-smoothing:antialiased;
-        }
+/* ════════════════════════════════════════════════════════════════════
+   RezurXLab Backend — v2.4.0
+   ──────────────────────────────────────────────────────────────────
+   • start.html  → POST /api/initiate-session
+   • ad.html     → Linkvertise embed flow → index.html?hash=#token=
+   • work.ink    → shortlink flow         → index.html?witoken=
+   • index.html  → POST /api/verify-linkvertise  OR
+                   POST /api/verify-workink
+   • UsedToken prevents replay for both providers
+   • Work.ink: tries multiple API endpoints, falls back to trust mode
+   ════════════════════════════════════════════════════════════════════ */
 
-        /* ════════════════════════════════════
-           BACKGROUND LAYERS
-        ════════════════════════════════════ */
-        #lava-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; }
+try { require('dotenv').config(); } catch (_) {}
 
-        .atmos {
-            position:fixed; inset:0; z-index:1; pointer-events:none;
-            background:
-                radial-gradient(ellipse 80% 45% at 50% 0%,   rgba(255,90,0,0.22) 0%, transparent 60%),
-                radial-gradient(ellipse 70% 40% at 50% 100%, rgba(180,30,0,0.18) 0%, transparent 60%),
-                radial-gradient(ellipse 100% 100% at 50% 50%, transparent 30%, rgba(0,0,0,0.78) 100%);
-        }
-        .vignette {
-            position:fixed; inset:0; z-index:2; pointer-events:none;
-            background:radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%);
-        }
-        .lava-river {
-            position:fixed; bottom:0; left:0; right:0; height:30vh; z-index:1; pointer-events:none;
-            background:linear-gradient(0deg,rgba(255,70,0,0.15) 0%,rgba(255,100,0,0.05) 40%,transparent 100%);
-            animation:riverGlow 4s ease-in-out infinite;
-        }
-        @keyframes riverGlow { 0%,100%{opacity:.7;} 50%{opacity:1;} }
+const express  = require('express');
+const mongoose = require('mongoose');
+const cors     = require('cors');
+const crypto   = require('crypto');
+const path     = require('path');
 
-        .embers {
-            position:fixed; inset:0; z-index:2; pointer-events:none;
-            background-image:
-                radial-gradient(2px 2px at 15% 85%, rgba(255,180,50,0.7) 0%, transparent 100%),
-                radial-gradient(3px 3px at 25% 90%, rgba(255,140,0,0.6)  0%, transparent 100%),
-                radial-gradient(1px 1px at 35% 80%, rgba(255,200,80,0.5) 0%, transparent 100%),
-                radial-gradient(2px 2px at 70% 88%, rgba(255,160,40,0.6) 0%, transparent 100%),
-                radial-gradient(3px 3px at 85% 82%, rgba(255,120,20,0.5) 0%, transparent 100%),
-                radial-gradient(1px 1px at 55% 92%, rgba(255,180,60,0.7) 0%, transparent 100%);
-            background-size:200% 200%;
-            animation:embersFloat 8s ease-in-out infinite alternate;
-        }
-        @keyframes embersFloat {
-            0%  { transform:translateY(0) translateX(0); }
-            50% { transform:translateY(-15px) translateX(10px); }
-            100%{ transform:translateY(-5px)  translateX(-5px); }
-        }
-        .scanlines {
-            position:fixed; inset:0; z-index:3; pointer-events:none;
-            background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.04) 3px,rgba(0,0,0,0.04) 4px);
-        }
-        .noise {
-            position:fixed; inset:0; z-index:4; pointer-events:none; opacity:.04;
-            background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-        }
-        #confetti-canvas { position:fixed; inset:0; z-index:999; pointer-events:none; }
+const VERSION   = '2.4.0';
+const BOOT_TIME = Date.now();
 
-        /* ════════════════════════════════════
-           LOADING OVERLAY (for verification)
-        ════════════════════════════════════ */
-        #loading-overlay {
-            display:none;
-            position:fixed; inset:0; z-index:500;
-            background:radial-gradient(ellipse at center,rgba(20,8,0,0.97) 0%,rgba(4,1,0,0.99) 100%);
-            flex-direction:column; justify-content:center; align-items:center; gap:36px;
-            animation:overlayIn .4s ease both;
-            backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
-        }
-        #loading-overlay.show { display:flex; }
-        @keyframes overlayIn { from{opacity:0;} to{opacity:1;} }
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-        .ov-brand { display:flex; flex-direction:column; align-items:center; gap:6px; }
-        .ov-logo {
-            font-family:'Orbitron',sans-serif; font-size:1.5rem; font-weight:900; letter-spacing:8px;
-            background:linear-gradient(180deg,#ffe0a0 0%,#ffaa33 30%,#ff6600 65%,#aa3300 100%);
-            -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-            filter:drop-shadow(0 0 24px rgba(255,140,0,0.7));
-        }
-        .ov-tag { font-size:.5rem; letter-spacing:6px; color:var(--orange-deep); text-transform:uppercase; }
+/* ────────────────────────────────────────────────────────────────────
+   OPTIONAL DEPENDENCIES
+   ──────────────────────────────────────────────────────────────────── */
+let helmet = null;
+try { helmet = require('helmet'); } catch (_) { console.warn('[WARN] helmet not installed.'); }
 
-        .ov-ring { width:88px; height:88px; position:relative; }
-        .ov-ring::before, .ov-ring::after { content:""; position:absolute; inset:0; border-radius:50%; }
-        .ov-ring::before { border:2px solid rgba(255,140,0,0.08); }
-        .ov-ring::after {
-            border:2px solid transparent;
-            border-top-color:var(--orange); border-right-color:rgba(255,140,0,0.5);
-            animation:spin 1.1s cubic-bezier(.5,.1,.5,.9) infinite;
-            filter:drop-shadow(0 0 8px var(--orange-glow));
-        }
-        @keyframes spin { to{transform:rotate(360deg);} }
-        .ov-inner {
-            position:absolute; inset:14px; border-radius:50%;
-            border:1.5px solid transparent;
-            border-bottom-color:rgba(255,170,50,0.6); border-left-color:rgba(255,140,0,0.25);
-            animation:spinR .8s linear infinite reverse;
-        }
-        @keyframes spinR { to{transform:rotate(360deg);} }
-        .ov-core {
-            position:absolute; inset:30px; border-radius:50%;
-            background:radial-gradient(circle,rgba(255,200,100,0.15) 0%,transparent 70%);
-            animation:coreP 2s ease-in-out infinite;
-        }
-        @keyframes coreP { 0%,100%{transform:scale(.85);opacity:.5;} 50%{transform:scale(1.1);opacity:1;} }
+let rateLimit = null;
+try {
+  rateLimit = require('express-rate-limit');
+  if (typeof rateLimit !== 'function' && rateLimit.rateLimit) rateLimit = rateLimit.rateLimit;
+} catch (_) { console.warn('[WARN] express-rate-limit not installed.'); }
 
-        .ov-content { text-align:center; display:flex; flex-direction:column; align-items:center; gap:18px; }
-        #ov-status {
-            font-size:.78rem; letter-spacing:4px; text-transform:uppercase;
-            color:var(--orange-bright); min-height:1.1em;
-            text-shadow:0 0 12px rgba(255,170,50,0.5); font-weight:500;
-        }
-        .ov-track {
-            width:320px; max-width:80vw; height:2px;
-            background:linear-gradient(90deg,transparent,rgba(255,140,0,0.15),transparent);
-            border-radius:2px; overflow:hidden;
-        }
-        #ov-bar {
-            height:100%; width:0%;
-            background:linear-gradient(90deg,var(--orange-deep),var(--orange),var(--gold));
-            border-radius:2px; transition:width .6s cubic-bezier(.2,.8,.3,1);
-            box-shadow:0 0 14px var(--orange-glow);
-        }
-        #ov-substatus { font-size:.6rem; letter-spacing:2.5px; color:var(--dim); text-transform:uppercase; min-height:1em; font-weight:300; }
+let fetchFn = null;
+if (typeof globalThis.fetch === 'function') {
+  fetchFn = globalThis.fetch.bind(globalThis);
+} else {
+  try {
+    const nf = require('node-fetch');
+    fetchFn = typeof nf === 'function' ? nf : nf.default;
+  } catch (_) {
+    console.error('[FATAL] No fetch available. Install node-fetch or use Node 18+.');
+    process.exit(1);
+  }
+}
 
-        /* ════════════════════════════════════
-           MAIN PANEL
-        ════════════════════════════════════ */
-        .panel {
-            position:relative; z-index:10;
-            background:linear-gradient(180deg,rgba(20,8,0,0.96) 0%,rgba(8,3,0,0.96) 100%);
-            border:1px solid rgba(255,140,0,0.18);
-            border-radius:8px; padding:48px 42px 36px;
-            width:92%; max-width:520px; text-align:center;
-            box-shadow:
-                0 0 0 1px rgba(0,0,0,0.95),
-                0 12px 60px rgba(0,0,0,0.92),
-                0 0 140px rgba(255,80,0,0.14),
-                0 0 60px rgba(255,140,0,0.08),
-                inset 0 1px 0 rgba(255,200,120,0.12),
-                inset 0 -1px 0 rgba(0,0,0,0.5);
-            backdrop-filter:blur(6px) saturate(1.1); -webkit-backdrop-filter:blur(6px) saturate(1.1);
-            animation:panelIn .7s cubic-bezier(.22,1,.36,1) both;
-        }
-        @keyframes panelIn { from{opacity:0;transform:translateY(24px) scale(.96);} to{opacity:1;transform:none;} }
-        @media (max-width:480px) { .panel { padding:34px 22px 28px; } }
+/* ────────────────────────────────────────────────────────────────────
+   STRUCTURED LOGGING
+   ──────────────────────────────────────────────────────────────────── */
+const log = {
+  _ts: () => new Date().toISOString(),
+  info:  (...a) => console.log (`[${log._ts()}] [INFO] `, ...a),
+  warn:  (...a) => console.warn(`[${log._ts()}] [WARN] `, ...a),
+  error: (...a) => console.error(`[${log._ts()}] [ERROR]`, ...a),
+  debug: (...a) => { if (process.env.DEBUG === '1') console.log(`[${log._ts()}] [DEBUG]`, ...a); },
+  sec:   (...a) => console.warn(`[${log._ts()}] [SEC]  `, ...a),
+};
 
-        .panel::before {
-            content:""; position:absolute; inset:-1px; border-radius:8px; pointer-events:none;
-            background:linear-gradient(135deg,rgba(255,140,0,0.4) 0%,transparent 30%,transparent 70%,rgba(255,140,0,0.25) 100%);
-            -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
-            -webkit-mask-composite:xor; mask-composite:exclude; padding:1px; opacity:.7;
-        }
+/* ────────────────────────────────────────────────────────────────────
+   ENV VALIDATION
+   ──────────────────────────────────────────────────────────────────── */
+const MONGO_URI =
+  process.env.MONGO_URI    ||
+  process.env.MONGODB_URI  ||
+  process.env.MONGO_URL    ||
+  process.env.DATABASE_URL || '';
 
-        .c { position:absolute; width:18px; height:18px; }
-        .c-tl { top:-1px; left:-1px;  border-top:2px solid var(--orange-bright); border-left:2px solid var(--orange-bright);  border-radius:4px 0 0 0; filter:drop-shadow(0 0 4px var(--orange-glow)); }
-        .c-tr { top:-1px; right:-1px; border-top:2px solid var(--orange-bright); border-right:2px solid var(--orange-bright); border-radius:0 4px 0 0; filter:drop-shadow(0 0 4px var(--orange-glow)); }
-        .c-bl { bottom:-1px; left:-1px;  border-bottom:2px solid var(--orange-bright); border-left:2px solid var(--orange-bright);  border-radius:0 0 0 4px; filter:drop-shadow(0 0 4px var(--orange-glow)); }
-        .c-br { bottom:-1px; right:-1px; border-bottom:2px solid var(--orange-bright); border-right:2px solid var(--orange-bright); border-radius:0 0 4px 0; filter:drop-shadow(0 0 4px var(--orange-glow)); }
+const ADMIN_SECRET      = process.env.ADMIN_SECRET      || '';
+const LINKVERTISE_TOKEN = process.env.LINKVERTISE_TOKEN || process.env.LINKVERTISE_KEY || '';
+const WORKINK_API_KEY   = process.env.WORKINK_API_KEY   || ''; // optional
+const WORKINK_TRUST_MODE = process.env.WORKINK_TRUST_MODE === '1'; // skip API check
+const PORT              = Number.parseInt(process.env.PORT, 10)            || 10000;
+const KEY_DURATION_MS   = Number.parseInt(process.env.KEY_DURATION_MS, 10) || 24 * 60 * 60 * 1000;
+const NODE_ENV          = process.env.NODE_ENV || 'production';
 
-        /* ── LOGO AURA ── */
-        .logo-wrap { position:relative; display:inline-block; margin-bottom:0; }
+const banner = '═'.repeat(64);
+console.log(banner);
+console.log(`  RezurXLab Backend v${VERSION}  |  ${NODE_ENV.toUpperCase()}`);
+console.log(banner);
+log.info('Environment check:');
+log.info('  MONGO_URI:        ', MONGO_URI        ? `present (${MONGO_URI.length} chars)`        : 'MISSING');
+log.info('  LINKVERTISE_TOKEN:', LINKVERTISE_TOKEN ? `present (${LINKVERTISE_TOKEN.length} chars)` : 'MISSING');
+log.info('  WORKINK_API_KEY:  ', WORKINK_API_KEY  ? `present (${WORKINK_API_KEY.length} chars)`  : 'not set (will try public endpoints)');
+log.info('  WORKINK_TRUST_MODE:', WORKINK_TRUST_MODE ? 'ENABLED (no API check)' : 'disabled');
+log.info('  ADMIN_SECRET:     ', ADMIN_SECRET     ? `present (${ADMIN_SECRET.length} chars)`      : 'MISSING');
+log.info('  PORT:             ', PORT);
+log.info('  KEY_DURATION_MS:  ', KEY_DURATION_MS, `(${(KEY_DURATION_MS / 3600000).toFixed(1)}h)`);
+log.info('  Node:             ', process.version);
 
-        .logo-wrap::before {
-            content:""; position:absolute;
-            top:50%; left:50%; transform:translate(-50%,-50%);
-            width:340px; height:90px;
-            background:radial-gradient(ellipse at center,
-                rgba(255,180,50,0.18) 0%,
-                rgba(255,120,0,0.10) 40%,
-                transparent 70%
-            );
-            border-radius:50%; pointer-events:none; z-index:-1;
-            animation:auraOuter 3.5s ease-in-out infinite;
-            filter:blur(8px);
-        }
-        .logo-wrap::after {
-            content:""; position:absolute;
-            top:50%; left:50%; transform:translate(-50%,-50%);
-            width:220px; height:55px;
-            background:radial-gradient(ellipse at center,
-                rgba(255,220,100,0.35) 0%,
-                rgba(255,140,0,0.18) 45%,
-                transparent 70%
-            );
-            border-radius:50%; pointer-events:none; z-index:-1;
-            animation:auraInner 3.5s ease-in-out infinite;
-            filter:blur(4px);
-        }
-        @keyframes auraOuter {
-            0%,100% { opacity:.6; transform:translate(-50%,-50%) scale(1); }
-            50%      { opacity:1;  transform:translate(-50%,-50%) scale(1.12); }
-        }
-        @keyframes auraInner {
-            0%,100% { opacity:.8; transform:translate(-50%,-50%) scale(1); }
-            50%      { opacity:1;  transform:translate(-50%,-50%) scale(1.08); }
-        }
+if (!MONGO_URI)         { log.error('FATAL — MONGO_URI is missing.');         process.exit(1); }
+if (!LINKVERTISE_TOKEN) { log.error('FATAL — LINKVERTISE_TOKEN is missing.');  process.exit(1); }
+if (!ADMIN_SECRET)      { log.warn('ADMIN_SECRET missing — admin endpoints disabled.'); }
+else if (ADMIN_SECRET.length < 24) { log.warn(`ADMIN_SECRET too short (${ADMIN_SECRET.length} chars). Use ≥ 24.`); }
 
-        .aura-ray {
-            position:absolute; top:50%; left:50%;
-            width:400px; height:2px;
-            background:linear-gradient(90deg,transparent,rgba(255,210,120,0.12),transparent);
-            transform:translate(-50%,-50%) rotate(-15deg);
-            pointer-events:none; z-index:-1;
-            animation:raySweep 6s ease-in-out infinite;
-        }
-        @keyframes raySweep {
-            0%,100% { opacity:0; transform:translate(-50%,-50%) rotate(-20deg) scaleX(.6); }
-            45%,55% { opacity:1; transform:translate(-50%,-50%) rotate(-15deg) scaleX(1); }
-        }
+/* ────────────────────────────────────────────────────────────────────
+   APP SETUP
+   ──────────────────────────────────────────────────────────────────── */
+const app = express();
+app.set('trust proxy', 1);
+app.disable('x-powered-by');
+app.use(express.json({ limit: '32kb', strict: true }));
+app.use(express.urlencoded({ extended: false, limit: '32kb' }));
 
-        .logo-eyebrow { font-size:.55rem; letter-spacing:5px; color:var(--orange-deep); text-transform:uppercase; margin-bottom:12px; font-weight:500; }
-        h1 {
-            font-family:'Orbitron',sans-serif; font-size:2rem; font-weight:900; letter-spacing:6px;
-            background:linear-gradient(180deg,#ffe0a0 0%,#ffaa33 30%,#ff6600 65%,#aa3300 100%);
-            -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-            filter:drop-shadow(0 0 24px rgba(255,140,0,0.6)); line-height:1.05;
-            animation:logoBreath 4s ease-in-out infinite; position:relative;
-        }
-        @keyframes logoBreath {
-            0%,100% { filter:drop-shadow(0 0 24px rgba(255,140,0,0.55)); }
-            50%      { filter:drop-shadow(0 0 36px rgba(255,170,50,0.9)); }
-        }
-        .logo-sub { font-size:.52rem; letter-spacing:7px; color:var(--muted); text-transform:uppercase; margin-top:11px; margin-bottom:30px; font-weight:400; }
-        .divider {
-            width:100%; height:1px;
-            background:linear-gradient(90deg,transparent,rgba(255,140,0,0.3) 30%,rgba(255,140,0,0.5) 50%,rgba(255,140,0,0.3) 70%,transparent);
-            margin-bottom:26px; position:relative;
-        }
-        .divider::after {
-            content:""; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-            width:6px; height:6px; border-radius:50%;
-            background:var(--orange); box-shadow:0 0 10px var(--orange-glow);
-        }
+/* ── REQUEST ID + LOGGING ─────────────────────────────────────────── */
+app.use((req, res, next) => {
+  req.id    = crypto.randomBytes(6).toString('hex');
+  req.start = Date.now();
+  res.setHeader('X-Request-ID', req.id);
+  res.on('finish', () => {
+    const ms  = Date.now() - req.start;
+    const tag = ms > 1000 ? '[SLOW] ' : '';
+    log.info(`${tag}${req.method} ${req.path} → ${res.statusCode} (${ms}ms) [${req.id}] ip=${req.ip}`);
+  });
+  next();
+});
 
-        #status {
-            font-size:.7rem; letter-spacing:2.5px; text-transform:uppercase;
-            color:var(--dim); margin-bottom:24px;
-            display:flex; align-items:center; justify-content:center; gap:10px;
-            transition:color .3s; min-height:1.1em; font-weight:500;
-        }
-        .sdot {
-            width:6px; height:6px; border-radius:50%; background:var(--muted); flex-shrink:0;
-            animation:pulse 2s ease-in-out infinite;
-        }
-        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.3;transform:scale(.85);} }
-        #status.green { color:var(--green); }
-        #status.green .sdot { background:var(--green); box-shadow:0 0 12px var(--green-glow); }
-        #status.red   { color:var(--red); }
-        #status.red   .sdot { background:var(--red); box-shadow:0 0 12px var(--red-glow); animation:none; }
-        #status.amber { color:var(--orange-bright); }
-        #status.amber .sdot { background:var(--orange); box-shadow:0 0 12px var(--orange-glow); }
+/* ── CORS ─────────────────────────────────────────────────────────── */
+const WHITELIST = [
+  'https://rezurxshinn.github.io',
+  'http://localhost',
+  'http://127.0.0.1',
+];
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin)                                                       return cb(null, true);
+    if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin))  return cb(null, true);
+    if (WHITELIST.includes(origin))                                    return cb(null, true);
+    if (/^https:\/\/[a-z0-9-]+\.github\.io$/i.test(origin))          return cb(null, true);
+    log.sec(`CORS blocked: ${origin}`);
+    cb(new Error('CORS: origin not allowed → ' + origin));
+  },
+  methods:        ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-token'],
+  exposedHeaders: ['X-Request-ID'],
+  maxAge:         86400,
+  credentials:    false,
+}));
 
-        /* Key box (premium) */
-        #key-box { display:none; }
-        #key-box.show { display:block; animation:slideUp .65s cubic-bezier(.22,1,.36,1) both; }
-        @keyframes slideUp { from{opacity:0;transform:translateY(18px) scale(.97);} to{opacity:1;transform:none;} }
+/* ── HELMET ───────────────────────────────────────────────────────── */
+if (helmet) {
+  app.use(helmet({
+    contentSecurityPolicy:     false,
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    referrerPolicy:            { policy: 'no-referrer' },
+    hsts: { maxAge: 31536000, includeSubDomains: true, preload: false },
+  }));
+}
 
-        .key-header { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:14px; }
-        .key-icon {
-            width:14px; height:14px; border:1.5px solid var(--green);
-            border-radius:50%; position:relative; box-shadow:0 0 10px var(--green-glow);
-        }
-        .key-icon::after {
-            content:""; position:absolute; top:50%; left:50%; width:5px; height:5px;
-            transform:translate(-50%,-50%); background:var(--green); border-radius:50%;
-            box-shadow:0 0 6px var(--green-glow);
-        }
-        .key-label { font-size:.55rem; letter-spacing:4px; color:var(--green); text-transform:uppercase; font-weight:600; text-shadow:0 0 8px var(--green-glow); }
+/* ── RATE LIMITERS ────────────────────────────────────────────────── */
+const limiter = (windowMs, max, message) =>
+  rateLimit ? rateLimit({
+    windowMs, max,
+    standardHeaders: true, legacyHeaders: false,
+    message: { error: message },
+    handler: (req, res, _next, opts) => {
+      log.sec(`Rate limit hit on ${req.path} — ip=${req.ip}`);
+      res.status(opts.statusCode).json(opts.message);
+    },
+  }) : null;
 
-        #key-value {
-            font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:700; letter-spacing:3px;
-            color:var(--green); word-break:break-all; text-shadow:0 0 16px var(--green-glow);
-            margin-bottom:10px; user-select:all; cursor:text; padding:16px; border-radius:5px;
-            background:linear-gradient(180deg,rgba(0,255,136,0.08) 0%,rgba(0,255,136,0.04) 100%);
-            border:1px solid rgba(0,255,136,0.18); transition:all .25s; position:relative;
-            box-shadow:inset 0 0 30px rgba(0,255,136,0.05),0 0 20px rgba(0,255,136,0.08);
-        }
-        #key-value::before, #key-value::after { content:""; position:absolute; width:8px; height:8px; border:1.5px solid rgba(0,255,136,0.5); }
-        #key-value::before { top:6px; left:6px; border-right:none; border-bottom:none; }
-        #key-value::after  { bottom:6px; right:6px; border-left:none; border-top:none; }
-        #key-value:hover {
-            background:linear-gradient(180deg,rgba(0,255,136,0.12) 0%,rgba(0,255,136,0.06) 100%);
-            border-color:rgba(0,255,136,0.35);
-            box-shadow:inset 0 0 30px rgba(0,255,136,0.08),0 0 30px rgba(0,255,136,0.15);
-        }
-        #key-expiry { font-size:.55rem; color:rgba(0,255,136,0.4); letter-spacing:1.5px; margin-bottom:18px; font-weight:400; }
+const initiateLimiter = limiter(15 * 60 * 1000, 30,  'Too many session requests.');
+const verifyLvLimiter = limiter(15 * 60 * 1000, 60,  'Too many Linkvertise verification attempts.');
+const verifyWiLimiter = limiter(15 * 60 * 1000, 60,  'Too many Work.ink verification attempts.');
+const verifyKeyLimiter= limiter(60 * 1000,       30,  'Too many key validation attempts.');
+const resetLimiter    = limiter(60 * 60 * 1000,  5,   'Too many HWID reset attempts. Try again in an hour.');
+const adminLimiter    = limiter(15 * 60 * 1000,  30,  'Too many admin requests.');
 
-        #copy-btn {
-            background:linear-gradient(180deg,rgba(0,255,136,0.06) 0%,rgba(0,255,136,0.02) 100%);
-            border:1px solid rgba(0,255,136,0.25); color:rgba(0,255,136,0.7);
-            font-family:'Orbitron',sans-serif; font-size:.65rem; letter-spacing:3px; text-transform:uppercase;
-            padding:13px; width:100%; cursor:pointer; border-radius:3px;
-            transition:all .25s cubic-bezier(.2,.8,.3,1); display:block; font-weight:600;
-            position:relative; overflow:hidden;
-        }
-        #copy-btn::before {
-            content:""; position:absolute; inset:0;
-            background:linear-gradient(90deg,transparent,rgba(0,255,136,0.12),transparent);
-            transform:translateX(-100%); transition:transform .5s;
-        }
-        #copy-btn:hover {
-            background:linear-gradient(180deg,rgba(0,255,136,0.12) 0%,rgba(0,255,136,0.05) 100%);
-            color:var(--green); border-color:rgba(0,255,136,0.5); transform:translateY(-1px);
-            box-shadow:0 4px 16px rgba(0,255,136,0.18);
-        }
-        #copy-btn:hover::before { transform:translateX(100%); }
-        #copy-btn:active { transform:translateY(0); }
-        #copy-btn.copied { color:var(--green); background:rgba(0,255,136,0.15); border-color:rgba(0,255,136,0.6); box-shadow:0 0 20px rgba(0,255,136,0.3); }
+/* ────────────────────────────────────────────────────────────────────
+   DATABASE
+   ──────────────────────────────────────────────────────────────────── */
+mongoose.set('strictQuery', true);
 
-        /* Error box */
-        #error-box { display:none; }
-        #error-box.show { display:block; animation:slideUp .4s ease both; }
-
-        .error-header { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:14px; }
-        .error-icon { width:16px; height:16px; border:1.5px solid var(--red); border-radius:50%; position:relative; box-shadow:0 0 10px var(--red-glow); }
-        .error-icon::before, .error-icon::after { content:""; position:absolute; top:50%; left:50%; width:7px; height:1.5px; background:var(--red); transform:translate(-50%,-50%) rotate(45deg); }
-        .error-icon::after { transform:translate(-50%,-50%) rotate(-45deg); }
-        .error-label { font-size:.55rem; letter-spacing:4px; color:var(--red); text-transform:uppercase; font-weight:600; text-shadow:0 0 8px var(--red-glow); }
-
-        #error-msg {
-            font-size:.68rem; color:rgba(255,140,150,0.95); letter-spacing:.5px; line-height:1.7;
-            white-space:pre-line;
-            background:linear-gradient(180deg,rgba(255,68,85,0.08) 0%,rgba(255,68,85,0.03) 100%);
-            border:1px solid rgba(255,68,85,0.22); border-radius:4px; padding:18px; text-align:left;
-            font-family:'JetBrains Mono',monospace; box-shadow:inset 0 0 20px rgba(255,68,85,0.04);
-        }
-        .error-cta {
-            display:block; margin-top:14px; background:transparent;
-            border:1px solid rgba(255,140,0,0.3); color:rgba(255,140,0,0.7);
-            padding:11px; font-family:'Orbitron',sans-serif; font-size:.6rem;
-            letter-spacing:2.5px; text-transform:uppercase; font-weight:600;
-            cursor:pointer; border-radius:3px; width:100%;
-            transition:all .25s; text-decoration:none; text-align:center;
-        }
-        .error-cta:hover { background:rgba(255,140,0,0.08); color:var(--orange); border-color:rgba(255,140,0,0.55); }
-
-        .footer {
-            margin-top:28px; display:flex; justify-content:center; align-items:center; gap:12px;
-            padding-top:18px; border-top:1px solid rgba(255,140,0,0.08);
-        }
-        .fi { font-size:.48rem; letter-spacing:2px; color:#28190d; text-transform:uppercase; font-weight:500; }
-        .fd { width:3px; height:3px; border-radius:50%; background:#28190d; }
-    </style>
-</head>
-<body>
-
-<!-- Loading overlay (shows during verification) -->
-<div id="loading-overlay">
-    <div class="ov-brand">
-        <div class="ov-logo">REZURXLAB</div>
-        <div class="ov-tag">Verification Engine</div>
-    </div>
-    <div class="ov-ring"><div class="ov-inner"></div><div class="ov-core"></div></div>
-    <div class="ov-content">
-        <div id="ov-status">Initializing...</div>
-        <div class="ov-track"><div id="ov-bar"></div></div>
-        <div id="ov-substatus">Establishing secure connection</div>
-    </div>
-</div>
-
-<canvas id="lava-canvas"></canvas>
-<div class="atmos"></div>
-<div class="vignette"></div>
-<div class="lava-river"></div>
-<div class="embers"></div>
-<div class="scanlines"></div>
-<div class="noise"></div>
-<canvas id="confetti-canvas"></canvas>
-
-<div class="panel">
-    <div class="c c-tl"></div><div class="c c-tr"></div>
-    <div class="c c-bl"></div><div class="c c-br"></div>
-
-    <div class="logo-eyebrow">◆ Access Granted ◆</div>
-
-    <div class="logo-wrap">
-        <div class="aura-ray"></div>
-        <h1>REZURXLAB</h1>
-    </div>
-
-    <div class="logo-sub">Premium Key System</div>
-    <div class="divider"></div>
-
-    <div id="status"><span class="sdot"></span><span id="status-txt">Verifying session...</span></div>
-
-    <div id="key-box">
-        <div class="key-header">
-            <div class="key-icon"></div>
-            <div class="key-label">Your Access Key</div>
-        </div>
-        <div id="key-value" tabindex="0"></div>
-        <div id="key-expiry"></div>
-        <button id="copy-btn" type="button">[ Copy to Clipboard ]</button>
-    </div>
-
-    <div id="error-box">
-        <div class="error-header">
-            <div class="error-icon"></div>
-            <div class="error-label">Verification Failed</div>
-        </div>
-        <div id="error-msg"></div>
-        <a href="https://rezurxshinn.github.io/RezurX-site/start.html" class="error-cta">[ ◂ Return to Start ]</a>
-    </div>
-
-    <div class="footer">
-        <span class="fi">AES-256</span><div class="fd"></div>
-        <span class="fi">HWID Locked</span><div class="fd"></div>
-        <span class="fi">v4.2</span>
-    </div>
-</div>
-
-<script>
-(() => {
-    'use strict';
-
-    /* ═══════════════════════════════════════
-       CONFIG
-    ═══════════════════════════════════════ */
-    const API           = "https://rezurx-backend.onrender.com";
-    const SESSION_KEY   = 'rzx_session_v3';
-    const COOLDOWN_KEY  = 'rzx_cooldown_v3';
-    const HASH_RE       = /^[A-Za-z0-9_\-=.#]{6,512}$/;
-    const TOKEN_RE      = /^[a-f0-9]{16,128}$/i;
-
-    /* ═══════════════════════════════════════
-       DOM
-    ═══════════════════════════════════════ */
-    const overlay  = document.getElementById('loading-overlay');
-    const ovStatus = document.getElementById('ov-status');
-    const ovBar    = document.getElementById('ov-bar');
-    const ovSub    = document.getElementById('ov-substatus');
-    const statusEl = document.getElementById('status');
-    const statusTx = document.getElementById('status-txt');
-    const keyBox   = document.getElementById('key-box');
-    const keyVal   = document.getElementById('key-value');
-    const keyExp   = document.getElementById('key-expiry');
-    const copyBtn  = document.getElementById('copy-btn');
-    const errorBox = document.getElementById('error-box');
-    const errorMsg = document.getElementById('error-msg');
-
-    let currentKey = '';
-
-    /* ═══════════════════════════════════════
-       STORAGE
-    ═══════════════════════════════════════ */
-    function loadSession() {
-        try {
-            const raw = localStorage.getItem(SESSION_KEY);
-            if (!raw) return null;
-            const data = JSON.parse(raw);
-            if (!data.token || !data.ts) return null;
-            const age = Date.now() - data.ts;
-            if (age > 30 * 60 * 1000) {
-                localStorage.removeItem(SESSION_KEY);
-                return { expired: true };
-            }
-            return data;   // { token, fp, ts }
-        } catch (_) { return null; }
-    }
-
-    function clearSession() {
-        try { localStorage.removeItem(SESSION_KEY); } catch (_) {}
-    }
-
-    function setCooldown() {
-        try { localStorage.setItem(COOLDOWN_KEY, JSON.stringify({ ts: Date.now() })); } catch (_) {}
-    }
-
-    /* ═══════════════════════════════════════
-       UI HELPERS
-    ═══════════════════════════════════════ */
-    function setStatus(msg, type = '') {
-        statusTx.textContent = msg;
-        statusEl.className   = type;
-    }
-    function setOverlay(status, pct, sub) {
-        ovStatus.textContent = status;
-        ovBar.style.width    = pct + '%';
-        ovSub.textContent    = sub || '';
-    }
-    function showOverlay() { overlay.classList.add('show'); }
-    function hideOverlay(cb) {
-        overlay.style.transition = 'opacity .55s';
-        overlay.style.opacity    = '0';
-        setTimeout(() => {
-            overlay.classList.remove('show');
-            overlay.style.opacity    = '';
-            overlay.style.transition = '';
-            if (cb) cb();
-        }, 600);
-    }
-    function showError(msg) {
-        errorMsg.textContent = msg;
-        errorBox.classList.add('show');
-        setStatus('ERROR', 'red');
-    }
-
-    /* ═══════════════════════════════════════
-       FETCH WITH TIMEOUT
-    ═══════════════════════════════════════ */
-    async function fetchT(url, opts = {}, ms = 15000) {
-        const ctrl = new AbortController();
-        const tid  = setTimeout(() => ctrl.abort(), ms);
-        try {
-            return await fetch(url, { ...opts, signal: ctrl.signal, mode: 'cors', credentials: 'omit' });
-        } finally { clearTimeout(tid); }
-    }
-
-    /* ═══════════════════════════════════════
-       COPY KEY
-    ═══════════════════════════════════════ */
-    function copyKey() {
-        if (!currentKey) return;
-        const ok = () => {
-            copyBtn.textContent = '[ ✓ Copied to Clipboard! ]';
-            copyBtn.classList.add('copied');
-            setTimeout(() => { copyBtn.textContent = '[ Copy to Clipboard ]'; copyBtn.classList.remove('copied'); }, 2500);
-        };
-        if (navigator.clipboard?.writeText) {
-            navigator.clipboard.writeText(currentKey).then(ok).catch(fallback);
-        } else { fallback(); }
-        function fallback() {
-            try {
-                const ta = document.createElement('textarea');
-                ta.value = currentKey; ta.style.cssText = 'position:fixed;opacity:0;';
-                document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-                document.body.removeChild(ta); ok();
-            } catch (_) { copyBtn.textContent = '[ Select text above to copy ]'; }
-        }
-    }
-    copyBtn.addEventListener('click', copyKey);
-
-    /* ═══════════════════════════════════════
-       MAIN — auto-verify on page load
-    ═══════════════════════════════════════ */
-    window.addEventListener('load', async () => {
-        const params = new URLSearchParams(window.location.search);
-        const hash   = params.get('hash');
-
-        // Read the session object stored by start.html & ad.html
-        const session = loadSession();
-        const tokenOk = session && !session.expired && TOKEN_RE.test(session.token);
-        const token   = session ? session.token : null;
-
-        /* ── SESSION INVALID ── */
-        if (!hash || !HASH_RE.test(hash) || !tokenOk) {
-            let msg = '';
-            if (!hash && !tokenOk)
-                msg = 'NO ACTIVE SESSION\n\nTo get a key you must start from the beginning.\n\nReturn to the start page and click the button.';
-            else if (!hash)
-                msg = 'VERIFICATION HASH MISSING\n\nDo not navigate to this page directly.\nComplete the Linkvertise ad and you will be redirected here automatically.';
-            else if (!session)
-                msg = 'SESSION MISSING\n\nYour session token was not found. Please start over.';
-            else if (session.expired)
-                msg = 'SESSION EXPIRED\n\nSessions last 30 minutes. Please start over.';
-            else
-                msg = 'INVALID SESSION\n\nThe session token is malformed. Please start over.';
-
-            showError(msg);
-            setStatus('SESSION INVALID', 'red');
-            return;
-        }
-
-        /* ── VALID SESSION — WIPE URL + AUTO-VERIFY ─── */
-        window.history.replaceState({}, '', window.location.pathname);
-
-        showOverlay();
-        setOverlay('Establishing connection', 5, 'Reaching secure server');
-        setStatus('VERIFYING...', 'amber');
-
-        // Warmup
-        try {
-            const h = await fetchT(API + '/health', { method: 'GET', cache: 'no-store' }, 30000);
-            if (h.ok) setOverlay('Server online', 22, 'Connection secured');
-        } catch (_) {
-            setOverlay('Server slow', 18, 'Proceeding anyway');
-        }
-        await new Promise(r => setTimeout(r, 350));
-
-        const steps = [
-            { pct: 38, status: 'Validating ad completion', sub: 'Checking with Linkvertise' },
-            { pct: 60, status: 'Running anti-bypass check', sub: 'Verifying authenticity' },
-            { pct: 82, status: 'Generating access key',    sub: 'Almost there' },
-        ];
-        let si = 0;
-        const stepTick = setInterval(() => {
-            if (si < steps.length) {
-                const s = steps[si++];
-                setOverlay(s.status, s.pct, s.sub);
-            }
-        }, 1300);
-
-        try {
-            const res = await fetchT(
-                API + '/api/verify-linkvertise',
-                {
-                    method:  'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body:    JSON.stringify({ token, hash, fp: session.fp || '' }),
-                },
-                25000
-            );
-
-            clearInterval(stepTick);
-            const data = await res.json().catch(() => ({}));
-
-            if (res.status === 400) {
-                const msg = data.error || '';
-                if (msg.includes('fingerprint') || msg.includes('browser'))
-                    throw new Error('BROWSER MISMATCH\nThis session was started in a different browser or tab. Please start over.');
-                throw new Error('TOKEN ALREADY USED\nEach ad completion provides one key. Please go through the ad again to receive a new key.');
-            }
-            if (res.status === 403) throw new Error('AD NOT COMPLETED\nPlease finish the full Linkvertise offer without skipping or using bypassers.');
-            if (res.status === 404) throw new Error('SESSION EXPIRED\nSessions last 30 minutes. Please start over from the beginning.');
-            if (res.status === 429) throw new Error('TOO MANY ATTEMPTS\nPlease wait a few minutes before trying again.');
-            if (res.status === 502) throw new Error('LINKVERTISE UNREACHABLE\nCould not contact the verification server. Please try again in a moment.');
-            if (!res.ok)            throw new Error((data.error || 'Server error ' + res.status) + '\n\nPlease try again shortly.');
-            if (!data.key)          throw new Error('Invalid response from server.\nPlease try again.');
-
-            // ── SUCCESS ──────────────────────────
-            setOverlay('Access granted', 100, 'Revealing your key');
-            await new Promise(r => setTimeout(r, 750));
-
-            currentKey = data.key;
-            clearSession();   // one-time use
-            setCooldown();
-
-            try {
-                const bc = new BroadcastChannel('rzx_channel');
-                bc.postMessage('key_issued');
-                bc.close();
-            } catch (_) {}
-
-            keyVal.textContent = currentKey;
-            if (data.expiresAt) {
-                const exp    = new Date(data.expiresAt);
-                const msLeft = exp - Date.now();
-                const hLeft  = Math.round(msLeft / 3600000);
-                keyExp.textContent = '◆ Expires ' +
-                    exp.toLocaleString('en-GB', { hour12: false }) + ' ◆';
-            }
-
-            hideOverlay(() => {
-                keyBox.classList.add('show');
-                setStatus('● Key Generated Successfully', 'green');
-                launchConfetti();
-                setTimeout(() => keyVal.focus(), 600);
-            });
-
-        } catch (err) {
-            clearInterval(stepTick);
-            const msg = err.name === 'AbortError'
-                ? 'VERIFICATION TIMED OUT\nThe server took too long to respond. Please try going through the ad again.'
-                : (err.message || 'Verification failed. Please try again.');
-            hideOverlay(() => { showError(msg); });
-        }
+async function connectDB() {
+  const start = Date.now();
+  try {
+    await mongoose.connect(MONGO_URI, {
+      serverSelectionTimeoutMS: 20000,
+      socketTimeoutMS:          45000,
+      maxPoolSize:              20,
+      minPoolSize:              2,
+      retryWrites:              true,
     });
+    log.info(`MongoDB connected in ${Date.now() - start}ms`);
+  } catch (err) {
+    log.error('MongoDB connection failed:', err.message);
+    process.exit(1);
+  }
+  mongoose.connection.on('disconnected', () => log.warn('MongoDB disconnected'));
+  mongoose.connection.on('reconnected',  () => log.info('MongoDB reconnected'));
+  mongoose.connection.on('error',        (e) => log.error('MongoDB error:', e.message));
+}
 
-    /* ═══════════════════════════════════════
-       CONFETTI
-    ═══════════════════════════════════════ */
-    function launchConfetti() {
-        const cv  = document.getElementById('confetti-canvas');
-        const ctx = cv.getContext('2d');
-        cv.width = innerWidth; cv.height = innerHeight;
-        const pal    = ['#ff8c00','#ffb347','#ffd700','#00ff88','#ffffff','#ff6644','#ffcc33','#ff9920','#ffee80'];
-        const shapes = ['rect','circle','line','triangle'];
-        const pieces = Array.from({ length: 300 }, () => ({
-            x: innerWidth*.5+(Math.random()-.5)*220, y: innerHeight*.45,
-            vx:(Math.random()-.5)*20, vy:-(Math.random()*18+7), ay:.3+Math.random()*.2,
-            color:pal[Math.floor(Math.random()*pal.length)], size:Math.random()*10+3,
-            rot:Math.random()*Math.PI*2, rspd:(Math.random()-.5)*.3,
-            alpha:1, decay:.008+Math.random()*.006,
-            shape:shapes[Math.floor(Math.random()*shapes.length)]
-        }));
-        (function draw() {
-            ctx.clearRect(0,0,cv.width,cv.height); let alive=false;
-            for (const p of pieces) {
-                if(p.alpha<=0) continue; alive=true;
-                ctx.save(); ctx.globalAlpha=p.alpha; ctx.fillStyle=ctx.strokeStyle=p.color;
-                ctx.translate(p.x,p.y); ctx.rotate(p.rot);
-                if      (p.shape==='rect')     { ctx.fillRect(-p.size/2,-p.size/4,p.size,p.size/2); }
-                else if (p.shape==='circle')   { ctx.beginPath();ctx.arc(0,0,p.size/2.5,0,Math.PI*2);ctx.fill(); }
-                else if (p.shape==='triangle') { ctx.beginPath();ctx.moveTo(0,-p.size/2);ctx.lineTo(p.size/2,p.size/2);ctx.lineTo(-p.size/2,p.size/2);ctx.closePath();ctx.fill(); }
-                else                           { ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-p.size/2,0);ctx.lineTo(p.size/2,0);ctx.stroke(); }
-                ctx.restore();
-                p.x+=p.vx;p.y+=p.vy;p.vy+=p.ay;p.vx*=.99;p.rot+=p.rspd;p.alpha-=p.decay;
-            }
-            if(alive) requestAnimationFrame(draw);
-            else ctx.clearRect(0,0,cv.width,cv.height);
-        })();
+/* ────────────────────────────────────────────────────────────────────
+   MODELS
+   ──────────────────────────────────────────────────────────────────── */
+const KeySchema = new mongoose.Schema({
+  key:        { type: String,  required: true, unique: true, index: true },
+  hwid:       { type: String,  default: null,  index: true },
+  browserFp:  { type: String,  default: null  },
+  expiresAt:  { type: Date,    required: true, index: true },
+  active:     { type: Boolean, default: true,  index: true },
+  createdAt:  { type: Date,    default: Date.now },
+  lastUsed:   { type: Date,    default: null },
+  useCount:   { type: Number,  default: 0 },
+  issuedToIp: { type: String,  default: null },
+  provider:   { type: String,  default: 'linkvertise' }, // 'linkvertise' | 'workink'
+});
+KeySchema.index({ active: 1, expiresAt: 1 });
+KeySchema.index({ provider: 1, createdAt: -1 });
+const Key = mongoose.model('Key', KeySchema);
+
+/* UsedToken — one-time redemption ledger, auto-expires after 2 hours */
+const UsedTokenSchema = new mongoose.Schema({
+  token:     { type: String, required: true, unique: true, index: true },
+  keyIssued: { type: String, default: null },
+  provider:  { type: String, default: null },
+  usedAt:    { type: Date,   default: Date.now },
+});
+UsedTokenSchema.index({ usedAt: 1 }, { expireAfterSeconds: 7200 });
+const UsedToken = mongoose.model('UsedToken', UsedTokenSchema);
+
+/* WorkInkToken — separate ledger to prevent witoken reuse */
+const WorkInkTokenSchema = new mongoose.Schema({
+  witoken: { type: String, required: true, unique: true, index: true },
+  usedAt:  { type: Date,   default: Date.now },
+});
+WorkInkTokenSchema.index({ usedAt: 1 }, { expireAfterSeconds: 86400 }); // 24h retention
+const WorkInkToken = mongoose.model('WorkInkToken', WorkInkTokenSchema);
+
+/* ────────────────────────────────────────────────────────────────────
+   HELPERS
+   ──────────────────────────────────────────────────────────────────── */
+const safeStr    = (v, max) => typeof v === 'string' ? v.trim().slice(0, max) : '';
+const asyncRoute = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+const genKey     = () => `REZURX-${crypto.randomBytes(5).toString('hex').toUpperCase()}`;
+const genToken   = () => crypto.randomBytes(32).toString('hex');
+const HASH_RE    = /^[A-Za-z0-9_\-=.#]{6,512}$/;
+const WITOKEN_RE = /^[A-Za-z0-9_\-]{4,256}$/;
+const TOKEN_RE   = /^[a-f0-9]{16,128}$/i;
+const KEY_RE     = /^REZURX-[A-F0-9]{6,32}$/i;
+
+function constantTimeEquals(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  const ab = Buffer.from(a), bb = Buffer.from(b);
+  if (ab.length !== bb.length) return false;
+  return crypto.timingSafeEqual(ab, bb);
+}
+
+function adminAuth(req, res, next) {
+  if (!ADMIN_SECRET)
+    return res.status(503).json({ error: 'Admin endpoints disabled (ADMIN_SECRET unset).' });
+  const t = req.headers['x-admin-token'];
+  if (!t || !constantTimeEquals(String(t), ADMIN_SECRET)) {
+    log.sec(`Admin auth failed on ${req.path} — ip=${req.ip} [${req.id}]`);
+    return res.status(403).json({ error: 'Forbidden.' });
+  }
+  next();
+}
+
+/* ────────────────────────────────────────────────────────────────────
+   FETCH WITH TIMEOUT
+   ──────────────────────────────────────────────────────────────────── */
+async function fetchWithTimeout(url, opts = {}, ms = 15000) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), ms);
+  try   { return await fetchFn(url, { ...opts, signal: ctrl.signal }); }
+  finally { clearTimeout(tid); }
+}
+
+/* ────────────────────────────────────────────────────────────────────
+   LINKVERTISE CIRCUIT BREAKER + VERIFICATION
+   ──────────────────────────────────────────────────────────────────── */
+const lvBreaker = {
+  failures:   0, openUntil: 0, threshold: 5, cooldownMs: 60_000,
+  isOpen()     { return Date.now() < this.openUntil; },
+  recordOk()   { this.failures = 0; },
+  recordFail() {
+    this.failures++;
+    if (this.failures >= this.threshold) {
+      this.openUntil = Date.now() + this.cooldownMs;
+      log.sec(`Linkvertise circuit OPEN for ${this.cooldownMs / 1000}s`);
+      this.failures = 0;
     }
-    window.addEventListener('resize', () => {
-        const c = document.getElementById('confetti-canvas');
-        c.width = innerWidth; c.height = innerHeight;
+  },
+};
+
+async function verifyLinkvertiseHash(hash, reqId) {
+  if (lvBreaker.isOpen())
+    return { verified: false, raw: null, error: 'Linkvertise temporarily unavailable (circuit open).' };
+
+  const verifyUrl =
+    `https://publisher.linkvertise.com/api/v1/anti_bypass` +
+    `?token=${encodeURIComponent(LINKVERTISE_TOKEN)}&hash=${encodeURIComponent(hash)}`;
+
+  log.info(`[LV][${reqId}] verify → ${verifyUrl.replace(LINKVERTISE_TOKEN, '***')}`);
+
+  let lastErr = null;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const t0       = Date.now();
+      const response = await fetchWithTimeout(verifyUrl, {
+        method: 'GET',
+        headers: { 'User-Agent': `RezurX-Auth/${VERSION}`, 'Accept': 'application/json' },
+      }, 15000);
+      const elapsed = Date.now() - t0;
+      const text    = await response.text();
+      let result = null;
+      try { result = JSON.parse(text); } catch { /* not JSON */ }
+
+      log.info(`[LV][${reqId}] attempt ${attempt}/3 → HTTP ${response.status} (${elapsed}ms)`);
+      log.debug(`[LV RAW][${reqId}] ${text.slice(0, 500)}`);
+
+      if (!response.ok) {
+        lastErr = `HTTP ${response.status}`;
+        if (response.status >= 500 || response.status === 429) {
+          await sleep(500 * attempt); continue;
+        }
+        lvBreaker.recordFail();
+        return { verified: false, raw: result, error: `Linkvertise HTTP ${response.status}` };
+      }
+
+      const verified = result && (
+        result.status  === true   || result.status  === 'true' ||
+        result.success === true   || result.valid   === true
+      );
+      log.info(`[LV][${reqId}] verified=${verified}`);
+      if (verified) lvBreaker.recordOk();
+      return { verified: !!verified, raw: result, error: null };
+
+    } catch (err) {
+      lastErr = err.message || String(err);
+      log.warn(`[LV][${reqId}] attempt ${attempt} error: ${lastErr}`);
+      if (attempt < 3) await sleep(500 * attempt);
+    }
+  }
+  lvBreaker.recordFail();
+  return { verified: false, raw: null, error: lastErr || 'Unknown Linkvertise error' };
+}
+
+/* ────────────────────────────────────────────────────────────────────
+   WORK.INK VERIFICATION
+   Tries multiple endpoint variants. Falls back to "trust mode" if all
+   fail (since Work.ink's public verification API is undocumented).
+   In trust mode we still enforce one-time use via WorkInkToken collection.
+   ──────────────────────────────────────────────────────────────────── */
+async function verifyWorkInkToken(witoken, reqId) {
+  // If trust mode is explicitly enabled, skip API entirely
+  if (WORKINK_TRUST_MODE) {
+    log.info(`[WI][${reqId}] TRUST MODE — skipping API check`);
+    return { verified: true, raw: null, error: null, mode: 'trust' };
+  }
+
+  // Try multiple known/guessed endpoints
+  const endpoints = [
+    `https://work.ink/_api/v2/token/isValid/${encodeURIComponent(witoken)}`,
+    `https://work.ink/api/v2/token/isValid/${encodeURIComponent(witoken)}`,
+    `https://work.ink/api/token/verify?token=${encodeURIComponent(witoken)}`,
+  ];
+
+  const headers = {
+    'User-Agent': `RezurX-Auth/${VERSION}`,
+    'Accept':     'application/json',
+  };
+  if (WORKINK_API_KEY) headers['Authorization'] = `Bearer ${WORKINK_API_KEY}`;
+
+  let lastErr = null;
+  for (const verifyUrl of endpoints) {
+    log.info(`[WI][${reqId}] try → ${verifyUrl}`);
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const t0       = Date.now();
+        const response = await fetchWithTimeout(verifyUrl, { method: 'GET', headers }, 12000);
+        const elapsed  = Date.now() - t0;
+        const text     = await response.text();
+        let result = null;
+        try { result = JSON.parse(text); } catch { /* not JSON */ }
+
+        log.info(`[WI][${reqId}] HTTP ${response.status} (${elapsed}ms) attempt ${attempt}`);
+        log.debug(`[WI RAW][${reqId}] ${text.slice(0, 500)}`);
+
+        if (response.ok && result) {
+          const verified = result.valid === true || result.status === true || result.success === true;
+          log.info(`[WI][${reqId}] verified=${verified}`);
+          return { verified: !!verified, raw: result, error: null, mode: 'api' };
+        }
+
+        if (response.status === 404 || response.status === 405) {
+          // wrong endpoint — try next URL
+          break;
+        }
+        lastErr = `HTTP ${response.status}`;
+        if (attempt < 2) await sleep(500);
+      } catch (err) {
+        lastErr = err.message || String(err);
+        log.warn(`[WI][${reqId}] error: ${lastErr}`);
+        if (attempt < 2) await sleep(500);
+      }
+    }
+  }
+
+  // All API attempts failed → fall back to trust mode (witoken uniqueness already
+  // enforced by WorkInkToken collection; ad completion is implied by the redirect)
+  log.warn(`[WI][${reqId}] all API endpoints failed (${lastErr}) — falling back to trust mode`);
+  return { verified: true, raw: null, error: null, mode: 'trust-fallback' };
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   ROUTES
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── HEALTH ───────────────────────────────────────────────────────── */
+app.get('/health', asyncRoute(async (_req, res) => {
+  const t0 = Date.now();
+  let dbLatency = -1;
+  try { await mongoose.connection.db.admin().ping(); dbLatency = Date.now() - t0; } catch (_) {}
+  const mem = process.memoryUsage();
+  res.json({
+    status: 'ok', version: VERSION,
+    uptime: Math.floor(process.uptime()),
+    bootedAt: new Date(BOOT_TIME).toISOString(),
+    mongodb:  mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    dbLatency: dbLatency === -1 ? null : `${dbLatency}ms`,
+    memory: {
+      rss:      `${Math.round(mem.rss      / 1024 / 1024)}MB`,
+      heapUsed: `${Math.round(mem.heapUsed / 1024 / 1024)}MB`,
+    },
+    lvBreaker: lvBreaker.isOpen() ? 'open' : 'closed',
+    workinkMode: WORKINK_TRUST_MODE ? 'trust' : 'api+fallback',
+  });
+}));
+
+/* ── DASHBOARD ────────────────────────────────────────────────────── */
+app.get('/dashboard', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'Dashboard.html'));
+});
+
+/* ════════════════════════════════════════════════════════════════════
+   INITIATE SESSION
+   ════════════════════════════════════════════════════════════════════ */
+app.post(
+  '/api/initiate-session',
+  ...(initiateLimiter ? [initiateLimiter] : []),
+  asyncRoute(async (req, res) => {
+    const fp    = safeStr(req.body?.fp, 128) || null;
+    const token = genToken();
+    log.info(`[SESSION][${req.id}] token=${token.slice(0, 16)}... fp=${fp ? fp.slice(0, 12) : 'none'}... ip=${req.ip}`);
+    res.json({ token });
+  })
+);
+
+/* ════════════════════════════════════════════════════════════════════
+   VERIFY LINKVERTISE
+   ════════════════════════════════════════════════════════════════════ */
+app.post(
+  '/api/verify-linkvertise',
+  ...(verifyLvLimiter ? [verifyLvLimiter] : []),
+  asyncRoute(async (req, res) => {
+    const token = safeStr(req.body?.token, 128);
+    const hash  = safeStr(req.body?.hash,  512);
+    const fp    = safeStr(req.body?.fp,    128);
+
+    if (!token || !hash)
+      return res.status(400).json({ error: 'Missing token or hash.' });
+    if (!TOKEN_RE.test(token)) {
+      log.sec(`[VERIFY-LV][${req.id}] invalid token format ip=${req.ip}`);
+      return res.status(400).json({ error: 'Invalid token format.' });
+    }
+    if (!HASH_RE.test(hash)) {
+      log.sec(`[VERIFY-LV][${req.id}] invalid hash format ip=${req.ip}`);
+      return res.status(400).json({ error: 'Invalid hash format.' });
+    }
+
+    try {
+      await UsedToken.create({ token, keyIssued: null, provider: 'linkvertise' });
+    } catch (dupErr) {
+      if (dupErr.code === 11000) {
+        log.sec(`[VERIFY-LV][${req.id}] replay attempt token=${token.slice(0, 16)}...`);
+        return res.status(409).json({ error: 'Token already used.' });
+      }
+      throw dupErr;
+    }
+
+    log.info(`[VERIFY-LV][${req.id}] token=${token.slice(0, 16)}... hash=${hash.slice(0, 20)}...`);
+
+    const lv = await verifyLinkvertiseHash(hash, req.id);
+    if (!lv.verified) {
+      await UsedToken.deleteOne({ token }).catch(() => {});
+      log.warn(`[VERIFY-LV][${req.id}] rejected: ${lv.error}`);
+      return res.status(403).json({ error: 'Ad verification failed. Please complete the ad again.' });
+    }
+
+    const keyString = genKey();
+    const expiry    = new Date(Date.now() + KEY_DURATION_MS);
+    await Key.create({ key: keyString, expiresAt: expiry, browserFp: fp || null, issuedToIp: req.ip, provider: 'linkvertise' });
+    await UsedToken.updateOne({ token }, { $set: { keyIssued: keyString } }).catch(() => {});
+
+    log.info(`[VERIFY-LV][${req.id}] ✅ key=${keyString} expires=${expiry.toISOString()}`);
+    return res.json({ key: keyString, expiresAt: expiry });
+  })
+);
+
+/* ════════════════════════════════════════════════════════════════════
+   VERIFY WORK.INK
+   ════════════════════════════════════════════════════════════════════ */
+app.post(
+  '/api/verify-workink',
+  ...(verifyWiLimiter ? [verifyWiLimiter] : []),
+  asyncRoute(async (req, res) => {
+    const token   = safeStr(req.body?.token,   128);
+    const witoken = safeStr(req.body?.witoken, 256);
+    const fp      = safeStr(req.body?.fp,      128);
+
+    if (!token || !witoken)
+      return res.status(400).json({ error: 'Missing token or witoken.' });
+    if (!TOKEN_RE.test(token)) {
+      log.sec(`[VERIFY-WI][${req.id}] invalid token format ip=${req.ip}`);
+      return res.status(400).json({ error: 'Invalid token format.' });
+    }
+    if (!WITOKEN_RE.test(witoken)) {
+      log.sec(`[VERIFY-WI][${req.id}] invalid witoken format ip=${req.ip}`);
+      return res.status(400).json({ error: 'Invalid witoken format.' });
+    }
+
+    // Replay check #1: session token
+    try {
+      await UsedToken.create({ token, keyIssued: null, provider: 'workink' });
+    } catch (dupErr) {
+      if (dupErr.code === 11000) {
+        log.sec(`[VERIFY-WI][${req.id}] replay attempt token=${token.slice(0, 16)}...`);
+        return res.status(409).json({ error: 'Token already used.' });
+      }
+      throw dupErr;
+    }
+
+    // Replay check #2: witoken (prevents same Work.ink token issuing many keys)
+    try {
+      await WorkInkToken.create({ witoken });
+    } catch (dupErr) {
+      if (dupErr.code === 11000) {
+        await UsedToken.deleteOne({ token }).catch(() => {});
+        log.sec(`[VERIFY-WI][${req.id}] witoken reuse ${witoken.slice(0, 20)}...`);
+        return res.status(409).json({ error: 'This ad completion was already used.' });
+      }
+      throw dupErr;
+    }
+
+    log.info(`[VERIFY-WI][${req.id}] token=${token.slice(0, 16)}... witoken=${witoken.slice(0, 20)}...`);
+
+    const wi = await verifyWorkInkToken(witoken, req.id);
+    if (!wi.verified) {
+      await UsedToken.deleteOne({ token }).catch(() => {});
+      await WorkInkToken.deleteOne({ witoken }).catch(() => {});
+      log.warn(`[VERIFY-WI][${req.id}] rejected: ${wi.error}`);
+      return res.status(403).json({ error: 'Ad verification failed. Please complete the ad again.' });
+    }
+
+    const keyString = genKey();
+    const expiry    = new Date(Date.now() + KEY_DURATION_MS);
+    await Key.create({ key: keyString, expiresAt: expiry, browserFp: fp || null, issuedToIp: req.ip, provider: 'workink' });
+    await UsedToken.updateOne({ token }, { $set: { keyIssued: keyString } }).catch(() => {});
+
+    log.info(`[VERIFY-WI][${req.id}] ✅ key=${keyString} mode=${wi.mode} expires=${expiry.toISOString()}`);
+    return res.json({ key: keyString, expiresAt: expiry });
+  })
+);
+
+/* ── VERIFY KEY (Roblox executor) ─────────────────────────────────── */
+app.post(
+  '/api/verify-key',
+  ...(verifyKeyLimiter ? [verifyKeyLimiter] : []),
+  asyncRoute(async (req, res) => {
+    const key  = safeStr(req.body?.key,  64);
+    const hwid = safeStr(req.body?.hwid, 256);
+
+    if (!key || !hwid)
+      return res.status(400).json({ error: 'Both key and hwid are required.' });
+    if (!KEY_RE.test(key))
+      return res.status(400).json({ error: 'Invalid key format.' });
+
+    const record = await Key.findOne({ key });
+    if (!record)        return res.status(403).json({ error: 'Invalid key.' });
+    if (!record.active) return res.status(403).json({ error: 'Key has been revoked.' });
+    if (record.expiresAt < new Date()) {
+      record.active = false; await record.save();
+      return res.status(403).json({ error: 'Key has expired.' });
+    }
+    if (record.hwid && record.hwid !== hwid) {
+      log.sec(`[VERIFY-KEY][${req.id}] HWID mismatch key=${key}`);
+      return res.status(403).json({ error: 'Hardware ID mismatch.' });
+    }
+    if (!record.hwid) { record.hwid = hwid; log.info(`[VERIFY-KEY][${req.id}] bound HWID to ${key}`); }
+    record.lastUsed = new Date();
+    record.useCount = (record.useCount || 0) + 1;
+    await record.save();
+
+    res.json({ valid: true, expiresAt: record.expiresAt, msLeft: record.expiresAt.getTime() - Date.now() });
+  })
+);
+
+/* ── KEY INFO ─────────────────────────────────────────────────────── */
+app.get('/api/key-info/:key', asyncRoute(async (req, res) => {
+  const keyStr = safeStr(req.params.key, 64);
+  if (!keyStr || !KEY_RE.test(keyStr))
+    return res.status(400).json({ error: 'Invalid key format.' });
+
+  const record = await Key.findOne({ key: keyStr });
+  if (!record)        return res.status(404).json({ error: 'Key not found.' });
+  if (!record.active) return res.status(403).json({ error: 'Key revoked.' });
+  if (record.expiresAt < new Date()) {
+    record.active = false; await record.save();
+    return res.status(403).json({ error: 'Key expired.' });
+  }
+  res.json({
+    key: record.key, expiresAt: record.expiresAt, createdAt: record.createdAt,
+    hwidBound: !!record.hwid, active: record.active,
+    useCount: record.useCount || 0, lastUsed: record.lastUsed,
+    provider: record.provider || 'linkvertise',
+  });
+}));
+
+/* ── PUBLIC HWID RESET ────────────────────────────────────────────── */
+app.post(
+  '/api/key-reset',
+  ...(resetLimiter ? [resetLimiter] : []),
+  asyncRoute(async (req, res) => {
+    const keyStr = safeStr(req.body?.key, 64);
+    if (!keyStr || !KEY_RE.test(keyStr))
+      return res.status(400).json({ error: 'Invalid key format.' });
+
+    const record = await Key.findOne({ key: keyStr, active: true });
+    if (!record)                       return res.status(404).json({ error: 'Key not found.' });
+    if (record.expiresAt < new Date()) return res.status(403).json({ error: 'Key expired.' });
+    record.hwid = null; await record.save();
+    log.info(`[HWID-RESET][${req.id}] key=${keyStr} ip=${req.ip}`);
+    res.json({ message: 'HWID unbound successfully.' });
+  })
+);
+
+/* ════════════════════════════════════════════════════════════════════
+   ADMIN ROUTES
+   ════════════════════════════════════════════════════════════════════ */
+app.post('/api/generate-key',       ...(adminLimiter ? [adminLimiter] : []), adminAuth,
+  asyncRoute(async (req, res) => {
+    const customDuration = Number.parseInt(req.body?.durationMs, 10);
+    const duration = Number.isFinite(customDuration) && customDuration > 0 ? customDuration : KEY_DURATION_MS;
+    const key = genKey(), expiry = new Date(Date.now() + duration);
+    await Key.create({ key, expiresAt: expiry, issuedToIp: req.ip, provider: 'admin' });
+    log.info(`[ADMIN][${req.id}] generated key=${key}`);
+    res.json({ success: true, key, expiresAt: expiry });
+  })
+);
+
+app.post('/api/admin/key-reset',    ...(adminLimiter ? [adminLimiter] : []), adminAuth,
+  asyncRoute(async (req, res) => {
+    const keyStr = safeStr(req.body?.key, 128);
+    if (!keyStr) return res.status(400).json({ error: 'Missing key.' });
+    const record = await Key.findOne({ key: keyStr });
+    if (!record)  return res.status(404).json({ error: 'Key not found.' });
+    record.hwid = null; await record.save();
+    log.info(`[ADMIN HWID-RESET][${req.id}] key=${keyStr}`);
+    res.json({ message: 'HWID reset successfully.' });
+  })
+);
+
+app.post('/api/admin/revoke-key',   ...(adminLimiter ? [adminLimiter] : []), adminAuth,
+  asyncRoute(async (req, res) => {
+    const keyStr = safeStr(req.body?.key, 128);
+    if (!keyStr) return res.status(400).json({ error: 'Missing key.' });
+    const record = await Key.findOne({ key: keyStr });
+    if (!record)  return res.status(404).json({ error: 'Key not found.' });
+    record.active = false; await record.save();
+    log.info(`[ADMIN REVOKE][${req.id}] key=${keyStr}`);
+    res.json({ message: 'Key revoked successfully.' });
+  })
+);
+
+app.get('/api/admin/keys',          ...(adminLimiter ? [adminLimiter] : []), adminAuth,
+  asyncRoute(async (req, res) => {
+    const limit = Math.min(Number.parseInt(req.query.limit, 10) || 50, 200);
+    const skip  = Math.max(Number.parseInt(req.query.skip,  10) || 0,  0);
+    const filter = {};
+    if (req.query.provider) filter.provider = String(req.query.provider);
+    if (req.query.active === 'true')  filter.active = true;
+    if (req.query.active === 'false') filter.active = false;
+
+    const [items, total] = await Promise.all([
+      Key.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Key.countDocuments(filter),
+    ]);
+    res.json({
+      total, shown: items.length,
+      keys: items.map(k => ({
+        key: k.key, active: k.active, expiresAt: k.expiresAt, createdAt: k.createdAt,
+        hwidBound: !!k.hwid, useCount: k.useCount || 0, lastUsed: k.lastUsed,
+        provider: k.provider || 'linkvertise', issuedToIp: k.issuedToIp,
+      })),
     });
+  })
+);
 
-    /* ═══════════════════════════════════════
-       LAVA BACKGROUND (enhanced, no volcano)
-    ═══════════════════════════════════════ */
-    (function () {
-        const cv  = document.getElementById('lava-canvas');
-        const ctx = cv.getContext('2d');
-        function resize() { cv.width = innerWidth; cv.height = innerHeight; }
-        resize(); window.addEventListener('resize', resize);
+app.get('/api/admin/stats',         ...(adminLimiter ? [adminLimiter] : []), adminAuth,
+  asyncRoute(async (_req, res) => {
+    const now = new Date();
+    const [total, active, expired, lvKeys, wiKeys, adminKeys] = await Promise.all([
+      Key.countDocuments({}),
+      Key.countDocuments({ active: true,  expiresAt: { $gt: now } }),
+      Key.countDocuments({ $or: [{ active: false }, { expiresAt: { $lte: now } }] }),
+      Key.countDocuments({ provider: 'linkvertise' }),
+      Key.countDocuments({ provider: 'workink' }),
+      Key.countDocuments({ provider: 'admin' }),
+    ]);
+    res.json({
+      keys: { total, active, expired, byProvider: { linkvertise: lvKeys, workink: wiKeys, admin: adminKeys } },
+      uptime: Math.floor(process.uptime()), version: VERSION,
+    });
+  })
+);
 
-        const pal = [[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0],[255,140,0],[200,50,0],[255,100,5]];
-        const rnd = (a, b) => a + Math.random() * (b - a);
+/* ── EXTENDED DASHBOARD STATS (timeline data) ─────────────────────── */
+app.get('/api/admin/dashboard-stats', ...(adminLimiter ? [adminLimiter] : []), adminAuth,
+  asyncRoute(async (_req, res) => {
+    const now    = new Date();
+    const day1   = new Date(now.getTime() -  24 * 60 * 60 * 1000);
+    const day7   = new Date(now.getTime() - 7  * 24 * 60 * 60 * 1000);
 
-        function mk(init) {
-            const c  = pal[Math.floor(Math.random() * pal.length)];
-            const sp = cv.width * .25;
-            return {
-                x: cv.width * .5 + rnd(-sp, sp),
-                y: init ? rnd(-cv.height, 0) : rnd(-80, 0),
-                vy: rnd(1.5, 3.8), vx: rnd(-.8, .8),
-                radius: rnd(4, 14), tail: [], maxTail: Math.floor(rnd(14, 32)),
-                r: c[0], g: c[1], b: c[2], alpha: rnd(.5, .95),
-                wobble: rnd(0, Math.PI * 2), wobbleSpd: rnd(.008, .05), wobbleAmp: rnd(.3, 1.8),
-            };
-        }
+    const [total, active, expired, last24h, last7d, lvKeys, wiKeys, adminKeys, hwidBound, recentKeys] = await Promise.all([
+      Key.countDocuments({}),
+      Key.countDocuments({ active: true, expiresAt: { $gt: now } }),
+      Key.countDocuments({ $or: [{ active: false }, { expiresAt: { $lte: now } }] }),
+      Key.countDocuments({ createdAt: { $gte: day1 } }),
+      Key.countDocuments({ createdAt: { $gte: day7 } }),
+      Key.countDocuments({ provider: 'linkvertise' }),
+      Key.countDocuments({ provider: 'workink' }),
+      Key.countDocuments({ provider: 'admin' }),
+      Key.countDocuments({ hwid: { $ne: null } }),
+      Key.find({}).sort({ createdAt: -1 }).limit(10).select('key provider active createdAt expiresAt hwid useCount').lean(),
+    ]);
 
-        const drops = [];
-        for (let i = 0; i < 110; i++) drops.push(mk(true));
+    res.json({
+      version: VERSION,
+      uptime: Math.floor(process.uptime()),
+      mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+      lvBreaker: lvBreaker.isOpen() ? 'open' : 'closed',
+      workinkMode: WORKINK_TRUST_MODE ? 'trust' : 'api+fallback',
+      stats: {
+        total, active, expired, last24h, last7d, hwidBound,
+        byProvider: { linkvertise: lvKeys, workink: wiKeys, admin: adminKeys },
+      },
+      recentKeys: recentKeys.map(k => ({
+        key: k.key, provider: k.provider, active: k.active,
+        createdAt: k.createdAt, expiresAt: k.expiresAt,
+        hwidBound: !!k.hwid, useCount: k.useCount || 0,
+      })),
+    });
+  })
+);
 
-        function drawDrop(d) {
-            const { x, y, radius: rd, r, g, b, alpha, tail } = d;
-            for (let i = 0; i < tail.length; i++) {
-                const t = tail[i], pct = i / tail.length;
-                const a = alpha * pct * .42, rad = rd * pct * .65;
-                if (rad < .5 || a < .01) continue;
-                ctx.beginPath(); ctx.arc(t.x, t.y, rad, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(${r},${g},${b},${a})`; ctx.fill();
-            }
-            const gr = ctx.createRadialGradient(x, y, 0, x, y, rd * 5.5);
-            gr.addColorStop(0, `rgba(${r},${g},${b},${alpha * .48})`);
-            gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
-            ctx.beginPath(); ctx.arc(x, y, rd * 5.5, 0, Math.PI * 2);
-            ctx.fillStyle = gr; ctx.fill();
+app.get('/api/diag',                ...(adminLimiter ? [adminLimiter] : []), adminAuth,
+  asyncRoute(async (_req, res) => {
+    res.json({
+      version: VERSION, env: NODE_ENV, node: process.version,
+      uptime: Math.floor(process.uptime()), mongo: mongoose.connection.readyState,
+      lvBreaker: { open: lvBreaker.isOpen(), failures: lvBreaker.failures, openUntil: lvBreaker.openUntil },
+      workink: { trustMode: WORKINK_TRUST_MODE, hasApiKey: !!WORKINK_API_KEY },
+      env_present: { MONGO_URI: !!MONGO_URI, LINKVERTISE_TOKEN: !!LINKVERTISE_TOKEN, ADMIN_SECRET: !!ADMIN_SECRET },
+      memory: process.memoryUsage(),
+    });
+  })
+);
 
-            const gm = ctx.createRadialGradient(x - rd * .3, y - rd * .35, 0, x, y, rd);
-            gm.addColorStop(0,   `rgba(255,230,160,${alpha * .92})`);
-            gm.addColorStop(.35, `rgba(${r},${g},${b},${alpha})`);
-            gm.addColorStop(1,   `rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
-            ctx.beginPath(); ctx.arc(x, y, rd, 0, Math.PI * 2);
-            ctx.fillStyle = gm; ctx.fill();
-            ctx.beginPath(); ctx.arc(x - rd * .3, y - rd * .32, rd * .26, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(255,255,245,${alpha * .75})`; ctx.fill();
-        }
+/* ════════════════════════════════════════════════════════════════════
+   404 + ERROR HANDLERS
+   ════════════════════════════════════════════════════════════════════ */
+app.use((req, res) => res.status(404).json({ error: 'Endpoint not found.', path: req.path }));
+app.use((err, req, res, _next) => {
+  const id = req?.id || 'noid';
+  log.error(`[CRITICAL][${id}] ${err.stack || err.message}`);
+  if (!res.headersSent)
+    res.status(err.status || 500).json({ error: err.expose ? err.message : 'Internal server error.', requestId: id });
+});
 
-        function animate() {
-            ctx.clearRect(0, 0, cv.width, cv.height);
-            for (const d of drops) {
-                d.wobble += d.wobbleSpd;
-                d.x += Math.sin(d.wobble) * d.wobbleAmp + d.vx;
-                d.y += d.vy;
-                d.tail.push({ x: d.x, y: d.y });
-                if (d.tail.length > d.maxTail) d.tail.shift();
-                drawDrop(d);
-                if (d.y - d.radius > cv.height + 20) { Object.assign(d, mk(false)); d.tail = []; }
-            }
-            requestAnimationFrame(animate);
-        }
-        animate();
-    })();
+/* ════════════════════════════════════════════════════════════════════
+   BACKGROUND CLEANUP
+   ════════════════════════════════════════════════════════════════════ */
+async function cleanupExpiredKeys() {
+  try {
+    const result = await Key.updateMany(
+      { active: true, expiresAt: { $lte: new Date() } }, { $set: { active: false } }
+    );
+    if (result.modifiedCount > 0)
+      log.info(`[CLEANUP] deactivated ${result.modifiedCount} expired keys`);
+  } catch (err) { log.error('[CLEANUP] error:', err.message); }
+}
+setInterval(cleanupExpiredKeys, 10 * 60 * 1000);
 
+/* ════════════════════════════════════════════════════════════════════
+   GRACEFUL SHUTDOWN
+   ════════════════════════════════════════════════════════════════════ */
+let server = null;
+function shutdown(signal) {
+  log.info(`Received ${signal} — shutting down...`);
+  if (server) {
+    server.close(() => {
+      log.info('HTTP server closed');
+      mongoose.connection.close(false).then(() => { log.info('MongoDB closed'); process.exit(0); });
+    });
+    setTimeout(() => { log.warn('Force exit'); process.exit(1); }, 10_000);
+  } else { process.exit(0); }
+}
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT',  () => shutdown('SIGINT'));
+process.on('uncaughtException',  (err)    => log.error('UNCAUGHT:', err.stack || err.message));
+process.on('unhandledRejection', (reason) => log.error('UNHANDLED REJECTION:', reason));
+
+/* ════════════════════════════════════════════════════════════════════
+   BOOT
+   ════════════════════════════════════════════════════════════════════ */
+(async () => {
+  await connectDB();
+  server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(banner);
+    log.info(`🚀 RezurXLab v${VERSION} on :${PORT}`);
+    log.info('  GET  /health');
+    log.info('  GET  /dashboard');
+    log.info('  POST /api/initiate-session');
+    log.info('  POST /api/verify-linkvertise');
+    log.info('  POST /api/verify-workink');
+    log.info('  POST /api/verify-key');
+    log.info('  GET  /api/key-info/:key');
+    log.info('  POST /api/key-reset');
+    log.info('  POST /api/generate-key             [admin]');
+    log.info('  POST /api/admin/key-reset          [admin]');
+    log.info('  POST /api/admin/revoke-key         [admin]');
+    log.info('  GET  /api/admin/keys               [admin]');
+    log.info('  GET  /api/admin/stats              [admin]');
+    log.info('  GET  /api/admin/dashboard-stats    [admin]');
+    log.info('  GET  /api/diag                     [admin]');
+    console.log(banner);
+  });
+  cleanupExpiredKeys();
 })();
-</script>
-</body>
-</html>
