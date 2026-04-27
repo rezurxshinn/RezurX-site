@@ -118,10 +118,6 @@
         .btn-or span { font-size:.45rem; letter-spacing:2px; color:var(--dim); text-transform:uppercase; }
         .btn-or-line { width:1px; height:22px; background:rgba(255,140,0,0.15); }
 
-        #cooldown-box { display:none; margin-top:14px; }
-        #cooldown-box.show { display:block; }
-        .cd-label    { font-size:.5rem; letter-spacing:3px; color:rgba(255,140,0,0.45); text-transform:uppercase; margin-bottom:8px; }
-        #cooldown-timer { font-family:'Orbitron',sans-serif; font-size:1.35rem; font-weight:700; letter-spacing:3px; color:var(--orange); text-shadow:0 0 14px var(--orange-glow); padding:10px; border-radius:3px; background:rgba(255,140,0,0.06); border:1px solid rgba(255,140,0,0.18); }
 
         .footer { margin-top:24px; display:flex; justify-content:center; align-items:center; gap:10px; }
         .fi { font-size:.45rem; letter-spacing:1.5px; color:#1a0e06; text-transform:uppercase; }
@@ -156,10 +152,6 @@
         <button id="go-btn-wi" type="button" disabled>Work.ink</button>
     </div>
 
-    <div id="cooldown-box">
-        <div class="cd-label">▸ Next Key Available In</div>
-        <div id="cooldown-timer">--:--:--</div>
-    </div>
 
     <div class="footer">
         <span class="fi">AES-256</span><div class="fd"></div>
@@ -173,18 +165,14 @@
     'use strict';
 
     const API             = "https://rezurx-backend.onrender.com";
-    const WORKINK_URL     = "https://work.ink/2hdZ/keysystem";
+    const WORKINK_URL     = "https://work.ink/2hdZ/key-system";
     const SESSION_KEY     = 'rzx_session_v3';
-    const COOLDOWN_KEY    = 'rzx_cooldown_v3';
-    const COOLDOWN_MS     = 10 * 60 * 60 * 1000;
     const BIND_SECRET     = 'rzx_fp_bind_9x2';
 
     const goBtnLv    = document.getElementById('go-btn-lv');
     const goBtnWi    = document.getElementById('go-btn-wi');
     const statusEl   = document.getElementById('status');
     const statusTx   = document.getElementById('status-txt');
-    const cooldownBx = document.getElementById('cooldown-box');
-    const cooldownTm = document.getElementById('cooldown-timer');
 
     async function getFingerprint() {
         const nav = navigator, scr = screen;
@@ -210,13 +198,6 @@
         try { localStorage.setItem(SESSION_KEY, JSON.stringify({ token, fp, ts: Date.now(), provider })); }
         catch (e) { console.error('[RezurX] Storage failed:', e); }
     }
-    function getCooldown() {
-        try {
-            const raw = localStorage.getItem(COOLDOWN_KEY);
-            if (!raw) return 0;
-            return Math.max(0, COOLDOWN_MS - (Date.now() - JSON.parse(raw).ts));
-        } catch (_) { return 0; }
-    }
 
     function setStatus(msg, type='') { statusTx.textContent = msg; statusEl.className = type; }
     function setBtns(disabled, lvTxt, wiTxt) {
@@ -224,10 +205,6 @@
         goBtnWi.textContent = wiTxt || 'Work.ink';
         goBtnLv.disabled = disabled;
         goBtnWi.disabled = disabled;
-    }
-    function fmtTime(ms) {
-        const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;
-        return [h,m,sec].map(n=>String(n).padStart(2,'0')).join(':');
     }
 
     async function fetchT(url, opts={}, ms=15000) {
@@ -237,21 +214,8 @@
         finally { clearTimeout(tid); }
     }
 
-    let cdInterval = null;
-    function startCooldown() {
-        cooldownBx.classList.add('show');
-        const tick = () => {
-            const left = getCooldown();
-            if (left <= 0) { clearInterval(cdInterval); cooldownBx.classList.remove('show'); init(); return; }
-            cooldownTm.textContent = fmtTime(left);
-        };
-        tick(); cdInterval = setInterval(tick, 1000);
-        setBtns(true, 'Cooldown Active', 'Cooldown Active');
-        setStatus('On Cooldown', 'amber');
-    }
 
     async function init() {
-        if (getCooldown() > 0) { startCooldown(); return; }
         setStatus('Waking server...', 'amber');
         setBtns(true, 'Connecting...', 'Connecting...');
         try {
@@ -299,10 +263,6 @@
     goBtnLv.addEventListener('click', () => handleClick('linkvertise'));
     goBtnWi.addEventListener('click', () => handleClick('workink'));
 
-    try {
-        const bc = new BroadcastChannel('rzx_channel');
-        bc.onmessage = (ev) => { if (ev.data==='key_issued') { clearInterval(cdInterval); startCooldown(); } };
-    } catch (_) {}
 
     window.__rezurxDiag = function() {
         try {
@@ -314,7 +274,6 @@
                 console.log('Provider:', d.provider);
                 console.log('Age (s): ', Math.round((Date.now()-d.ts)/1000));
             }
-            console.log('Cooldown:', fmtTime(getCooldown()));
         } catch (e) { console.error(e); }
     };
     console.log('[RezurX] Diagnostic: run __rezurxDiag()');
