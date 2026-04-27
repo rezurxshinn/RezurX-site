@@ -5,458 +5,292 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <meta name="theme-color" content="#060100">
-    <title>RezurXLab – Ad Verification</title>
+    <title>RezurXLab | Complete Ad</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --orange:        #ff8c00;
-            --orange-bright: #ffaa33;
-            --orange-deep:   #aa4400;
-            --orange-glow:   rgba(255,140,0,0.45);
-            --green:         #00ff88;
-            --green-glow:    rgba(0,255,136,0.45);
-            --red:           #ff4455;
-            --red-glow:      rgba(255,68,85,0.45);
-            --bg:            #060100;
-            --muted:         #3a3028;
-            --dim:           #6a5848;
+            --orange:      #ff8c00;
+            --orange-dim:  #cc6600;
+            --orange-glow: rgba(255,140,0,0.45);
+            --green:       #00ff88;
+            --red:         #ff4455;
+            --bg:          #060100;
+            --panel:       rgba(8,3,0,0.93);
+            --muted:       #3a3028;
+            --dim:         #6a5848;
         }
-
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { height: 100%; }
+        *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+        html,body { height:100%; }
         body {
-            background: var(--bg);
-            color: #fff;
-            font-family: 'JetBrains Mono', monospace;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
-            position: relative;
-            -webkit-font-smoothing: antialiased;
+            background:var(--bg); color:#fff;
+            font-family:'JetBrains Mono',monospace;
+            display:flex; flex-direction:column;
+            justify-content:center; align-items:center;
+            min-height:100vh; overflow-x:hidden; position:relative;
+            -webkit-font-smoothing:antialiased; padding:20px;
         }
 
-        /* ── BACKGROUND LAYERS ──────────────────────────────────── */
-        #lava-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-        .atmos {
-            position: fixed; inset: 0; z-index: 1; pointer-events: none;
-            background:
-                radial-gradient(ellipse 80% 45% at 50% 0%,   rgba(255,90,0,0.20) 0%, transparent 60%),
-                radial-gradient(ellipse 70% 40% at 50% 100%, rgba(180,30,0,0.15) 0%, transparent 60%),
-                radial-gradient(ellipse 100% 100% at 50% 50%, transparent 30%, rgba(0,0,0,0.78) 100%);
-        }
-        .vignette {
-            position: fixed; inset: 0; z-index: 2; pointer-events: none;
-            background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%);
-        }
-        .scanlines {
-            position: fixed; inset: 0; z-index: 3; pointer-events: none;
-            background: repeating-linear-gradient(
-                0deg, transparent, transparent 3px,
-                rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px
-            );
-        }
+        #lava-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; }
+        .atmos       { position:fixed; inset:0; z-index:1; pointer-events:none;
+            background:radial-gradient(ellipse 80% 45% at 50% 0%, rgba(255,90,0,0.20) 0%, transparent 60%),
+                       radial-gradient(ellipse 100% 100% at 50% 50%, transparent 35%, rgba(0,0,0,0.75) 100%); }
+        .scanlines   { position:fixed; inset:0; z-index:2; pointer-events:none;
+            background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.04) 3px,rgba(0,0,0,0.04) 4px); }
 
-        /* ── PANEL ──────────────────────────────────────────────── */
         .panel {
-            position: relative; z-index: 10;
-            background: linear-gradient(180deg, rgba(20,8,0,0.96) 0%, rgba(8,3,0,0.96) 100%);
-            border: 1px solid rgba(255,140,0,0.18);
-            border-radius: 8px;
-            padding: 48px 42px 40px;
-            width: 92%; max-width: 500px;
-            text-align: center;
-            box-shadow:
-                0 0 0 1px rgba(0,0,0,0.95),
-                0 12px 60px rgba(0,0,0,0.92),
-                0 0 140px rgba(255,80,0,0.12),
-                inset 0 1px 0 rgba(255,200,120,0.10),
-                inset 0 -1px 0 rgba(0,0,0,0.5);
-            backdrop-filter: blur(6px) saturate(1.1);
-            -webkit-backdrop-filter: blur(6px) saturate(1.1);
-            animation: panelIn .7s cubic-bezier(.22,1,.36,1) both;
+            position:relative; z-index:10;
+            background:var(--panel);
+            border:1px solid rgba(255,140,0,0.20); border-radius:8px;
+            padding:38px 32px 30px; width:100%; max-width:560px; text-align:center;
+            box-shadow:0 0 0 1px rgba(0,0,0,0.9),0 8px 40px rgba(0,0,0,0.85),0 0 100px rgba(255,80,0,0.12);
+            backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+            animation:panelIn .55s cubic-bezier(.22,1,.36,1) both;
         }
-        @keyframes panelIn {
-            from { opacity: 0; transform: translateY(24px) scale(.96); }
-            to   { opacity: 1; transform: none; }
-        }
-        @media (max-width: 480px) { .panel { padding: 34px 22px 30px; } }
+        @keyframes panelIn { from{opacity:0;transform:translateY(18px) scale(.97)} to{opacity:1;transform:none} }
 
-        /* corner brackets */
-        .c { position: absolute; width: 18px; height: 18px; }
-        .c-tl { top:-1px; left:-1px;   border-top:2px solid var(--orange-bright); border-left:2px solid var(--orange-bright);  border-radius:4px 0 0 0; filter:drop-shadow(0 0 4px var(--orange-glow)); }
-        .c-tr { top:-1px; right:-1px;  border-top:2px solid var(--orange-bright); border-right:2px solid var(--orange-bright); border-radius:0 4px 0 0; filter:drop-shadow(0 0 4px var(--orange-glow)); }
-        .c-bl { bottom:-1px; left:-1px;  border-bottom:2px solid var(--orange-bright); border-left:2px solid var(--orange-bright);  border-radius:0 0 0 4px; filter:drop-shadow(0 0 4px var(--orange-glow)); }
-        .c-br { bottom:-1px; right:-1px; border-bottom:2px solid var(--orange-bright); border-right:2px solid var(--orange-bright); border-radius:0 0 4px 0; filter:drop-shadow(0 0 4px var(--orange-glow)); }
+        .c { position:absolute; width:14px; height:14px; }
+        .c-tl { top:-1px; left:-1px;   border-top:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:3px 0 0 0; }
+        .c-tr { top:-1px; right:-1px;  border-top:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 3px 0 0; }
+        .c-bl { bottom:-1px; left:-1px;  border-bottom:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:0 0 0 3px; }
+        .c-br { bottom:-1px; right:-1px; border-bottom:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 0 3px 0; }
 
-        /* ── LOGO ───────────────────────────────────────────────── */
-        .logo-eyebrow {
-            font-size: .52rem; letter-spacing: 5px;
-            color: var(--orange-deep); text-transform: uppercase;
-            margin-bottom: 12px; font-weight: 500;
-        }
+        .logo-eyebrow { font-size:.5rem; letter-spacing:4px; color:var(--muted); text-transform:uppercase; margin-bottom:10px; }
         h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.9rem; font-weight: 900; letter-spacing: 6px;
-            background: linear-gradient(180deg, #ffe0a0 0%, #ffaa33 30%, #ff6600 65%, #aa3300 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-            filter: drop-shadow(0 0 22px rgba(255,140,0,0.55));
-            animation: logoBreath 4s ease-in-out infinite;
+            font-family:'Orbitron',sans-serif; font-size:1.6rem; font-weight:900; letter-spacing:5px;
+            background:linear-gradient(180deg,#ffd080 0%,#ff9c20 35%,#ff6600 70%,#cc4400 100%);
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+            filter:drop-shadow(0 0 18px rgba(255,140,0,0.5)); line-height:1.1;
         }
-        @keyframes logoBreath {
-            0%,100% { filter: drop-shadow(0 0 22px rgba(255,140,0,0.55)); }
-            50%      { filter: drop-shadow(0 0 34px rgba(255,170,50,0.85)); }
+        .logo-sub { font-size:.5rem; letter-spacing:5px; color:var(--muted); text-transform:uppercase; margin-top:8px; margin-bottom:24px; }
+        .divider  { width:100%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,140,0,0.25),transparent); margin-bottom:22px; }
+
+        .info-box {
+            background:rgba(255,140,0,0.05);
+            border:1px solid rgba(255,140,0,0.15);
+            border-radius:4px; padding:14px;
+            font-size:.6rem; letter-spacing:1.5px; color:var(--dim);
+            text-transform:uppercase; line-height:1.7; margin-bottom:20px;
         }
-        .logo-sub {
-            font-size: .5rem; letter-spacing: 7px; color: var(--muted);
-            text-transform: uppercase; margin-top: 10px; margin-bottom: 30px;
+        .info-box strong { color:var(--orange); font-weight:500; }
+
+        #status { font-size:.65rem; letter-spacing:2px; text-transform:uppercase;
+            color:var(--dim); margin-bottom:16px; display:flex; align-items:center;
+            justify-content:center; gap:8px; min-height:1em; }
+        .sdot { width:5px; height:5px; border-radius:50%; background:var(--muted);
+            animation:pulse 2s ease-in-out infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+        #status.green .sdot { background:var(--green); box-shadow:0 0 8px rgba(0,255,136,0.4); }
+        #status.green       { color:var(--green); }
+        #status.red   .sdot { background:var(--red); box-shadow:0 0 8px rgba(255,68,85,0.4); animation:none; }
+        #status.red         { color:var(--red); }
+        #status.amber .sdot { background:var(--orange); box-shadow:0 0 8px var(--orange-glow); }
+        #status.amber       { color:var(--orange); }
+
+        #ad-container {
+            min-height:80px; padding:10px;
+            background:rgba(0,0,0,0.3);
+            border:1px dashed rgba(255,140,0,0.15);
+            border-radius:4px; margin-bottom:16px;
         }
 
-        .divider {
-            width: 100%; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,140,0,0.3) 30%, rgba(255,140,0,0.5) 50%, rgba(255,140,0,0.3) 70%, transparent);
-            margin-bottom: 28px; position: relative;
-        }
-        .divider::after {
-            content: ""; position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%,-50%);
-            width: 6px; height: 6px; border-radius: 50%;
-            background: var(--orange); box-shadow: 0 0 10px var(--orange-glow);
-        }
+        #error-box { display:none; }
+        #error-box.show { display:block; animation:slideUp .4s ease both; }
+        @keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+        .err-msg { font-size:.65rem; color:rgba(255,140,150,0.95); letter-spacing:.5px;
+            line-height:1.7; white-space:pre-line; padding:14px;
+            background:rgba(255,68,85,0.08); border:1px solid rgba(255,68,85,0.22);
+            border-radius:4px; text-align:left; margin-bottom:12px; }
+        .err-cta { display:block; background:transparent;
+            border:1px solid rgba(255,140,0,0.3); color:rgba(255,140,0,0.7);
+            padding:10px; font-family:'Orbitron',sans-serif;
+            font-size:.6rem; letter-spacing:2.5px; text-transform:uppercase;
+            font-weight:600; cursor:pointer; border-radius:3px; width:100%;
+            text-decoration:none; text-align:center; transition:all .25s; }
+        .err-cta:hover { background:rgba(255,140,0,0.08); color:var(--orange); border-color:rgba(255,140,0,0.55); }
 
-        /* ── SPINNER RING ───────────────────────────────────────── */
-        .ring-wrap { display: flex; justify-content: center; margin-bottom: 28px; }
-        .ring { width: 72px; height: 72px; position: relative; transition: opacity .4s; }
-        .ring::before {
-            content: ""; position: absolute; inset: 0; border-radius: 50%;
-            border: 2px solid rgba(255,140,0,0.08);
-        }
-        .ring::after {
-            content: ""; position: absolute; inset: 0; border-radius: 50%;
-            border: 2px solid transparent;
-            border-top-color: var(--orange);
-            border-right-color: rgba(255,140,0,0.4);
-            animation: spin 1.1s cubic-bezier(.5,.1,.5,.9) infinite;
-            filter: drop-shadow(0 0 6px var(--orange-glow));
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .ring-inner {
-            position: absolute; inset: 12px; border-radius: 50%;
-            border: 1.5px solid transparent;
-            border-bottom-color: rgba(255,170,50,0.5);
-            border-left-color:   rgba(255,140,0,0.2);
-            animation: spinR .75s linear infinite reverse;
-        }
-        @keyframes spinR { to { transform: rotate(360deg); } }
-        .ring-core {
-            position: absolute; inset: 24px; border-radius: 50%;
-            background: radial-gradient(circle, rgba(255,200,100,0.12) 0%, transparent 70%);
-            animation: coreP 2s ease-in-out infinite;
-        }
-        @keyframes coreP {
-            0%,100% { transform: scale(.8); opacity: .4; }
-            50%      { transform: scale(1.1); opacity: 1; }
-        }
-
-        /* ── STEP LIST ──────────────────────────────────────────── */
-        .steps { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; text-align: left; }
-        .step {
-            display: flex; align-items: center; gap: 12px;
-            font-size: .6rem; letter-spacing: 1.5px; text-transform: uppercase;
-            color: var(--dim); transition: color .4s;
-        }
-        .step.done   { color: var(--green); }
-        .step.done   .step-dot { background: var(--green); box-shadow: 0 0 8px var(--green-glow); }
-        .step.active { color: var(--orange-bright); }
-        .step.active .step-dot { background: var(--orange); box-shadow: 0 0 8px var(--orange-glow); animation: pulse 1.2s ease-in-out infinite; }
-        .step-dot {
-            width: 7px; height: 7px; border-radius: 50%;
-            background: var(--muted); flex-shrink: 0; transition: background .4s, box-shadow .4s;
-        }
-        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.3;transform:scale(.8);} }
-
-        /* ── PROGRESS BAR ───────────────────────────────────────── */
-        .track {
-            width: 100%; height: 2px;
-            background: rgba(255,140,0,0.08);
-            border-radius: 2px; overflow: hidden; margin-bottom: 24px;
-        }
-        #prog-bar {
-            height: 100%; width: 0%;
-            background: linear-gradient(90deg, var(--orange-deep), var(--orange), #ffd700);
-            border-radius: 2px;
-            transition: width .6s cubic-bezier(.2,.8,.3,1);
-            box-shadow: 0 0 12px var(--orange-glow);
-        }
-
-        /* ── STATUS TEXT ────────────────────────────────────────── */
-        #status-line {
-            font-size: .58rem; letter-spacing: 2px; text-transform: uppercase;
-            color: var(--dim); min-height: 1em; transition: color .3s;
-        }
-        #status-line.amber { color: var(--orange-bright); }
-        #status-line.green { color: var(--green); }
-        #status-line.red   { color: var(--red); }
-
-        /* ── ERROR BOX ──────────────────────────────────────────── */
-        #error-box { display: none; margin-top: 20px; }
-        #error-box.show { display: block; animation: fadeUp .4s ease both; }
-        @keyframes fadeUp { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:none;} }
-        #error-msg {
-            font-size: .65rem; color: rgba(255,140,150,.95); line-height: 1.7; white-space: pre-line;
-            background: linear-gradient(180deg,rgba(255,68,85,.08) 0%,rgba(255,68,85,.03) 100%);
-            border: 1px solid rgba(255,68,85,.22); border-radius: 4px;
-            padding: 16px; text-align: left; margin-bottom: 14px;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        .error-cta {
-            display: block; background: transparent;
-            border: 1px solid rgba(255,140,0,.3); color: rgba(255,140,0,.7);
-            padding: 11px; font-family: 'Orbitron', sans-serif;
-            font-size: .6rem; letter-spacing: 2.5px; text-transform: uppercase;
-            font-weight: 600; cursor: pointer; border-radius: 3px; width: 100%;
-            transition: all .25s; text-decoration: none; text-align: center;
-        }
-        .error-cta:hover { background: rgba(255,140,0,.08); color: var(--orange); border-color: rgba(255,140,0,.55); }
-
-        /* ── FOOTER ─────────────────────────────────────────────── */
-        .footer {
-            margin-top: 28px; display: flex; justify-content: center;
-            align-items: center; gap: 12px;
-            padding-top: 18px; border-top: 1px solid rgba(255,140,0,.08);
-        }
-        .fi { font-size: .46rem; letter-spacing: 2px; color: #28190d; text-transform: uppercase; }
-        .fd { width: 3px; height: 3px; border-radius: 50%; background: #28190d; }
+        .footer { margin-top:22px; display:flex; justify-content:center; align-items:center; gap:10px; }
+        .fi { font-size:.45rem; letter-spacing:1.5px; color:#1a0e06; text-transform:uppercase; }
+        .fd { width:2px; height:2px; border-radius:50%; background:#1a0e06; }
     </style>
 </head>
 <body>
 
 <canvas id="lava-canvas"></canvas>
 <div class="atmos"></div>
-<div class="vignette"></div>
 <div class="scanlines"></div>
 
 <div class="panel">
     <div class="c c-tl"></div><div class="c c-tr"></div>
     <div class="c c-bl"></div><div class="c c-br"></div>
 
-    <div class="logo-eyebrow">◆ Step 2 of 3 ◆</div>
+    <div class="logo-eyebrow">◆ Ad Verification ◆</div>
     <h1>REZURXLAB</h1>
-    <div class="logo-sub">Ad Verification Engine</div>
+    <div class="logo-sub">Complete Below To Continue</div>
     <div class="divider"></div>
 
-    <div class="ring-wrap">
-        <div class="ring" id="ring">
-            <div class="ring-inner"></div>
-            <div class="ring-core"></div>
-        </div>
+    <div class="info-box">
+        Click the <strong>Linkvertise button</strong> below.<br>
+        Complete the <strong>1 short ad</strong>.<br>
+        You'll be <strong>redirected automatically</strong>.
     </div>
 
-    <div class="steps">
-        <div class="step done"   id="step-1"><div class="step-dot"></div><span>Session token secured</span></div>
-        <div class="step active" id="step-2"><div class="step-dot"></div><span>Loading ad engine</span></div>
-        <div class="step"        id="step-3"><div class="step-dot"></div><span>Ad verification pending</span></div>
-    </div>
+    <div id="status"><span class="sdot"></span><span id="status-txt">Loading ad...</span></div>
 
-    <div class="track"><div id="prog-bar"></div></div>
-    <div id="status-line" class="amber">Preparing verification...</div>
+    <div id="ad-container">
+        <a id="lv-link" href="https://link-center.net/5011888/q763gg8u5DCT" target="_blank" rel="noopener">
+            Click here to start the ad
+        </a>
+    </div>
 
     <div id="error-box">
-        <div id="error-msg"></div>
-        <a href="https://rezurxshinn.github.io/RezurX-site/start.html" class="error-cta">[ ◂ Return to Start ]</a>
+        <div class="err-msg" id="err-msg"></div>
+        <a href="https://rezurxshinn.github.io/RezurX-site/start.html" class="err-cta">[ ◂ Return to Start ]</a>
     </div>
 
     <div class="footer">
         <span class="fi">AES-256</span><div class="fd"></div>
         <span class="fi">HWID Lock</span><div class="fd"></div>
-        <span class="fi">v4.2</span>
+        <span class="fi">V4.2</span>
     </div>
 </div>
 
 <script>
-/* ═══════════════════════════════════════════════════════════════════
-   STEP 1 — Store token before ad script loads
-═══════════════════════════════════════════════════════════════════ */
-(function () {
+(() => {
     'use strict';
 
     const SESSION_KEY = 'rzx_session_v3';
-    const progBar     = document.getElementById('prog-bar');
-    const statusLn    = document.getElementById('status-line');
-    const errorBox    = document.getElementById('error-box');
-    const errorMsg    = document.getElementById('error-msg');
-    const ring        = document.getElementById('ring');
-    const step2       = document.getElementById('step-2');
-    const step3       = document.getElementById('step-3');
+    const TOKEN_RE    = /^[a-f0-9]{16,128}$/i;
+    const REDIRECT_BASE = 'https://rezurxshinn.github.io/RezurX-site/index.html';
 
-    function setProgress(pct, msg, cls) {
-        progBar.style.width    = pct + '%';
-        statusLn.textContent   = msg;
-        statusLn.className     = cls || 'amber';
-        if (cls === 'red') {
-            progBar.style.background = '#ff4455';
-            progBar.style.boxShadow  = '0 0 12px rgba(255,68,85,0.45)';
-        }
-    }
+    const statusEl = document.getElementById('status');
+    const statusTx = document.getElementById('status-txt');
+    const errorBox = document.getElementById('error-box');
+    const errMsg   = document.getElementById('err-msg');
+    const lvLink   = document.getElementById('lv-link');
 
+    function setStatus(msg, type = '') { statusTx.textContent = msg; statusEl.className = type; }
     function showError(msg) {
-        ring.style.opacity   = '0';
-        step2.className      = 'step';
-        errorMsg.textContent = msg;
+        errMsg.textContent = msg;
         errorBox.classList.add('show');
-        setProgress(100, 'Error — see below', 'red');
+        setStatus('ERROR', 'red');
     }
 
-    // ── 1. Read token from URL ───────────────────────────────────
-    let token = null;
-    try { token = new URLSearchParams(window.location.search).get('token'); } catch (_) {}
+    /* ── Token retrieval ── */
+    function getToken() {
+        // 1. URL query parameter (primary, from start.html)
+        const params = new URLSearchParams(window.location.search);
+        const fromUrl = params.get('token');
+        if (fromUrl && TOKEN_RE.test(fromUrl)) return fromUrl;
 
-    if (!token) {
-        showError('No session token found in URL.\n\nThis page must be reached via Start. Please return to the Start page and click the button.');
-        return;
-    }
+        // 2. URL fragment fallback
+        const hash = window.location.hash;
+        if (hash) {
+            const m = hash.match(/token=([a-f0-9]{16,128})/i);
+            if (m) return m[1];
+        }
 
-    // ── 2. Merge into existing session (preserves fp from start.html) ─
-    setProgress(25, 'Securing session token...', 'amber');
-
-    try {
-        let session = {};
+        // 3. localStorage fallback
         try {
             const raw = localStorage.getItem(SESSION_KEY);
-            if (raw) session = JSON.parse(raw);
+            if (raw) {
+                const data = JSON.parse(raw);
+                if (data.token && TOKEN_RE.test(data.token)) return data.token;
+            }
         } catch (_) {}
 
-        session.token = token || session.token; // keep stored token as fallback
-        session.ts    = session.ts || Date.now(); // keep original timestamp
-
-        localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-        console.log('[RezurX] ad.html: token stored →', (session.token || '').slice(0, 16) + '...');
-    } catch (err) {
-        console.error('[RezurX] ad.html: localStorage error', err);
-        showError('Could not store session data.\n\nPrivate/incognito mode may be blocking localStorage.\nPlease try in a normal browser window.');
-        return;
+        return null;
     }
 
-    // ── 3. Animate steps while Linkvertise loads ─────────────────
-    setProgress(50, 'Loading ad engine...', 'amber');
+    /* ── MAIN ── */
+    const token = getToken();
 
-    setTimeout(() => {
-        step2.className = 'step done';
-        step3.className = 'step active';
-        setProgress(80, 'Ad launching — please complete it in full...', 'amber');
-    }, 800);
-})();
-</script>
-
-<!-- ═══════════════════════════════════════════════════════════════
-     STEP 2 — Linkvertise Full-Page embed
-     Appends ?hash=... to the redirect URL automatically on completion.
-     No Linkvertise dashboard configuration required.
-════════════════════════════════════════════════════════════════ -->
-<script src="https://publisher.linkvertise.com/cdn/linkvertise.js"></script>
-<script>
-    if (typeof linkvertise === 'function') {
-        linkvertise(5011888, {
-            whitelist: [],
-            blacklist: [],
-            redirect: 'https://rezurxshinn.github.io/RezurX-site/index.html'
-        });
+    if (!token) {
+        showError('NO SESSION TOKEN FOUND\n\nPlease return to the start page and click the Linkvertise button to begin.');
     } else {
-        // Linkvertise CDN failed to load (ad-blocker / network issue)
-        const errorBox = document.getElementById('error-box');
-        const errorMsg = document.getElementById('error-msg');
-        const ring     = document.getElementById('ring');
-        const step2    = document.getElementById('step-2');
-        const progBar  = document.getElementById('prog-bar');
-        const statusLn = document.getElementById('status-line');
+        // Re-store in localStorage as a safety net
+        try {
+            const existing = localStorage.getItem(SESSION_KEY);
+            if (!existing) {
+                // Store minimal session if not already stored
+                localStorage.setItem(SESSION_KEY, JSON.stringify({
+                    token, fp: '', ts: Date.now(), provider: 'linkvertise'
+                }));
+            }
+        } catch (_) {}
 
-        ring.style.opacity          = '0';
-        step2.className             = 'step';
-        errorMsg.textContent        = 'Ad engine failed to load.\n\nThis is usually caused by an ad-blocker or network issue.\nPlease disable your ad-blocker and try again.';
-        errorBox.classList.add('show');
-        statusLn.textContent        = 'Ad engine unavailable';
-        statusLn.className          = 'red';
-        progBar.style.width         = '100%';
-        progBar.style.background    = '#ff4455';
-        progBar.style.boxShadow     = '0 0 12px rgba(255,68,85,0.45)';
-    }
-</script>
+        // Build redirect URL with token in fragment (survives popups/new windows)
+        const redirectUrl = REDIRECT_BASE + '#token=' + encodeURIComponent(token);
 
-<!-- ── LAVA BACKGROUND ─────────────────────────────────────────── -->
-<script>
-(function () {
-    const cv  = document.getElementById('lava-canvas');
-    const ctx = cv.getContext('2d');
-    function resize() { cv.width = innerWidth; cv.height = innerHeight; }
-    resize();
-    window.addEventListener('resize', resize);
-
-    const pal = [
-        [255,80,0],[255,120,10],[255,60,0],[220,40,0],
-        [255,155,20],[180,30,0],[255,140,0],[200,50,0],[255,100,5]
-    ];
-    const rnd = (a, b) => a + Math.random() * (b - a);
-
-    function mk(init) {
-        const c  = pal[Math.floor(Math.random() * pal.length)];
-        const sp = cv.width * .25;
-        return {
-            x: cv.width * .5 + rnd(-sp, sp),
-            y: init ? rnd(-cv.height, 0) : rnd(-80, 0),
-            vy: rnd(1.5, 3.8), vx: rnd(-.8, .8),
-            radius: rnd(4, 14), tail: [], maxTail: Math.floor(rnd(14, 32)),
-            r: c[0], g: c[1], b: c[2], alpha: rnd(.5, .95),
-            wobble: rnd(0, Math.PI * 2), wobbleSpd: rnd(.008, .05), wobbleAmp: rnd(.3, 1.8),
+        // Try to load the official Linkvertise embed
+        const script = document.createElement('script');
+        script.src = 'https://publisher.linkvertise.com/cdn/linkvertise.js';
+        script.async = true;
+        script.onload = () => {
+            try {
+                if (typeof linkvertise === 'function') {
+                    linkvertise(5011888, {
+                        whitelist: [],
+                        blacklist: [],
+                        redirect: redirectUrl,
+                    });
+                    setStatus('● Click the ad above to continue', 'green');
+                } else {
+                    fallbackLink();
+                }
+            } catch (e) {
+                console.error('[RezurX] Linkvertise embed error:', e);
+                fallbackLink();
+            }
         };
-    }
+        script.onerror = () => {
+            console.warn('[RezurX] Linkvertise script blocked or failed');
+            fallbackLink();
+        };
+        document.head.appendChild(script);
 
-    const drops = [];
-    for (let i = 0; i < 90; i++) drops.push(mk(true));
-
-    function drawDrop(d) {
-        const { x, y, radius: rd, r, g, b, alpha, tail } = d;
-        for (let i = 0; i < tail.length; i++) {
-            const t = tail[i], pct = i / tail.length;
-            const a = alpha * pct * .4, rad = rd * pct * .65;
-            if (rad < .5 || a < .01) continue;
-            ctx.beginPath(); ctx.arc(t.x, t.y, rad, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(${r},${g},${b},${a})`; ctx.fill();
+        function fallbackLink() {
+            // If embed fails, use a direct link with token in fragment
+            lvLink.href = 'https://link-center.net/5011888/q763gg8u5DCT';
+            lvLink.style.cssText = 'display:inline-block;padding:14px 28px;background:linear-gradient(180deg,#ff9920,#ff6600);color:#1a0800;font-family:Orbitron,sans-serif;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-decoration:none;border-radius:3px;font-size:.7rem;box-shadow:0 4px 18px rgba(255,100,0,0.35);';
+            lvLink.textContent = '▸ Start Linkvertise Ad';
+            setStatus('● Click the button to begin', 'amber');
         }
-        const gr = ctx.createRadialGradient(x, y, 0, x, y, rd * 5);
-        gr.addColorStop(0, `rgba(${r},${g},${b},${alpha * .45})`);
-        gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
-        ctx.beginPath(); ctx.arc(x, y, rd * 5, 0, Math.PI * 2);
-        ctx.fillStyle = gr; ctx.fill();
-        const gm = ctx.createRadialGradient(x - rd * .3, y - rd * .35, 0, x, y, rd);
-        gm.addColorStop(0,   `rgba(255,220,140,${alpha * .9})`);
-        gm.addColorStop(.35, `rgba(${r},${g},${b},${alpha})`);
-        gm.addColorStop(1,   `rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
-        ctx.beginPath(); ctx.arc(x, y, rd, 0, Math.PI * 2);
-        ctx.fillStyle = gm; ctx.fill();
-        ctx.beginPath(); ctx.arc(x - rd * .3, y - rd * .32, rd * .25, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,240,${alpha * .7})`; ctx.fill();
+
+        // Safety: also expose token in URL fragment of THIS page so a manual return preserves it
+        if (!window.location.hash.includes('token=')) {
+            history.replaceState(null, '', window.location.pathname + '#token=' + encodeURIComponent(token));
+        }
     }
 
-    function animate() {
-        ctx.clearRect(0, 0, cv.width, cv.height);
-        for (const d of drops) {
-            d.wobble += d.wobbleSpd;
-            d.x += Math.sin(d.wobble) * d.wobbleAmp + d.vx;
-            d.y += d.vy;
-            d.tail.push({ x: d.x, y: d.y });
-            if (d.tail.length > d.maxTail) d.tail.shift();
-            drawDrop(d);
-            if (d.y - d.radius > cv.height + 20) { Object.assign(d, mk(false)); d.tail = []; }
+    /* ── Lava background ── */
+    (function () {
+        const cv  = document.getElementById('lava-canvas');
+        const ctx = cv.getContext('2d');
+        function resize() { cv.width = innerWidth; cv.height = innerHeight; }
+        resize(); window.addEventListener('resize', resize);
+        const pal = [[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0],[255,140,0],[200,50,0]];
+        const rnd = (a,b) => a+Math.random()*(b-a);
+        function mk(init) {
+            const c=pal[Math.floor(Math.random()*pal.length)],sp=cv.width*.25;
+            return {x:cv.width*.5+rnd(-sp,sp),y:init?rnd(-cv.height,0):rnd(-80,0),vy:rnd(1.5,3.5),vx:rnd(-.7,.7),radius:rnd(4,12),tail:[],maxTail:Math.floor(rnd(12,28)),r:c[0],g:c[1],b:c[2],alpha:rnd(.5,.9),wobble:rnd(0,Math.PI*2),wobbleSpd:rnd(.008,.04),wobbleAmp:rnd(.3,1.5)};
         }
-        requestAnimationFrame(animate);
-    }
-    animate();
+        const drops=[]; for(let i=0;i<80;i++) drops.push(mk(true));
+        function drawDrop(d) {
+            const {x,y,radius:rd,r,g,b,alpha,tail}=d;
+            for(let i=0;i<tail.length;i++){const t=tail[i],pct=i/tail.length,a=alpha*pct*.4,rad=rd*pct*.6;if(rad<.5||a<.01)continue;ctx.beginPath();ctx.arc(t.x,t.y,rad,0,Math.PI*2);ctx.fillStyle=`rgba(${r},${g},${b},${a})`;ctx.fill();}
+            const gr=ctx.createRadialGradient(x,y,0,x,y,rd*4.5);gr.addColorStop(0,`rgba(${r},${g},${b},${alpha*.4})`);gr.addColorStop(1,`rgba(${r},${g},${b},0)`);ctx.beginPath();ctx.arc(x,y,rd*4.5,0,Math.PI*2);ctx.fillStyle=gr;ctx.fill();
+            const gm=ctx.createRadialGradient(x-rd*.3,y-rd*.35,0,x,y,rd);gm.addColorStop(0,`rgba(255,220,140,${alpha*.85})`);gm.addColorStop(.35,`rgba(${r},${g},${b},${alpha})`);gm.addColorStop(1,`rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);ctx.beginPath();ctx.arc(x,y,rd,0,Math.PI*2);ctx.fillStyle=gm;ctx.fill();
+        }
+        function animate() {
+            ctx.clearRect(0,0,cv.width,cv.height);
+            for(const d of drops){d.wobble+=d.wobbleSpd;d.x+=Math.sin(d.wobble)*d.wobbleAmp+d.vx;d.y+=d.vy;d.tail.push({x:d.x,y:d.y});if(d.tail.length>d.maxTail)d.tail.shift();drawDrop(d);if(d.y-d.radius>cv.height+20){Object.assign(d,mk(false));d.tail=[];}}
+            requestAnimationFrame(animate);
+        }
+        animate();
+    })();
 })();
 </script>
-
 </body>
 </html>
