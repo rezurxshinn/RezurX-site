@@ -16,6 +16,8 @@
             --orange-glow: rgba(255,140,0,0.45);
             --green:       #00ff88;
             --green-glow:  rgba(0,255,136,0.35);
+            --teal:        #20cc88;
+            --teal-glow:   rgba(32,204,136,0.4);
             --red:         #ff4455;
             --red-glow:    rgba(255,68,85,0.35);
             --bg:          #0a0200;
@@ -23,7 +25,6 @@
             --muted:       #3a3028;
             --dim:         #6a5848;
         }
-
         *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
         html,body { height:100%; }
         body {
@@ -36,37 +37,24 @@
         }
 
         #lava-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
-        .atmos {
-            position:fixed; inset:0; z-index:1; pointer-events:none;
-            background:
-                radial-gradient(ellipse 90% 50% at 50% 0%, rgba(255,90,0,0.20) 0%, transparent 65%),
-                radial-gradient(ellipse 100% 100% at 50% 50%, transparent 35%, rgba(0,0,0,0.72) 100%);
-        }
-        .scanlines {
-            position:fixed; inset:0; z-index:2; pointer-events:none;
-            background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.045) 3px,rgba(0,0,0,0.045) 4px);
-        }
+        .atmos       { position:fixed; inset:0; z-index:1; pointer-events:none; background:radial-gradient(ellipse 90% 50% at 50% 0%, rgba(255,90,0,0.20) 0%, transparent 65%),radial-gradient(ellipse 100% 100% at 50% 50%, transparent 35%, rgba(0,0,0,0.72) 100%); }
+        .scanlines   { position:fixed; inset:0; z-index:2; pointer-events:none; background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.045) 3px,rgba(0,0,0,0.045) 4px); }
 
         .panel {
             position:relative; z-index:10;
             background:var(--panel);
-            border:1px solid rgba(255,140,0,0.22);
-            border-radius:6px; padding:42px 38px 34px;
-            width:92%; max-width:480px; text-align:center;
-            box-shadow:
-                0 0 0 1px rgba(0,0,0,0.9),
-                0 8px 40px rgba(0,0,0,0.85),
-                0 0 100px rgba(255,80,0,0.10),
-                inset 0 1px 0 rgba(255,180,80,0.09);
+            border:1px solid rgba(255,140,0,0.22); border-radius:6px;
+            padding:42px 38px 34px; width:92%; max-width:480px; text-align:center;
+            box-shadow:0 0 0 1px rgba(0,0,0,0.9),0 8px 40px rgba(0,0,0,0.85),0 0 100px rgba(255,80,0,0.10),inset 0 1px 0 rgba(255,180,80,0.09);
             backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);
             animation:panelIn .55s cubic-bezier(0.22,1,0.36,1) both;
         }
-        @keyframes panelIn { from{opacity:0;transform:translateY(18px) scale(0.97);} to{opacity:1;transform:none;} }
+        @keyframes panelIn { from{opacity:0;transform:translateY(18px) scale(0.97)} to{opacity:1;transform:none} }
         @media (max-width:480px) { .panel { padding:32px 22px 26px; } }
 
         .c { position:absolute; width:14px; height:14px; }
-        .c-tl { top:-1px; left:-1px;  border-top:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:3px 0 0 0; }
-        .c-tr { top:-1px; right:-1px; border-top:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 3px 0 0; }
+        .c-tl { top:-1px; left:-1px;   border-top:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:3px 0 0 0; }
+        .c-tr { top:-1px; right:-1px;  border-top:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 3px 0 0; }
         .c-bl { bottom:-1px; left:-1px;  border-bottom:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:0 0 0 3px; }
         .c-br { bottom:-1px; right:-1px; border-bottom:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 0 3px 0; }
 
@@ -78,54 +66,62 @@
             filter:drop-shadow(0 0 20px rgba(255,140,0,0.55)); line-height:1.1;
             animation:logoBreath 4s ease-in-out infinite;
         }
-        @keyframes logoBreath { 0%,100%{filter:drop-shadow(0 0 20px rgba(255,140,0,0.55));} 50%{filter:drop-shadow(0 0 32px rgba(255,140,0,0.85));} }
+        @keyframes logoBreath { 0%,100%{filter:drop-shadow(0 0 20px rgba(255,140,0,0.55))} 50%{filter:drop-shadow(0 0 32px rgba(255,140,0,0.85))} }
         .logo-sub { font-size:.5rem; letter-spacing:5px; color:var(--muted); text-transform:uppercase; margin-top:9px; margin-bottom:28px; }
         .divider  { width:100%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,140,0,0.22),transparent); margin-bottom:22px; }
 
-        .info-line {
-            font-size:.62rem; letter-spacing:1.5px; color:var(--dim); text-transform:uppercase;
-            margin-bottom:24px; line-height:1.7;
-        }
+        .info-line { font-size:.62rem; letter-spacing:1.5px; color:var(--dim); text-transform:uppercase; margin-bottom:24px; line-height:1.7; }
         .info-line strong { color:var(--orange); font-weight:500; }
 
-        #status {
-            font-size:.68rem; letter-spacing:2px; text-transform:uppercase;
-            color:var(--dim); margin-bottom:20px;
-            display:flex; align-items:center; justify-content:center; gap:8px;
-            min-height:1.1em;
-        }
-        .sdot { width:5px; height:5px; border-radius:50%; background:var(--muted); animation:pulse 2s ease-in-out infinite; }
+        #status { font-size:.68rem; letter-spacing:2px; text-transform:uppercase; color:var(--dim); margin-bottom:20px; display:flex; align-items:center; justify-content:center; gap:8px; min-height:1.1em; }
+        .sdot   { width:5px; height:5px; border-radius:50%; background:var(--muted); animation:pulse 2s ease-in-out infinite; }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
-        #status.green { color:var(--green); }
         #status.green .sdot { background:var(--green); box-shadow:0 0 8px var(--green-glow); }
-        #status.red   { color:var(--red); }
+        #status.green       { color:var(--green); }
         #status.red   .sdot { background:var(--red); box-shadow:0 0 8px var(--red-glow); animation:none; }
-        #status.amber { color:var(--orange); }
+        #status.red         { color:var(--red); }
         #status.amber .sdot { background:var(--orange); box-shadow:0 0 8px var(--orange-glow); }
+        #status.amber       { color:var(--orange); }
 
-        #go-btn {
+        .btn-group { display:flex; gap:10px; }
+        .btn-group button { flex:1; }
+
+        #go-btn-lv {
             background:linear-gradient(180deg,#ff9920 0%,#ff6600 100%);
-            border:1px solid rgba(255,180,80,0.5);
-            color:#1a0800; font-family:'Orbitron',sans-serif;
-            font-size:.85rem; font-weight:700; letter-spacing:3px; text-transform:uppercase;
-            padding:14px 22px; width:100%; cursor:pointer; border-radius:3px;
+            border:1px solid rgba(255,180,80,0.5); color:#1a0800;
+            font-family:'Orbitron',sans-serif; font-size:.72rem; font-weight:700;
+            letter-spacing:2px; text-transform:uppercase;
+            padding:14px 8px; cursor:pointer; border-radius:3px;
             transition:all .25s cubic-bezier(.2,.9,.3,1);
-            box-shadow:0 4px 18px rgba(255,100,0,0.35), inset 0 1px 0 rgba(255,220,150,0.35);
+            box-shadow:0 4px 18px rgba(255,100,0,0.35),inset 0 1px 0 rgba(255,220,150,0.35);
+            line-height:1.3;
         }
-        #go-btn:hover:not(:disabled)  { transform:translateY(-1px); box-shadow:0 8px 24px rgba(255,100,0,0.5), inset 0 1px 0 rgba(255,220,150,0.5); }
-        #go-btn:active:not(:disabled) { transform:translateY(0); }
-        #go-btn:disabled { background:#2a1810; color:#6a5848; border-color:#3a2820; cursor:not-allowed; box-shadow:none; }
+        #go-btn-lv:hover:not(:disabled)  { transform:translateY(-1px); box-shadow:0 8px 24px rgba(255,100,0,0.5),inset 0 1px 0 rgba(255,220,150,0.5); }
+        #go-btn-lv:active:not(:disabled) { transform:translateY(0); }
+        #go-btn-lv:disabled { background:#2a1810; color:#6a5848; border-color:#3a2820; cursor:not-allowed; box-shadow:none; }
+
+        #go-btn-wi {
+            background:linear-gradient(180deg,#25dd96 0%,#0faa68 100%);
+            border:1px solid rgba(50,220,140,0.5); color:#001a0e;
+            font-family:'Orbitron',sans-serif; font-size:.72rem; font-weight:700;
+            letter-spacing:2px; text-transform:uppercase;
+            padding:14px 8px; cursor:pointer; border-radius:3px;
+            transition:all .25s cubic-bezier(.2,.9,.3,1);
+            box-shadow:0 4px 18px rgba(0,180,100,0.3),inset 0 1px 0 rgba(180,255,220,0.3);
+            line-height:1.3;
+        }
+        #go-btn-wi:hover:not(:disabled)  { transform:translateY(-1px); box-shadow:0 8px 24px rgba(0,200,120,0.45),inset 0 1px 0 rgba(180,255,220,0.5); }
+        #go-btn-wi:active:not(:disabled) { transform:translateY(0); }
+        #go-btn-wi:disabled { background:#0a1a12; color:#2a4a38; border-color:#1a3028; cursor:not-allowed; box-shadow:none; }
+
+        .btn-or { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+        .btn-or span { font-size:.45rem; letter-spacing:2px; color:var(--dim); text-transform:uppercase; }
+        .btn-or-line { width:1px; height:22px; background:rgba(255,140,0,0.15); }
 
         #cooldown-box { display:none; margin-top:14px; }
         #cooldown-box.show { display:block; }
-        #cooldown-timer {
-            font-family:'Orbitron',sans-serif; font-size:1.35rem; font-weight:700; letter-spacing:3px;
-            color:var(--orange); text-shadow:0 0 14px var(--orange-glow);
-            padding:10px; border-radius:3px;
-            background:rgba(255,140,0,0.06);
-            border:1px solid rgba(255,140,0,0.18);
-        }
-        .cd-label { font-size:.5rem; letter-spacing:3px; color:rgba(255,140,0,0.45); text-transform:uppercase; margin-bottom:8px; }
+        .cd-label    { font-size:.5rem; letter-spacing:3px; color:rgba(255,140,0,0.45); text-transform:uppercase; margin-bottom:8px; }
+        #cooldown-timer { font-family:'Orbitron',sans-serif; font-size:1.35rem; font-weight:700; letter-spacing:3px; color:var(--orange); text-shadow:0 0 14px var(--orange-glow); padding:10px; border-radius:3px; background:rgba(255,140,0,0.06); border:1px solid rgba(255,140,0,0.18); }
 
         .footer { margin-top:24px; display:flex; justify-content:center; align-items:center; gap:10px; }
         .fi { font-size:.45rem; letter-spacing:1.5px; color:#1a0e06; text-transform:uppercase; }
@@ -149,12 +145,16 @@
 
     <div class="info-line">
         Complete <strong>1 short ad</strong> to receive your<br>
-        <strong>24-hour access key</strong>
+        <strong>24-hour access key</strong> — choose your provider
     </div>
 
     <div id="status"><span class="sdot"></span><span id="status-txt">Initializing...</span></div>
 
-    <button id="go-btn" type="button" disabled>[ Loading... ]</button>
+    <div class="btn-group">
+        <button id="go-btn-lv" type="button" disabled>Linkvertise</button>
+        <div class="btn-or"><div class="btn-or-line"></div><span>or</span><div class="btn-or-line"></div></div>
+        <button id="go-btn-wi" type="button" disabled>Work.ink</button>
+    </div>
 
     <div id="cooldown-box">
         <div class="cd-label">▸ Next Key Available In</div>
@@ -172,301 +172,183 @@
 (() => {
     'use strict';
 
-    /* ═══════════════════════════════════════
-       CONFIG — MUST MATCH index.html
-    ═══════════════════════════════════════ */
-    const API              = "https://rezurx-backend.onrender.com";
-    const LINKVERTISE_URL  = "https://link-center.net/5011888/q763gg8u5DCT";
-    const SESSION_KEY      = 'rzx_session_v3';
-    const COOLDOWN_KEY     = 'rzx_cooldown_v3';
-    const COOLDOWN_MS      = 10 * 60 * 60 * 1000;     // 10 hours
-    const SESSION_TTL_MS   = 30 * 60 * 1000;          // 30 minutes
-    const BIND_SECRET      = 'rzx_fp_bind_9x2';
+    const API             = "https://rezurx-backend.onrender.com";
+    const WORKINK_URL     = "https://work.ink/2hdZ/keysystem";
+    const SESSION_KEY     = 'rzx_session_v3';
+    const COOLDOWN_KEY    = 'rzx_cooldown_v3';
+    const COOLDOWN_MS     = 10 * 60 * 60 * 1000;
+    const BIND_SECRET     = 'rzx_fp_bind_9x2';
 
-    /* ═══════════════════════════════════════
-       DOM
-    ═══════════════════════════════════════ */
-    const goBtn      = document.getElementById('go-btn');
+    const goBtnLv    = document.getElementById('go-btn-lv');
+    const goBtnWi    = document.getElementById('go-btn-wi');
     const statusEl   = document.getElementById('status');
     const statusTx   = document.getElementById('status-txt');
     const cooldownBx = document.getElementById('cooldown-box');
     const cooldownTm = document.getElementById('cooldown-timer');
 
-    /* ═══════════════════════════════════════
-       BROWSER FINGERPRINT
-    ═══════════════════════════════════════ */
     async function getFingerprint() {
-        const nav = navigator;
-        const scr = screen;
+        const nav = navigator, scr = screen;
         let canvasHash = 'nc';
         try {
             const cv = document.createElement('canvas');
             cv.width = 180; cv.height = 40;
             const cx = cv.getContext('2d');
-            cx.font = '13px Arial';
-            cx.fillStyle = '#ff8c00';
+            cx.font = '13px Arial'; cx.fillStyle = '#ff8c00';
             cx.fillText('RezurX🔥fp', 2, 20);
-            cx.fillStyle = 'rgba(0,200,100,0.7)';
-            cx.fillRect(8, 26, 60, 8);
+            cx.fillStyle = 'rgba(0,200,100,0.7)'; cx.fillRect(8,26,60,8);
             canvasHash = cv.toDataURL().slice(-48);
         } catch (_) {}
-
-        const raw = [
-            nav.userAgent,
-            nav.language,
-            nav.hardwareConcurrency || 0,
-            nav.maxTouchPoints || 0,
-            scr.colorDepth,
-            scr.width + 'x' + scr.height,
-            Intl.DateTimeFormat().resolvedOptions().timeZone,
-            nav.platform || '',
-            canvasHash,
-            BIND_SECRET,
-        ].join('|');
-
+        const raw = [nav.userAgent,nav.language,nav.hardwareConcurrency||0,nav.maxTouchPoints||0,
+            scr.colorDepth,scr.width+'x'+scr.height,Intl.DateTimeFormat().resolvedOptions().timeZone,
+            nav.platform||'',canvasHash,BIND_SECRET].join('|');
         const buf  = new TextEncoder().encode(raw);
         const hash = await crypto.subtle.digest('SHA-256', buf);
-        return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,'0')).join('');
+        return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
     }
 
-    /* ═══════════════════════════════════════
-       STORAGE
-    ═══════════════════════════════════════ */
-    function saveSession(token, fp) {
-        const data = { token, fp, ts: Date.now() };
-        try {
-            localStorage.setItem(SESSION_KEY, JSON.stringify(data));
-            console.log('[RezurX] Session stored:', { token: token.slice(0,12)+'...', fp: fp.slice(0,12)+'...' });
-        } catch (e) {
-            console.error('[RezurX] Storage failed:', e);
-        }
+    function saveSession(token, fp, provider) {
+        try { localStorage.setItem(SESSION_KEY, JSON.stringify({ token, fp, ts: Date.now(), provider })); }
+        catch (e) { console.error('[RezurX] Storage failed:', e); }
     }
     function getCooldown() {
         try {
             const raw = localStorage.getItem(COOLDOWN_KEY);
             if (!raw) return 0;
-            const data = JSON.parse(raw);
-            const elapsed = Date.now() - data.ts;
-            return Math.max(0, COOLDOWN_MS - elapsed);
+            return Math.max(0, COOLDOWN_MS - (Date.now() - JSON.parse(raw).ts));
         } catch (_) { return 0; }
     }
 
-    /* ═══════════════════════════════════════
-       UI
-    ═══════════════════════════════════════ */
     function setStatus(msg, type='') { statusTx.textContent = msg; statusEl.className = type; }
-    function setBtn(text, disabled) { goBtn.textContent = text; goBtn.disabled = disabled; }
-
+    function setBtns(disabled, lvTxt, wiTxt) {
+        goBtnLv.textContent = lvTxt || 'Linkvertise';
+        goBtnWi.textContent = wiTxt || 'Work.ink';
+        goBtnLv.disabled = disabled;
+        goBtnWi.disabled = disabled;
+    }
     function fmtTime(ms) {
-        const s = Math.floor(ms / 1000);
-        const h = Math.floor(s / 3600);
-        const m = Math.floor((s % 3600) / 60);
-        const sec = s % 60;
-        return [h,m,sec].map(n => String(n).padStart(2,'0')).join(':');
+        const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;
+        return [h,m,sec].map(n=>String(n).padStart(2,'0')).join(':');
     }
 
-    /* ═══════════════════════════════════════
-       FETCH WITH TIMEOUT
-    ═══════════════════════════════════════ */
     async function fetchT(url, opts={}, ms=15000) {
         const ctrl = new AbortController();
-        const tid  = setTimeout(() => ctrl.abort(), ms);
-        try {
-            return await fetch(url, { ...opts, signal: ctrl.signal, mode:'cors', credentials:'omit' });
-        } finally { clearTimeout(tid); }
+        const tid  = setTimeout(()=>ctrl.abort(), ms);
+        try { return await fetch(url, {...opts, signal:ctrl.signal, mode:'cors', credentials:'omit'}); }
+        finally { clearTimeout(tid); }
     }
 
-    /* ═══════════════════════════════════════
-       COOLDOWN TIMER
-    ═══════════════════════════════════════ */
     let cdInterval = null;
     function startCooldown() {
         cooldownBx.classList.add('show');
         const tick = () => {
             const left = getCooldown();
-            if (left <= 0) {
-                clearInterval(cdInterval);
-                cooldownBx.classList.remove('show');
-                init();
-                return;
-            }
+            if (left <= 0) { clearInterval(cdInterval); cooldownBx.classList.remove('show'); init(); return; }
             cooldownTm.textContent = fmtTime(left);
         };
-        tick();
-        cdInterval = setInterval(tick, 1000);
-        setBtn('[ Cooldown Active ]', true);
+        tick(); cdInterval = setInterval(tick, 1000);
+        setBtns(true, 'Cooldown Active', 'Cooldown Active');
         setStatus('On Cooldown', 'amber');
     }
 
-    /* ═══════════════════════════════════════
-       INIT
-    ═══════════════════════════════════════ */
     async function init() {
         if (getCooldown() > 0) { startCooldown(); return; }
-
         setStatus('Waking server...', 'amber');
-        setBtn('[ Connecting... ]', true);
-
+        setBtns(true, 'Connecting...', 'Connecting...');
         try {
             await fetchT(API + '/health', { method:'GET', cache:'no-store' }, 30000);
             setStatus('● System Online', 'green');
-            setBtn('[ Get Key (1 Ad) ]', false);
         } catch (_) {
             setStatus('● Server Slow — Try Anyway', 'amber');
-            setBtn('[ Get Key (1 Ad) ]', false);
         }
+        setBtns(false);
     }
 
-    /* ═══════════════════════════════════════
-       BUTTON HANDLER
-    ═══════════════════════════════════════ */
-    goBtn.addEventListener('click', async () => {
+    async function handleClick(provider) {
         setStatus('Generating session token...', 'amber');
-        setBtn('[ Please Wait... ]', true);
+        setBtns(true, 'Please Wait...', 'Please Wait...');
 
         try {
-            const fp = await getFingerprint();
-            console.log('[RezurX] Fingerprint:', fp.slice(0,16)+'...');
-
+            const fp  = await getFingerprint();
             const res = await fetchT(API + '/api/initiate-session', {
-                method:'POST',
-                headers:{ 'Content-Type':'application/json', 'Accept':'application/json' },
-                body: JSON.stringify({ fp }),
+                method: 'POST',
+                headers: { 'Content-Type':'application/json', 'Accept':'application/json' },
+                body:   JSON.stringify({ fp }),
             }, 20000);
 
             const data = await res.json().catch(() => ({}));
-            if (!res.ok || !data.token) {
-                throw new Error(data.error || 'Failed to create session');
-            }
+            if (!res.ok || !data.token) throw new Error(data.error || 'Failed to create session');
 
-            saveSession(data.token, fp);
-
+            saveSession(data.token, fp, provider);
             setStatus('● Redirecting to ad...', 'green');
-            setBtn('[ Opening Linkvertise... ]', true);
 
-            // Append token to Linkvertise URL — Linkvertise will pass it
-            // through to your postback so the backend knows which session
-            // to mark as completed.
-            const sep = LINKVERTISE_URL.includes('?') ? '&' : '?';
-            const finalUrl = LINKVERTISE_URL + sep + 'token=' + encodeURIComponent(data.token);
-            console.log('[RezurX] Redirecting to:', finalUrl);
-
-            setTimeout(() => {
-                window.location.href = finalUrl;
-            }, 600);
+            if (provider === 'linkvertise') {
+                setTimeout(() => {
+                    window.location.href = 'ad.html?token=' + encodeURIComponent(data.token);
+                }, 600);
+            } else {
+                setTimeout(() => { window.location.href = WORKINK_URL; }, 600);
+            }
 
         } catch (err) {
-            console.error('[RezurX] Init session error:', err);
+            console.error('[RezurX] Error:', err);
             setStatus('● ' + (err.message || 'Error'), 'red');
-            setBtn('[ Try Again ]', false);
+            setBtns(false);
         }
-    });
+    }
 
-    /* ═══════════════════════════════════════
-       BROADCAST — listen for key issued in another tab
-    ═══════════════════════════════════════ */
+    goBtnLv.addEventListener('click', () => handleClick('linkvertise'));
+    goBtnWi.addEventListener('click', () => handleClick('workink'));
+
     try {
         const bc = new BroadcastChannel('rzx_channel');
-        bc.onmessage = (ev) => {
-            if (ev.data === 'key_issued') {
-                clearInterval(cdInterval);
-                startCooldown();
-            }
-        };
+        bc.onmessage = (ev) => { if (ev.data==='key_issued') { clearInterval(cdInterval); startCooldown(); } };
     } catch (_) {}
 
-    /* ═══════════════════════════════════════
-       DIAGNOSTIC
-    ═══════════════════════════════════════ */
     window.__rezurxDiag = function() {
         try {
             const raw = localStorage.getItem(SESSION_KEY);
             console.log('═══ RezurX Diagnostic ═══');
-            console.log('SESSION_KEY:', SESSION_KEY);
-            console.log('Stored:', raw);
             if (raw) {
                 const d = JSON.parse(raw);
-                const age = Math.round((Date.now() - d.ts)/1000);
-                console.log('Token:', d.token?.slice(0,16)+'...');
-                console.log('FP:', d.fp?.slice(0,16)+'...');
-                console.log('Age (s):', age, '(TTL: ' + (SESSION_TTL_MS/1000) + 's)');
-                console.log('Expired:', age*1000 > SESSION_TTL_MS);
+                console.log('Token:   ', d.token?.slice(0,16)+'...');
+                console.log('Provider:', d.provider);
+                console.log('Age (s): ', Math.round((Date.now()-d.ts)/1000));
             }
-            console.log('Cooldown remaining:', fmtTime(getCooldown()));
+            console.log('Cooldown:', fmtTime(getCooldown()));
         } catch (e) { console.error(e); }
     };
-    console.log('[RezurX] Diagnostic available — run __rezurxDiag() in console');
+    console.log('[RezurX] Diagnostic: run __rezurxDiag()');
 
     init();
 
-    /* ═══════════════════════════════════════
-       LAVA BACKGROUND
-    ═══════════════════════════════════════ */
+    /* ── Lava background ── */
     (function () {
         const cv  = document.getElementById('lava-canvas');
         const ctx = cv.getContext('2d');
         function resize() { cv.width = innerWidth; cv.height = innerHeight; }
         resize(); window.addEventListener('resize', resize);
-
         const pal = [[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0],[255,140,0],[200,50,0],[255,100,5]];
-        const rnd = (a, b) => a + Math.random() * (b - a);
-
+        const rnd = (a,b) => a+Math.random()*(b-a);
         function mk(init) {
-            const c = pal[Math.floor(Math.random() * pal.length)];
-            const sp = cv.width * .25;
-            return {
-                x: cv.width * .5 + rnd(-sp, sp),
-                y: init ? rnd(-cv.height, 0) : rnd(-80, 0),
-                vy: rnd(1.5, 3.8), vx: rnd(-.8, .8),
-                radius: rnd(4, 14), tail: [], maxTail: Math.floor(rnd(14, 32)),
-                r: c[0], g: c[1], b: c[2], alpha: rnd(.5, .95),
-                wobble: rnd(0, Math.PI*2), wobbleSpd: rnd(.008, .05), wobbleAmp: rnd(.3, 1.8),
-            };
+            const c=pal[Math.floor(Math.random()*pal.length)],sp=cv.width*.25;
+            return {x:cv.width*.5+rnd(-sp,sp),y:init?rnd(-cv.height,0):rnd(-80,0),vy:rnd(1.5,3.8),vx:rnd(-.8,.8),radius:rnd(4,14),tail:[],maxTail:Math.floor(rnd(14,32)),r:c[0],g:c[1],b:c[2],alpha:rnd(.5,.95),wobble:rnd(0,Math.PI*2),wobbleSpd:rnd(.008,.05),wobbleAmp:rnd(.3,1.8)};
         }
-
-        const drops = [];
-        for (let i = 0; i < 100; i++) drops.push(mk(true));
-
+        const drops=[];
+        for(let i=0;i<100;i++) drops.push(mk(true));
         function drawDrop(d) {
-            const { x, y, radius: rd, r, g, b, alpha, tail } = d;
-            for (let i = 0; i < tail.length; i++) {
-                const t = tail[i], pct = i / tail.length;
-                const a = alpha * pct * .4, rad = rd * pct * .65;
-                if (rad < .5 || a < .01) continue;
-                ctx.beginPath(); ctx.arc(t.x, t.y, rad, 0, Math.PI*2);
-                ctx.fillStyle = `rgba(${r},${g},${b},${a})`; ctx.fill();
-            }
-            const gr = ctx.createRadialGradient(x, y, 0, x, y, rd*5);
-            gr.addColorStop(0, `rgba(${r},${g},${b},${alpha*.45})`);
-            gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
-            ctx.beginPath(); ctx.arc(x, y, rd*5, 0, Math.PI*2);
-            ctx.fillStyle = gr; ctx.fill();
-            const gm = ctx.createRadialGradient(x - rd*.3, y - rd*.35, 0, x, y, rd);
-            gm.addColorStop(0,   `rgba(255,220,140,${alpha*.9})`);
-            gm.addColorStop(.35, `rgba(${r},${g},${b},${alpha})`);
-            gm.addColorStop(1,   `rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
-            ctx.beginPath(); ctx.arc(x, y, rd, 0, Math.PI*2);
-            ctx.fillStyle = gm; ctx.fill();
-            ctx.beginPath(); ctx.arc(x - rd*.3, y - rd*.32, rd*.25, 0, Math.PI*2);
-            ctx.fillStyle = `rgba(255,255,240,${alpha*.7})`; ctx.fill();
+            const {x,y,radius:rd,r,g,b,alpha,tail}=d;
+            for(let i=0;i<tail.length;i++){const t=tail[i],pct=i/tail.length,a=alpha*pct*.4,rad=rd*pct*.65;if(rad<.5||a<.01)continue;ctx.beginPath();ctx.arc(t.x,t.y,rad,0,Math.PI*2);ctx.fillStyle=`rgba(${r},${g},${b},${a})`;ctx.fill();}
+            const gr=ctx.createRadialGradient(x,y,0,x,y,rd*5);gr.addColorStop(0,`rgba(${r},${g},${b},${alpha*.45})`);gr.addColorStop(1,`rgba(${r},${g},${b},0)`);ctx.beginPath();ctx.arc(x,y,rd*5,0,Math.PI*2);ctx.fillStyle=gr;ctx.fill();
+            const gm=ctx.createRadialGradient(x-rd*.3,y-rd*.35,0,x,y,rd);gm.addColorStop(0,`rgba(255,220,140,${alpha*.9})`);gm.addColorStop(.35,`rgba(${r},${g},${b},${alpha})`);gm.addColorStop(1,`rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);ctx.beginPath();ctx.arc(x,y,rd,0,Math.PI*2);ctx.fillStyle=gm;ctx.fill();
+            ctx.beginPath();ctx.arc(x-rd*.3,y-rd*.32,rd*.25,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,240,${alpha*.7})`;ctx.fill();
         }
-
         function animate() {
-            ctx.clearRect(0, 0, cv.width, cv.height);
-            for (const d of drops) {
-                d.wobble += d.wobbleSpd;
-                d.x += Math.sin(d.wobble) * d.wobbleAmp + d.vx;
-                d.y += d.vy;
-                d.tail.push({ x: d.x, y: d.y });
-                if (d.tail.length > d.maxTail) d.tail.shift();
-                drawDrop(d);
-                if (d.y - d.radius > cv.height + 20) { Object.assign(d, mk(false)); d.tail = []; }
-            }
+            ctx.clearRect(0,0,cv.width,cv.height);
+            for(const d of drops){d.wobble+=d.wobbleSpd;d.x+=Math.sin(d.wobble)*d.wobbleAmp+d.vx;d.y+=d.vy;d.tail.push({x:d.x,y:d.y});if(d.tail.length>d.maxTail)d.tail.shift();drawDrop(d);if(d.y-d.radius>cv.height+20){Object.assign(d,mk(false));d.tail=[];}}
             requestAnimationFrame(animate);
         }
         animate();
     })();
-
 })();
 </script>
 </body>
