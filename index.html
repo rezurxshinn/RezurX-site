@@ -37,9 +37,6 @@
             -webkit-font-smoothing:antialiased;
         }
 
-        /* ════════════════════════════════════
-           BACKGROUND
-        ════════════════════════════════════ */
         #lava-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; }
 
         .atmos {
@@ -87,9 +84,7 @@
         }
         #confetti-canvas { position:fixed; inset:0; z-index:999; pointer-events:none; }
 
-        /* ════════════════════════════════════
-           LOADING OVERLAY
-        ════════════════════════════════════ */
+        /* Loading overlay */
         #loading-overlay {
             display:none;
             position:fixed; inset:0; z-index:500;
@@ -153,9 +148,7 @@
         }
         #ov-substatus { font-size:.6rem; letter-spacing:2.5px; color:var(--dim); text-transform:uppercase; min-height:1em; font-weight:300; }
 
-        /* ════════════════════════════════════
-           PANEL
-        ════════════════════════════════════ */
+        /* Panel */
         .panel {
             position:relative; z-index:10;
             background:linear-gradient(180deg,rgba(20,8,0,0.96) 0%,rgba(8,3,0,0.96) 100%);
@@ -188,7 +181,6 @@
         .c-bl { bottom:-1px; left:-1px;  border-bottom:2px solid var(--orange-bright); border-left:2px solid var(--orange-bright);  border-radius:0 0 0 4px; filter:drop-shadow(0 0 4px var(--orange-glow)); }
         .c-br { bottom:-1px; right:-1px; border-bottom:2px solid var(--orange-bright); border-right:2px solid var(--orange-bright); border-radius:0 0 4px 0; filter:drop-shadow(0 0 4px var(--orange-glow)); }
 
-        /* ── LOGO AURA ── */
         .logo-wrap { position:relative; display:inline-block; margin-bottom:0; }
 
         .logo-wrap::before {
@@ -263,7 +255,6 @@
             background:var(--orange); box-shadow:0 0 10px var(--orange-glow);
         }
 
-        /* Status */
         #status {
             font-size:.7rem; letter-spacing:2.5px; text-transform:uppercase;
             color:var(--dim); margin-bottom:24px;
@@ -282,7 +273,6 @@
         #status.amber { color:var(--orange-bright); }
         #status.amber .sdot { background:var(--orange); box-shadow:0 0 12px var(--orange-glow); }
 
-        /* Key box */
         #key-box { display:none; }
         #key-box.show { display:block; animation:slideUp .65s cubic-bezier(.22,1,.36,1) both; }
         @keyframes slideUp { from{opacity:0;transform:translateY(18px) scale(.97);} to{opacity:1;transform:none;} }
@@ -339,7 +329,6 @@
         #copy-btn:active { transform:translateY(0); }
         #copy-btn.copied { color:var(--green); background:rgba(0,255,136,0.15); border-color:rgba(0,255,136,0.6); box-shadow:0 0 20px rgba(0,255,136,0.3); }
 
-        /* Error box */
         #error-box { display:none; }
         #error-box.show { display:block; animation:slideUp .4s ease both; }
 
@@ -376,7 +365,6 @@
 </head>
 <body>
 
-<!-- Loading overlay -->
 <div id="loading-overlay">
     <div class="ov-brand">
         <div class="ov-logo">REZURXLAB</div>
@@ -390,7 +378,6 @@
     </div>
 </div>
 
-<!-- Background -->
 <canvas id="lava-canvas"></canvas>
 <div class="atmos"></div>
 <div class="vignette"></div>
@@ -400,7 +387,6 @@
 <div class="noise"></div>
 <canvas id="confetti-canvas"></canvas>
 
-<!-- Panel -->
 <div class="panel">
     <div class="c c-tl"></div><div class="c c-tr"></div>
     <div class="c c-bl"></div><div class="c c-br"></div>
@@ -417,7 +403,6 @@
 
     <div id="status"><span class="sdot"></span><span id="status-txt">Verifying session...</span></div>
 
-    <!-- Key display -->
     <div id="key-box">
         <div class="key-header">
             <div class="key-icon"></div>
@@ -428,7 +413,6 @@
         <button id="copy-btn" type="button">[ Copy to Clipboard ]</button>
     </div>
 
-    <!-- Error display -->
     <div id="error-box">
         <div class="error-header">
             <div class="error-icon"></div>
@@ -452,10 +436,12 @@
     /* ═══════════════════════════════════════
        CONFIG — must match start.html
     ═══════════════════════════════════════ */
-    const API         = "https://rezurx-backend.onrender.com";
-    const SESSION_KEY = 'rzx_session_v3';   // ← matches start.html
-    const TOKEN_RE    = /^[a-f0-9]{16,128}$/i;
-    const HASH_RE     = /^[A-Za-z0-9_\-=.#]{6,512}$/;
+    const API           = "https://rezurx-backend.onrender.com";
+    const SESSION_KEY   = 'rzx_session_v3';
+    const COOLDOWN_KEY  = 'rzx_cooldown_v3';
+    const TOKEN_RE      = /^[a-f0-9]{16,128}$/i;
+    const POLL_INTERVAL = 3000;            // 3 seconds between polls
+    const POLL_TIMEOUT  = 4 * 60 * 1000;   // 4 minutes max polling time
 
     /* ═══════════════════════════════════════
        DOM
@@ -476,8 +462,7 @@
     let currentKey = '';
 
     /* ═══════════════════════════════════════
-       STORAGE — reads the JSON object written
-       by start.html under SESSION_KEY
+       STORAGE
     ═══════════════════════════════════════ */
     function loadSession() {
         try {
@@ -490,14 +475,18 @@
                 localStorage.removeItem(SESSION_KEY);
                 return { expired: true };
             }
-            return data; // { token, fp, ts }
-        } catch (_) {
-            return null;
-        }
+            return data;
+        } catch (_) { return null; }
     }
 
     function clearSession() {
         try { localStorage.removeItem(SESSION_KEY); } catch (_) {}
+    }
+
+    function setCooldown() {
+        try {
+            localStorage.setItem(COOLDOWN_KEY, JSON.stringify({ ts: Date.now() }));
+        } catch (_) {}
     }
 
     /* ═══════════════════════════════════════
@@ -565,137 +554,141 @@
     copyBtn.addEventListener('click', copyKey);
 
     /* ═══════════════════════════════════════
-       MAIN — auto-verifies on page load
+       POLL FOR KEY
+    ═══════════════════════════════════════ */
+    async function pollForKey(token, fp) {
+        const startTime = Date.now();
+        let attempt = 0;
+
+        while (Date.now() - startTime < POLL_TIMEOUT) {
+            attempt++;
+            const elapsed = Date.now() - startTime;
+            const elapsedSec = Math.floor(elapsed / 1000);
+
+            // Animate progress bar from 30% to 95% over the polling period
+            const progressPct = Math.min(95, 30 + (elapsed / POLL_TIMEOUT) * 65);
+
+            // Cycle through engaging status messages
+            const messages = [
+                { status: 'Waiting for ad completion...',  sub: `Polling backend (${elapsedSec}s elapsed)` },
+                { status: 'Checking verification...',      sub: `Attempt ${attempt} — please wait` },
+                { status: 'Almost there...',               sub: `Verifying with Linkvertise (${elapsedSec}s)` },
+                { status: 'Processing your reward...',     sub: `Server is working — hold on` },
+            ];
+            const m = messages[attempt % messages.length];
+            setOverlay(m.status, progressPct, m.sub);
+
+            try {
+                const url = API + '/api/retrieve-key?token=' + encodeURIComponent(token) +
+                            (fp ? '&fp=' + encodeURIComponent(fp) : '');
+                const res = await fetchT(url, { method: 'GET', cache: 'no-store' }, 10000);
+                const data = await res.json().catch(() => ({}));
+
+                console.log(`[RezurX] Poll attempt ${attempt} → status=${data.status}`);
+
+                if (data.status === 'ready' && data.key) {
+                    return { success: true, key: data.key, expiresAt: data.expiresAt };
+                }
+                if (data.status === 'failed') {
+                    return { success: false, error: 'AD VERIFICATION FAILED\n\n' + (data.error || 'The Linkvertise hash could not be verified. Please try again — make sure to complete the full ad without using bypassers.') };
+                }
+                if (data.status === 'forbidden') {
+                    return { success: false, error: 'BROWSER MISMATCH\n\nThis session was started in a different browser or tab. Please start over from the beginning.' };
+                }
+                if (data.status === 'not_found' || res.status === 404) {
+                    return { success: false, error: 'SESSION EXPIRED\n\nSessions last 30 minutes. Please return to the start page and try again.' };
+                }
+                // Still pending — continue polling
+            } catch (err) {
+                console.warn(`[RezurX] Poll attempt ${attempt} network error:`, err.message);
+                // Network errors are non-fatal — continue polling
+            }
+
+            await new Promise(r => setTimeout(r, POLL_INTERVAL));
+        }
+
+        return {
+            success: false,
+            error: 'TIMEOUT\n\nThe ad completion was not detected within 4 minutes.\n\nThis usually means:\n• The Linkvertise postback was not configured in your dashboard\n• The ad was not fully completed\n• You used a bypasser or skipped steps\n\nPlease try again from the start page.'
+        };
+    }
+
+    /* ═══════════════════════════════════════
+       MAIN
     ═══════════════════════════════════════ */
     window.addEventListener('load', async () => {
-        const params = new URLSearchParams(window.location.search);
-        const hash   = params.get('hash');
+        // Strip any URL params if present (we don't use them anymore)
+        if (window.location.search) {
+            window.history.replaceState({}, '', window.location.pathname);
+        }
 
-        // ── FIX: read the JSON session written by start.html ──
-        const session  = loadSession();
-        const tokenOk  = session && !session.expired && TOKEN_RE.test(session.token);
-        const token    = session ? session.token : null;
-        const hashOk   = hash && HASH_RE.test(hash);
+        const session = loadSession();
+        const tokenOk = session && !session.expired && TOKEN_RE.test(session.token);
 
-        /* ── INVALID SESSION ─────────────────── */
-        if (!hashOk || !tokenOk) {
-            let msg = '';
-            if (!hashOk && !tokenOk)
-                msg = 'No active session found.\n\nTo get a key you must go through the Linkvertise ad. Please return to start and follow the link.';
-            else if (!hashOk)
-                msg = 'Verification hash missing from URL.\n\nDo not navigate to this page directly. Complete the Linkvertise ad and you will be redirected here automatically.';
-            else if (session?.expired)
-                msg = 'Session expired.\n\nSessions last 30 minutes. Please start over from the beginning.';
-            else
-                msg = 'Session token missing or invalid.\n\nPlease start over from the beginning.';
-
+        if (!tokenOk) {
+            let msg;
+            if (!session) {
+                msg = 'NO ACTIVE SESSION\n\nTo get a key you must start from the beginning.\n\nReturn to the start page and click the button to begin.';
+            } else if (session.expired) {
+                msg = 'SESSION EXPIRED\n\nSessions last 30 minutes. Please start over from the beginning.';
+            } else {
+                msg = 'INVALID SESSION\n\nThe session token is malformed. Please start over from the beginning.';
+            }
             showError(msg);
             setStatus('SESSION INVALID', 'red');
             return;
         }
 
-        /* ── VALID — WIPE URL + AUTO-VERIFY ─── */
-        window.history.replaceState({}, '', window.location.pathname);
-
         showOverlay();
         setOverlay('Initializing...', 5, 'Establishing secure connection');
         setStatus('VERIFYING...', 'amber');
 
-        /* Step 1: Warmup /health */
-        setOverlay('Waking server...', 18, 'Connecting to Render backend');
+        // Warmup
+        setOverlay('Connecting to server...', 15, 'Waking backend');
         try {
-            const h = await fetchT(API + '/health', { method:'GET', cache:'no-store' }, 30000);
-            if (h.ok) {
-                const data = await h.json().catch(() => ({}));
-                const lvOk = data.lvBreaker !== 'open';
-                setOverlay(
-                    lvOk ? 'Server online' : 'Server online (LV circuit recovering)',
-                    28,
-                    lvOk ? 'All systems operational' : 'Linkvertise circuit resetting — may take a moment'
-                );
-            }
+            await fetchT(API + '/health', { method: 'GET', cache: 'no-store' }, 30000);
+            setOverlay('Server online', 25, 'Beginning verification...');
         } catch (_) {
-            setOverlay('Server slow...', 22, 'Proceeding anyway...');
+            setOverlay('Server slow...', 20, 'Proceeding anyway...');
         }
-        await new Promise(r => setTimeout(r, 350));
 
-        /* Step 2: Animated progress while fetch runs */
-        const steps = [
-            { pct: 42, status: 'Verifying with Linkvertise...',  sub: 'Checking ad completion hash...' },
-            { pct: 62, status: 'Confirming ad completion...',    sub: 'Anti-bypass validation in progress...' },
-            { pct: 80, status: 'Generating your key...',         sub: 'Almost done...' },
-        ];
-        let si = 0;
-        const stepTick = setInterval(() => {
-            if (si < steps.length) {
-                const s = steps[si++];
-                setOverlay(s.status, s.pct, s.sub);
-            }
-        }, 1400);
+        await new Promise(r => setTimeout(r, 400));
 
-        /* Step 3: POST /api/verify-linkvertise
-           FIX: pass session.fp so the fingerprint matches
-           exactly what start.html sent to /api/initiate-session */
-        try {
-            const res = await fetchT(
-                API + '/api/verify-linkvertise',
-                {
-                    method:  'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body:    JSON.stringify({ token, hash, fp: session.fp || '' }),
-                },
-                25000
-            );
+        // Poll until backend webhook fires and key is ready
+        setOverlay('Waiting for ad completion...', 30, 'This may take up to a minute');
 
-            clearInterval(stepTick);
-            const data = await res.json().catch(() => ({}));
+        const result = await pollForKey(session.token, session.fp || '');
 
-            if (res.status === 400) {
-                const msg = data.error || '';
-                if (msg.includes('fingerprint') || msg.includes('browser'))
-                    throw new Error('BROWSER MISMATCH\nThis session was started in a different browser or tab. Please start over.');
-                throw new Error('TOKEN ALREADY USED\nEach ad completion gives one key. Please go through the ad again to get a new key.');
-            }
-            if (res.status === 403) throw new Error('AD NOT COMPLETED\nPlease finish the full Linkvertise offer without skipping or using bypassers.');
-            if (res.status === 404) throw new Error('SESSION EXPIRED\nSessions last 30 minutes. Please start over from the beginning.');
-            if (res.status === 429) throw new Error('TOO MANY ATTEMPTS\nPlease wait a few minutes before trying again.');
-            if (res.status === 502) throw new Error('LINKVERTISE UNREACHABLE\nCould not contact the verification server. Please try again in a moment.');
-            if (!res.ok)            throw new Error((data.error || 'Server error ' + res.status) + '\n\nPlease try again shortly.');
-            if (!data.key)          throw new Error('Invalid response from server.\nPlease try again.');
-
-            /* ── SUCCESS ─────────────────────── */
-            setOverlay('Key generated!', 100, 'Opening your key...');
-            await new Promise(r => setTimeout(r, 750));
-
-            currentKey = data.key;
-            clearSession(); // one-time use — wipe immediately
-
-            keyVal.textContent = currentKey;
-            if (data.expiresAt) {
-                const exp    = new Date(data.expiresAt);
-                const msLeft = exp - Date.now();
-                const hLeft  = Math.round(msLeft / 3600000);
-                keyExp.textContent = `Expires: ${exp.toLocaleString('en-GB', { hour12: false })} (${hLeft}h remaining)`;
-            }
-
-            hideOverlay(() => {
-                keyBox.classList.add('show');
-                setStatus('✓ ACCESS GRANTED', 'green');
-                launchConfetti();
-                setTimeout(() => keyVal.focus(), 700);
-            });
-
-            // Notify other tabs (e.g. start.html) that a key was issued
-            try { new BroadcastChannel('rzx_channel').postMessage('key_issued'); } catch (_) {}
-
-        } catch (err) {
-            clearInterval(stepTick);
-            const isTimeout = err?.name === 'AbortError';
-            const msg = isTimeout
-                ? 'VERIFICATION TIMED OUT\nThe server took too long to respond. Please try going through the ad again.'
-                : (err.message || 'Verification failed. Please try again.');
-            hideOverlay(() => { showError(msg); });
+        if (!result.success) {
+            hideOverlay(() => { showError(result.error); });
+            return;
         }
+
+        // SUCCESS — display key
+        setOverlay('Key generated!', 100, 'Opening your key...');
+        await new Promise(r => setTimeout(r, 700));
+
+        currentKey = result.key;
+        clearSession();
+        setCooldown();
+
+        keyVal.textContent = currentKey;
+        if (result.expiresAt) {
+            const exp    = new Date(result.expiresAt);
+            const msLeft = exp - Date.now();
+            const hLeft  = Math.round(msLeft / 3600000);
+            keyExp.textContent = `Expires: ${exp.toLocaleString('en-GB', { hour12: false })} (${hLeft}h remaining)`;
+        }
+
+        hideOverlay(() => {
+            keyBox.classList.add('show');
+            setStatus('✓ ACCESS GRANTED', 'green');
+            launchConfetti();
+            setTimeout(() => keyVal.focus(), 700);
+        });
+
+        // Notify other tabs
+        try { new BroadcastChannel('rzx_channel').postMessage('key_issued'); } catch (_) {}
     });
 
     /* ═══════════════════════════════════════
