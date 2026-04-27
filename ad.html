@@ -162,6 +162,11 @@
 
     const SESSION_KEY = 'rzx_session_v3';
     const TOKEN_RE    = /^[a-f0-9]{16,128}$/i;
+    // FIX: The redirect URL must be the bare base URL only — NO fragment.
+    // Linkvertise appends ?hash=... as a query parameter. If a #fragment is
+    // already present, the browser treats ?hash as part of the fragment and
+    // window.location.search on the landing page comes back empty, so the
+    // hash is never received. Token recovery uses localStorage instead.
     const REDIRECT_BASE = 'https://rezurxshinn.github.io/RezurX-site/index.html';
 
     const statusEl = document.getElementById('status');
@@ -184,7 +189,7 @@
         const fromUrl = params.get('token');
         if (fromUrl && TOKEN_RE.test(fromUrl)) return fromUrl;
 
-        // 2. URL fragment fallback
+        // 2. URL fragment fallback (manual navigation edge case only)
         const hash = window.location.hash;
         if (hash) {
             const m = hash.match(/token=([a-f0-9]{16,128})/i);
@@ -209,21 +214,26 @@
     if (!token) {
         showError('NO SESSION TOKEN FOUND\n\nPlease return to the start page and click the Linkvertise button to begin.');
     } else {
-        // Re-store in localStorage as a safety net
+        // Ensure token is persisted in localStorage so index.html can recover it
+        // after the Linkvertise redirect (the redirect URL carries no fragment).
         try {
             const existing = localStorage.getItem(SESSION_KEY);
             if (!existing) {
-                // Store minimal session if not already stored
                 localStorage.setItem(SESSION_KEY, JSON.stringify({
                     token, fp: '', ts: Date.now(), provider: 'linkvertise'
                 }));
             }
         } catch (_) {}
 
-        // Build redirect URL with token in fragment (survives popups/new windows)
-        const redirectUrl = REDIRECT_BASE + '#token=' + encodeURIComponent(token);
+        // ── FIX: Use the bare base URL as the redirect target. ──────────────
+        // DO NOT append #token= here. Linkvertise will add ?hash=<value> as a
+        // query string. If a fragment (#) precedes the query string, browsers
+        // treat everything after # as the fragment, so ?hash never reaches
+        // window.location.search on index.html. The session token is already
+        // safely stored in localStorage and will be recovered there.
+        const redirectUrl = REDIRECT_BASE;
 
-        // Try to load the official Linkvertise embed
+        // Load the official Linkvertise embed
         const script = document.createElement('script');
         script.src = 'https://publisher.linkvertise.com/cdn/linkvertise.js';
         script.async = true;
@@ -251,16 +261,16 @@
         document.head.appendChild(script);
 
         function fallbackLink() {
-            // If embed fails, use a direct link with token in fragment
+            // Direct link fallback — token is in localStorage, no need for fragment
             lvLink.href = 'https://link-center.net/5011888/q763gg8u5DCT';
             lvLink.style.cssText = 'display:inline-block;padding:14px 28px;background:linear-gradient(180deg,#ff9920,#ff6600);color:#1a0800;font-family:Orbitron,sans-serif;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-decoration:none;border-radius:3px;font-size:.7rem;box-shadow:0 4px 18px rgba(255,100,0,0.35);';
             lvLink.textContent = '▸ Start Linkvertise Ad';
             setStatus('● Click the button to begin', 'amber');
         }
 
-        // Safety: also expose token in URL fragment of THIS page so a manual return preserves it
-        if (!window.location.hash.includes('token=')) {
-            history.replaceState(null, '', window.location.pathname + '#token=' + encodeURIComponent(token));
+        // Clean up URL — remove token param now that it's stored in localStorage
+        if (window.location.search.includes('token=')) {
+            history.replaceState(null, '', window.location.pathname);
         }
     }
 
