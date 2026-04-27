@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>RezurXLab – Verification</title>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            background: #060100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <script>
+        /* ═══════════════════════════════════════════════════════════
+           STEP 1 — Read the token from the URL and update localStorage
+           Runs before the Linkvertise script so the session is always
+           fresh when index.html polls the backend.
+        ═══════════════════════════════════════════════════════════ */
+        (function () {
+            const SESSION_KEY = 'rzx_session_v3';
+
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const token  = params.get('token');
+
+                if (!token) {
+                    // No token — nothing useful to store, let the ad play anyway
+                    console.warn('[RezurX] ad.html: no token in URL');
+                    return;
+                }
+
+                // Read the existing session (start.html already stored fp + ts)
+                let session = {};
+                try {
+                    const raw = localStorage.getItem(SESSION_KEY);
+                    if (raw) session = JSON.parse(raw);
+                } catch (_) {}
+
+                // Update / set the token and refresh the timestamp
+                session.token = token;
+                session.ts    = session.ts || Date.now(); // keep original ts if present
+
+                localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+                console.log('[RezurX] ad.html: session token stored →', token.slice(0, 16) + '...');
+
+            } catch (err) {
+                console.error('[RezurX] ad.html: storage error —', err);
+            }
+        })();
+    </script>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         STEP 2 — Load and run the Linkvertise Full-Page embed.
+         After the ad is complete, Linkvertise automatically redirects
+         the user to `redirect` with ?hash=... appended.
+         No dashboard configuration required.
+    ═══════════════════════════════════════════════════════════ -->
+    <script src="https://publisher.linkvertise.com/cdn/linkvertise.js"></script>
+    <script>
+        linkvertise(5011888, {
+            whitelist: [],
+            blacklist: [],
+            redirect: 'https://rezurxshinn.github.io/RezurX-site/index.html'
+        });
+    </script>
+
+</body>
+</html>
