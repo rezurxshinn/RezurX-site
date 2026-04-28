@@ -261,7 +261,7 @@
     const API          = "https://rezurx-backend.onrender.com";
     const SESSION_KEY  = 'rzx_session_v3';
     const HASH_RE      = /^[A-Za-z0-9_\-=.#]{6,512}$/;
-    const WITOKEN_RE   = /^[A-Za-z0-9_\-=+]{4,512}$/;  // allow base64-like chars, matches backend
+    const WITOKEN_RE   = /^[A-Za-z0-9_\-=+]{4,512}$/;  // updated: allows = and +
     const TOKEN_RE     = /^[a-f0-9]{16,128}$/i;
 
     const overlay      = document.getElementById('loading-overlay');
@@ -557,6 +557,3 @@
 </script>
 </body>
 </html>
-
-
-start.html
