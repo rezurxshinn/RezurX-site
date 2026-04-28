@@ -33,10 +33,10 @@
         }
 
         #lava-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; }
-        .atmos       { position:fixed; inset:0; z-index:1; pointer-events:none;
+        .atmos { position:fixed; inset:0; z-index:1; pointer-events:none;
             background:radial-gradient(ellipse 80% 45% at 50% 0%, rgba(255,90,0,0.20) 0%, transparent 60%),
                        radial-gradient(ellipse 100% 100% at 50% 50%, transparent 35%, rgba(0,0,0,0.75) 100%); }
-        .scanlines   { position:fixed; inset:0; z-index:2; pointer-events:none;
+        .scanlines { position:fixed; inset:0; z-index:2; pointer-events:none;
             background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.04) 3px,rgba(0,0,0,0.04) 4px); }
 
         .panel {
@@ -93,6 +93,7 @@
             background:rgba(0,0,0,0.3);
             border:1px dashed rgba(255,140,0,0.15);
             border-radius:4px; margin-bottom:16px;
+            display:flex; align-items:center; justify-content:center;
         }
 
         #error-box { display:none; }
@@ -139,14 +140,15 @@
     <div id="status"><span class="sdot"></span><span id="status-txt">Loading ad...</span></div>
 
     <div id="ad-container">
-        <a id="lv-link" href="https://link-center.net/5011888/q763gg8u5DCT" target="_blank" rel="noopener">
-            Click here to start the ad
+        <!-- Fallback link shown only if embed fails -->
+        <a id="lv-fallback" href="#" style="display:none;padding:14px 28px;background:linear-gradient(180deg,#ff9920,#ff6600);color:#1a0800;font-family:Orbitron,sans-serif;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-decoration:none;border-radius:3px;font-size:.7rem;box-shadow:0 4px 18px rgba(255,100,0,0.35);">
+            ▸ Start Linkvertise Ad
         </a>
     </div>
 
     <div id="error-box">
         <div class="err-msg" id="err-msg"></div>
-        <a href="https://rezurxshinn.github.io/RezurX-site/start.html" class="err-cta">[ ◂ Return to Start ]</a>
+        <a href="https://rezurxshinn.github.io/RezurX-site/index.html" class="err-cta">[ ◂ Return to Start ]</a>
     </div>
 
     <div class="footer">
@@ -160,45 +162,51 @@
 (() => {
     'use strict';
 
-    const SESSION_KEY = 'rzx_session_v3';
-    const TOKEN_RE    = /^[a-f0-9]{16,128}$/i;
+    const SESSION_KEY   = 'rzx_session_v3';
+    const TOKEN_RE      = /^[a-f0-9]{16,128}$/i;
+    // Linkvertise appends ?hash=... to this URL — must be bare, no fragment
     const REDIRECT_BASE = 'https://rezurxshinn.github.io/RezurX-site/index.html';
+    const PUBLISHER_ID  = 5011888;
 
-    const statusEl = document.getElementById('status');
-    const statusTx = document.getElementById('status-txt');
-    const errorBox = document.getElementById('error-box');
-    const errMsg   = document.getElementById('err-msg');
-    const lvLink   = document.getElementById('lv-link');
+    const statusEl   = document.getElementById('status');
+    const statusTx   = document.getElementById('status-txt');
+    const errorBox   = document.getElementById('error-box');
+    const errMsg     = document.getElementById('err-msg');
+    const lvFallback = document.getElementById('lv-fallback');
 
-    function setStatus(msg, type = '') { statusTx.textContent = msg; statusEl.className = type; }
+    function setStatus(msg, type = '') {
+        statusTx.textContent = msg;
+        statusEl.className   = type;
+    }
+
     function showError(msg) {
         errMsg.textContent = msg;
         errorBox.classList.add('show');
         setStatus('ERROR', 'red');
     }
 
-    /* ── Token retrieval ── */
+    /* ── Token retrieval (3 fallback layers) ── */
     function getToken() {
-        // 1. URL query parameter (primary, from start.html)
-        const params = new URLSearchParams(window.location.search);
-        const fromUrl = params.get('token');
+        // 1. URL query param — primary source from start.html/index.html
+        const params   = new URLSearchParams(window.location.search);
+        const fromUrl  = params.get('token');
         if (fromUrl && TOKEN_RE.test(fromUrl)) return fromUrl;
 
-        // 2. URL fragment fallback
-        const hash = window.location.hash;
-        if (hash) {
-            const m = hash.match(/token=([a-f0-9]{16,128})/i);
-            if (m) return m[1];
+        // 2. URL hash fragment — secondary fallback
+        const hashStr  = window.location.hash;
+        if (hashStr) {
+            const m = hashStr.match(/token=([a-f0-9]{16,128})/i);
+            if (m && m[1]) return m[1];
         }
 
-        // 3. localStorage fallback
+        // 3. localStorage — last resort if user refreshes page
         try {
             const raw = localStorage.getItem(SESSION_KEY);
             if (raw) {
                 const data = JSON.parse(raw);
-                if (data.token && TOKEN_RE.test(data.token)) return data.token;
+                if (data?.token && TOKEN_RE.test(data.token)) return data.token;
             }
-        } catch (_) {}
+        } catch (_) { /* ignore */ }
 
         return null;
     }
@@ -207,85 +215,150 @@
     const token = getToken();
 
     if (!token) {
-        showError('NO SESSION TOKEN FOUND\n\nPlease return to the start page and click the Linkvertise button to begin.');
+        showError(
+            'NO SESSION TOKEN FOUND\n\n' +
+            'Please return to the start page and click "Get Key" to begin a fresh session.'
+        );
     } else {
-        // Re-store in localStorage as a safety net
+        // Persist in localStorage so a page refresh doesn't lose the token
         try {
-            const existing = localStorage.getItem(SESSION_KEY);
-            if (!existing) {
-                // Store minimal session if not already stored
+            if (!localStorage.getItem(SESSION_KEY)) {
                 localStorage.setItem(SESSION_KEY, JSON.stringify({
-                    token, fp: '', ts: Date.now(), provider: 'linkvertise'
+                    token, ts: Date.now(), provider: 'linkvertise'
                 }));
             }
-        } catch (_) {}
+        } catch (_) { /* storage blocked */ }
 
-        // Build redirect URL – MUST be bare; Linkvertise appends ?hash= itself
-        const redirectUrl = REDIRECT_BASE;
+        // Expose token in hash so a manual back-navigation preserves it
+        if (!window.location.hash.includes('token=')) {
+            history.replaceState(
+                null, '',
+                window.location.pathname +
+                window.location.search +
+                '#token=' + encodeURIComponent(token)
+            );
+        }
 
-        // Try to load the official Linkvertise embed
-        const script = document.createElement('script');
-        script.src = 'https://publisher.linkvertise.com/cdn/linkvertise.js';
-        script.async = true;
-        script.onload = () => {
+        // Update fallback link href now that we have the token
+        lvFallback.href = `https://linkvertise.com/${PUBLISHER_ID}/rezurxlab?token=${token}`;
+
+        // Load Linkvertise embed script ONCE
+        const script   = document.createElement('script');
+        script.src     = 'https://publisher.linkvertise.com/cdn/linkvertise.js';
+        script.async   = true;
+
+        script.onload  = () => {
             try {
                 if (typeof linkvertise === 'function') {
-                    linkvertise(5011888, {
-                        whitelist: [],
+                    linkvertise(PUBLISHER_ID, {
+                        whitelist: [], // empty arrays = allow all, block none
                         blacklist: [],
-                        redirect: redirectUrl,
+                        redirect:  REDIRECT_BASE  // bare URL — Linkvertise appends ?hash=
                     });
                     setStatus('● Click the ad above to continue', 'green');
                 } else {
-                    fallbackLink();
+                    showFallback();
                 }
             } catch (e) {
                 console.error('[RezurX] Linkvertise embed error:', e);
-                fallbackLink();
+                showFallback();
             }
         };
+
         script.onerror = () => {
-            console.warn('[RezurX] Linkvertise script blocked or failed');
-            fallbackLink();
+            console.warn('[RezurX] Linkvertise script blocked or unavailable');
+            showFallback();
         };
+
         document.head.appendChild(script);
 
-        function fallbackLink() {
-            // If embed fails, use a direct link with token in fragment
-            lvLink.href = 'https://link-center.net/5011888/q763gg8u5DCT';
-            lvLink.style.cssText = 'display:inline-block;padding:14px 28px;background:linear-gradient(180deg,#ff9920,#ff6600);color:#1a0800;font-family:Orbitron,sans-serif;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-decoration:none;border-radius:3px;font-size:.7rem;box-shadow:0 4px 18px rgba(255,100,0,0.35);';
-            lvLink.textContent = '▸ Start Linkvertise Ad';
-            setStatus('● Click the button to begin', 'amber');
-        }
-
-        // Safety: also expose token in URL fragment of THIS page so a manual return preserves it
-        if (!window.location.hash.includes('token=')) {
-            history.replaceState(null, '', window.location.pathname + '#token=' + encodeURIComponent(token));
+        function showFallback() {
+            lvFallback.style.display = 'inline-block';
+            setStatus('● Click the button above to begin', 'amber');
         }
     }
 
     /* ── Lava background ── */
-    (function () {
+    (() => {
         const cv  = document.getElementById('lava-canvas');
         const ctx = cv.getContext('2d');
         function resize() { cv.width = innerWidth; cv.height = innerHeight; }
-        resize(); window.addEventListener('resize', resize);
-        const pal = [[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0],[255,140,0],[200,50,0]];
-        const rnd = (a,b) => a+Math.random()*(b-a);
-        function mk(init) {
-            const c=pal[Math.floor(Math.random()*pal.length)],sp=cv.width*.25;
-            return {x:cv.width*.5+rnd(-sp,sp),y:init?rnd(-cv.height,0):rnd(-80,0),vy:rnd(1.5,3.5),vx:rnd(-.7,.7),radius:rnd(4,12),tail:[],maxTail:Math.floor(rnd(12,28)),r:c[0],g:c[1],b:c[2],alpha:rnd(.5,.9),wobble:rnd(0,Math.PI*2),wobbleSpd:rnd(.008,.04),wobbleAmp:rnd(.3,1.5)};
+        resize();
+        window.addEventListener('resize', resize);
+
+        const pal = [
+            [255,80,0],[255,120,10],[255,60,0],[220,40,0],
+            [255,155,20],[180,30,0],[255,140,0],[200,50,0]
+        ];
+        const rnd = (a, b) => a + Math.random() * (b - a);
+
+        function mkDrop(init) {
+            const c  = pal[Math.floor(Math.random() * pal.length)];
+            const sp = cv.width * 0.25;
+            return {
+                x: cv.width * 0.5 + rnd(-sp, sp),
+                y: init ? rnd(-cv.height, 0) : rnd(-80, 0),
+                vy: rnd(1.5, 3.5), vx: rnd(-0.7, 0.7),
+                radius: rnd(4, 12), tail: [],
+                maxTail: Math.floor(rnd(12, 28)),
+                r: c[0], g: c[1], b: c[2],
+                alpha: rnd(0.5, 0.9),
+                wobble: rnd(0, Math.PI * 2),
+                wobbleSpd: rnd(0.008, 0.04),
+                wobbleAmp: rnd(0.3, 1.5),
+            };
         }
-        const drops=[]; for(let i=0;i<80;i++) drops.push(mk(true));
+
+        const drops = [];
+        for (let i = 0; i < 80; i++) drops.push(mkDrop(true));
+
         function drawDrop(d) {
-            const {x,y,radius:rd,r,g,b,alpha,tail}=d;
-            for(let i=0;i<tail.length;i++){const t=tail[i],pct=i/tail.length,a=alpha*pct*.4,rad=rd*pct*.6;if(rad<.5||a<.01)continue;ctx.beginPath();ctx.arc(t.x,t.y,rad,0,Math.PI*2);ctx.fillStyle=`rgba(${r},${g},${b},${a})`;ctx.fill();}
-            const gr=ctx.createRadialGradient(x,y,0,x,y,rd*4.5);gr.addColorStop(0,`rgba(${r},${g},${b},${alpha*.4})`);gr.addColorStop(1,`rgba(${r},${g},${b},0)`);ctx.beginPath();ctx.arc(x,y,rd*4.5,0,Math.PI*2);ctx.fillStyle=gr;ctx.fill();
-            const gm=ctx.createRadialGradient(x-rd*.3,y-rd*.35,0,x,y,rd);gm.addColorStop(0,`rgba(255,220,140,${alpha*.85})`);gm.addColorStop(.35,`rgba(${r},${g},${b},${alpha})`);gm.addColorStop(1,`rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);ctx.beginPath();ctx.arc(x,y,rd,0,Math.PI*2);ctx.fillStyle=gm;ctx.fill();
+            const { x, y, radius: rd, r, g, b, alpha, tail } = d;
+
+            for (let i = 0; i < tail.length; i++) {
+                const t   = tail[i];
+                const pct = i / tail.length;
+                const a   = alpha * pct * 0.4;
+                const rad = rd * pct * 0.6;
+                if (rad < 0.5 || a < 0.01) continue;
+                ctx.beginPath();
+                ctx.arc(t.x, t.y, rad, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
+                ctx.fill();
+            }
+
+            const gr = ctx.createRadialGradient(x, y, 0, x, y, rd * 4.5);
+            gr.addColorStop(0, `rgba(${r},${g},${b},${alpha * 0.4})`);
+            gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
+            ctx.beginPath();
+            ctx.arc(x, y, rd * 4.5, 0, Math.PI * 2);
+            ctx.fillStyle = gr;
+            ctx.fill();
+
+            const gm = ctx.createRadialGradient(x - rd * 0.3, y - rd * 0.35, 0, x, y, rd);
+            gm.addColorStop(0,   `rgba(255,220,140,${alpha * 0.85})`);
+            gm.addColorStop(0.35,`rgba(${r},${g},${b},${alpha})`);
+            gm.addColorStop(1,   `rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
+            ctx.beginPath();
+            ctx.arc(x, y, rd, 0, Math.PI * 2);
+            ctx.fillStyle = gm;
+            ctx.fill();
         }
+
         function animate() {
-            ctx.clearRect(0,0,cv.width,cv.height);
-            for(const d of drops){d.wobble+=d.wobbleSpd;d.x+=Math.sin(d.wobble)*d.wobbleAmp+d.vx;d.y+=d.vy;d.tail.push({x:d.x,y:d.y});if(d.tail.length>d.maxTail)d.tail.shift();drawDrop(d);if(d.y-d.radius>cv.height+20){Object.assign(d,mk(false));d.tail=[];}}
+            ctx.clearRect(0, 0, cv.width, cv.height);
+            for (const d of drops) {
+                d.wobble += d.wobbleSpd;
+                d.x      += Math.sin(d.wobble) * d.wobbleAmp + d.vx;
+                d.y      += d.vy;
+                d.tail.push({ x: d.x, y: d.y });
+                if (d.tail.length > d.maxTail) d.tail.shift();
+                drawDrop(d);
+                if (d.y - d.radius > cv.height + 20) {
+                    Object.assign(d, mkDrop(false));
+                    d.tail = [];
+                }
+            }
             requestAnimationFrame(animate);
         }
         animate();
