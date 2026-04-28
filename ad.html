@@ -220,8 +220,8 @@
             }
         } catch (_) {}
 
-        // Build redirect URL with token in fragment (survives popups/new windows)
-        const redirectUrl = REDIRECT_BASE;   // Linkvertise appends ?hash= itself
+        // Build redirect URL – MUST be bare; Linkvertise appends ?hash= itself
+        const redirectUrl = REDIRECT_BASE;
 
         // Try to load the official Linkvertise embed
         const script = document.createElement('script');
@@ -294,6 +294,3 @@
 </script>
 </body>
 </html>
-
-
-index.html
