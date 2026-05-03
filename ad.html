@@ -19,6 +19,7 @@
   --orange-deep:   #aa4400;
   --orange-glow:   rgba(255, 140, 0, 0.45);
   --gold:          #ffd700;
+  --gold-glow:     rgba(255, 215, 0, 0.6);
   --green:         #00ff88;
   --green-glow:    rgba(0, 255, 136, 0.45);
   --red:           #ff4455;
@@ -55,7 +56,6 @@ body {
   padding: 20px;
 }
 
-/* Atmospheric Layers */
 #lava-canvas {
   position: fixed;
   inset: 0;
@@ -122,7 +122,6 @@ body {
   50%      { opacity: 1;   }
 }
 
-/* Panel */
 .panel {
   position: relative;
   z-index: 10;
@@ -195,7 +194,6 @@ body {
   filter: drop-shadow(0 0 5px var(--orange-glow));
 }
 
-/* Header */
 .logo-eyebrow {
   font-size: 0.5rem;
   letter-spacing: 4px;
@@ -253,7 +251,6 @@ h1 {
   box-shadow: 0 0 10px var(--orange-glow);
 }
 
-/* Steps Box */
 .steps-box {
   background: linear-gradient(180deg, rgba(255, 140, 0, 0.07) 0%, rgba(255, 140, 0, 0.02) 100%);
   border: 1px solid rgba(255, 140, 0, 0.18);
@@ -296,7 +293,6 @@ h1 {
   font-weight: 600;
 }
 
-/* Timer Row */
 .timer-row {
   display: flex;
   justify-content: space-between;
@@ -334,7 +330,6 @@ h1 {
   50%      { opacity: 0.5; }
 }
 
-/* TOTP Indicator */
 .totp-row {
   display: flex;
   justify-content: space-between;
@@ -376,7 +371,6 @@ h1 {
   50%      { opacity: 0.4; }
 }
 
-/* Status */
 #status {
   font-size: 0.65rem;
   letter-spacing: 2px;
@@ -411,39 +405,197 @@ h1 {
 #status.amber .sdot { background: var(--orange); box-shadow: 0 0 10px var(--orange-glow); }
 #status.amber       { color: var(--orange-bright); }
 
-/* Ad Container */
+/* ═══════════════════════════════════════════════════════════════
+   IMPROVED CTA BUTTON
+   ═══════════════════════════════════════════════════════════════ */
 #ad-container {
   min-height: 90px;
-  padding: 14px;
+  padding: 6px;
   background: rgba(0, 0, 0, 0.35);
-  border: 1px dashed rgba(255, 140, 0, 0.18);
-  border-radius: 6px;
+  border: 1px solid rgba(255, 140, 0, 0.22);
+  border-radius: 8px;
   margin-bottom: 14px;
   transition: border-color 0.3s;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+#ad-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 140, 0, 0.08), transparent);
+  transform: translateX(-100%);
+  animation: containerScan 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes containerScan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 #ad-container:hover {
-  border-color: rgba(255, 140, 0, 0.4);
+  border-color: rgba(255, 140, 0, 0.45);
 }
 
 #lv-link {
-  color: var(--orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 18px 28px;
+  background: linear-gradient(180deg, #ff9920 0%, #ff6600 60%, #cc4400 100%);
+  color: #1a0800;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 3px;
+  font-weight: 800;
+  text-transform: uppercase;
   text-decoration: none;
-  font-size: 0.78rem;
-  letter-spacing: 1.5px;
-  font-weight: 600;
-  transition: all 0.25s;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 200, 100, 0.6);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+  box-shadow:
+    0 6px 20px rgba(255, 100, 0, 0.5),
+    inset 0 1px 0 rgba(255, 220, 150, 0.6),
+    inset 0 -2px 0 rgba(150, 50, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#lv-link::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#lv-link:hover::before {
+  transform: translateX(100%);
 }
 
 #lv-link:hover {
-  color: var(--orange-bright);
-  text-shadow: 0 0 10px var(--orange-glow);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow:
+    0 12px 35px rgba(255, 120, 0, 0.7),
+    0 0 50px rgba(255, 140, 0, 0.4),
+    inset 0 1px 0 rgba(255, 240, 180, 0.7),
+    inset 0 -2px 0 rgba(150, 50, 0, 0.3);
+  border-color: rgba(255, 230, 130, 0.85);
+  background: linear-gradient(180deg, #ffaa33 0%, #ff7700 60%, #dd4d00 100%);
 }
 
-/* Error */
+#lv-link:active {
+  transform: translateY(-1px) scale(1);
+  box-shadow:
+    0 4px 14px rgba(255, 100, 0, 0.5),
+    inset 0 1px 0 rgba(255, 220, 150, 0.5);
+}
+
+.lv-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 50%;
+  flex-shrink: 0;
+  position: relative;
+  font-size: 0.9rem;
+  filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.4));
+}
+
+.lv-icon::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  animation: lvRingPulse 2s ease-in-out infinite;
+}
+
+@keyframes lvRingPulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.15); opacity: 0; }
+}
+
+.lv-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  flex: 1;
+}
+
+.lv-text-main {
+  font-size: 0.85rem;
+  letter-spacing: 2.5px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.lv-text-sub {
+  font-size: 0.5rem;
+  letter-spacing: 2px;
+  font-weight: 600;
+  opacity: 0.75;
+  letter-spacing: 1.8px;
+  color: rgba(40, 16, 0, 0.85);
+}
+
+.lv-arrow {
+  font-size: 1rem;
+  font-weight: 800;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-left: 2px;
+}
+
+#lv-link:hover .lv-arrow {
+  transform: translateX(4px);
+}
+
+/* Reward preview */
+.reward-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: linear-gradient(180deg, rgba(0, 255, 136, 0.08) 0%, rgba(0, 255, 136, 0.02) 100%);
+  border: 1px solid rgba(0, 255, 136, 0.22);
+  border-radius: 6px;
+  margin-bottom: 12px;
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(0, 255, 136, 0.85);
+  font-weight: 600;
+}
+
+.reward-icon {
+  font-size: 0.7rem;
+  filter: drop-shadow(0 0 4px var(--green-glow));
+}
+
+.reward-value {
+  color: var(--green);
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 800;
+  text-shadow: 0 0 8px var(--green-glow);
+  letter-spacing: 1.5px;
+}
+
 #error-box {
   display: none;
 }
@@ -581,9 +733,20 @@ h1 {
     <span id="status-txt">Loading ad...</span>
   </div>
 
+  <div class="reward-preview">
+    <span class="reward-icon">🎁</span>
+    <span>Reward:</span>
+    <span class="reward-value">6h Access Key</span>
+  </div>
+
   <div id="ad-container">
     <a id="lv-link" href="https://link-center.net/5011888/q763gg8u5DCT" target="_blank" rel="noopener noreferrer">
-      Click here to start the ad
+      <span class="lv-icon">▶</span>
+      <span class="lv-text">
+        <span class="lv-text-main">Start Linkvertise Ad</span>
+        <span class="lv-text-sub">Click to begin verification</span>
+      </span>
+      <span class="lv-arrow">→</span>
     </a>
   </div>
 
@@ -603,9 +766,6 @@ h1 {
 (() => {
 'use strict';
 
-/* ════════════════════════════════════════════════════════════════════
-   CONFIGURATION
-   ════════════════════════════════════════════════════════════════════ */
 const CONFIG = {
   API:           "https://rezurx-backend.onrender.com",
   SESSION_KEY:   'rzx_session_v5',
@@ -618,15 +778,11 @@ const CONFIG = {
   TOTP_REFRESH:  45 * 1000,
 };
 
-/* Frame-bust */
 if (top !== self) {
   try { top.location = self.location; }
   catch (_) { document.body.innerHTML = ''; }
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   DOM REFERENCES
-   ════════════════════════════════════════════════════════════════════ */
 const statusEl    = document.getElementById('status');
 const statusTx    = document.getElementById('status-txt');
 const errorBox    = document.getElementById('error-box');
@@ -636,9 +792,6 @@ const timerEl     = document.getElementById('timer');
 const timerRow    = document.getElementById('timer-row');
 const totpDisplay = document.getElementById('totp-display');
 
-/* ════════════════════════════════════════════════════════════════════
-   UI HELPERS
-   ════════════════════════════════════════════════════════════════════ */
 function setStatus(m, t = '') {
   statusTx.textContent = m;
   statusEl.className = t;
@@ -650,9 +803,6 @@ function showError(m) {
   setStatus('ERROR', 'red');
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   TOKEN RECOVERY
-   ════════════════════════════════════════════════════════════════════ */
 function getToken() {
   const p = new URLSearchParams(location.search);
   const u = p.get('token');
@@ -677,9 +827,6 @@ function getToken() {
 
 const token = getToken();
 
-/* ════════════════════════════════════════════════════════════════════
-   TOTP REFRESH LOOP
-   ════════════════════════════════════════════════════════════════════ */
 async function fetchT(url, opts = {}, ms = 15000) {
   const ctrl = new AbortController();
   const tid = setTimeout(() => ctrl.abort(), ms);
@@ -751,9 +898,6 @@ async function refreshTotp() {
 displayTotp(getStoredTotp());
 setInterval(refreshTotp, CONFIG.TOTP_REFRESH);
 
-/* ════════════════════════════════════════════════════════════════════
-   MAIN FLOW
-   ════════════════════════════════════════════════════════════════════ */
 if (!token) {
   showError('NO SESSION TOKEN FOUND\n\nReturn to the start page and begin again.');
   timerEl.textContent = '--:--';
@@ -793,7 +937,7 @@ if (!token) {
     try {
       if (typeof linkvertise === 'function') {
         linkvertise(5011888, { whitelist: [], blacklist: [], redirect: redirectUrl });
-        setStatus('● Click the ad above to continue', 'green');
+        setStatus('● Click the button to continue', 'green');
       } else {
         fallbackLink();
       }
@@ -807,21 +951,6 @@ if (!token) {
 
   function fallbackLink() {
     lvLink.href = 'https://link-center.net/5011888/q763gg8u5DCT';
-    lvLink.style.cssText = `
-      display: inline-block;
-      padding: 14px 28px;
-      background: linear-gradient(180deg, #ff9920, #ff6600);
-      color: #1a0800;
-      font-family: Orbitron, sans-serif;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      text-decoration: none;
-      border-radius: 4px;
-      font-size: 0.7rem;
-      box-shadow: 0 4px 18px rgba(255, 100, 0, 0.4);
-    `;
-    lvLink.textContent = '▸ Start Linkvertise Ad';
     setStatus('● Click the button to begin', 'amber');
   }
 
@@ -830,9 +959,6 @@ if (!token) {
   }
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   LIVE LAVA PHYSICS ENGINE
-   ════════════════════════════════════════════════════════════════════ */
 (function lavaEngine() {
   const cv = document.getElementById('lava-canvas');
   const ctx = cv.getContext('2d', { alpha: true });
