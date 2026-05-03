@@ -6,94 +6,53 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0a0200">
 <meta name="description" content="RezurXLab Premium Key System">
-<!-- X-Frame-Options and frame-ancestors removed – must be sent via HTTP, not <meta> -->
 <title>RezurXLab | Access Portal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://rezurx-backend.onrender.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-/* ════════════════════════════════════════════════════════════════════
-   REZURXLAB v4.0 — FORTRESS EDITION FRONTEND
-   Premium UI with Live Lava Physics Engine
-   ════════════════════════════════════════════════════════════════════ */
-
 :root {
-  /* Primary Palette */
-  --orange:        #ff8c00;
-  --orange-bright: #ffaa33;
-  --orange-deep:   #aa4400;
-  --orange-glow:   rgba(255, 140, 0, 0.45);
-  --orange-soft:   rgba(255, 140, 0, 0.12);
-  --gold:          #ffd700;
-  --gold-soft:     rgba(255, 215, 0, 0.3);
-
-  /* Status Colors */
-  --green:         #00ff88;
-  --green-glow:    rgba(0, 255, 136, 0.45);
-  --teal:          #20cc88;
-  --purple:        #a070ff;
-  --purple-glow:   rgba(160, 112, 255, 0.4);
-  --red:           #ff4455;
-  --red-glow:      rgba(255, 68, 85, 0.45);
-
-  /* Surfaces */
-  --bg:            #050100;
-  --bg-elevated:   #0a0200;
-  --panel:         rgba(8, 3, 0, 0.93);
-  --panel-bright:  rgba(14, 6, 1, 0.95);
-  --muted:         #3a3028;
-  --dim:           #6a5848;
-  --border:        rgba(255, 140, 0, 0.22);
-  --border-bright: rgba(255, 140, 0, 0.4);
-
-  /* Effects */
-  --shadow-deep:   0 24px 70px rgba(0, 0, 0, 0.92);
-  --shadow-glow:   0 0 120px rgba(255, 80, 0, 0.18);
-  --shadow-inset:  inset 0 1px 0 rgba(255, 200, 120, 0.14);
+  --orange: #ff8c00; --orange-bright: #ffaa33; --orange-deep: #aa4400;
+  --orange-glow: rgba(255, 140, 0, 0.45); --orange-soft: rgba(255, 140, 0, 0.12);
+  --gold: #ffd700; --gold-bright: #ffea70; --gold-glow: rgba(255, 215, 0, 0.6);
+  --green: #00ff88; --green-glow: rgba(0, 255, 136, 0.45);
+  --teal: #20cc88; --purple: #a070ff; --purple-glow: rgba(160, 112, 255, 0.4);
+  --red: #ff4455; --red-glow: rgba(255, 68, 85, 0.45);
+  --bg: #050100; --bg-elevated: #0a0200;
+  --panel: rgba(8, 3, 0, 0.93); --panel-bright: rgba(14, 6, 1, 0.95);
+  --muted: #3a3028; --dim: #6a5848;
+  --border: rgba(255, 140, 0, 0.22); --border-bright: rgba(255, 140, 0, 0.4);
 }
 
-* , *::before, *::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+*, *::before, *::after {
+  margin: 0; padding: 0; box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
 }
 
 html, body { height: 100%; }
 
 body {
-  background: var(--bg);
-  color: #fff;
+  background: var(--bg); color: #fff;
   font-family: 'JetBrains Mono', 'Courier New', monospace;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  min-height: 100dvh;
-  overflow: hidden;
-  position: relative;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  min-height: 100vh; min-height: 100dvh;
+  overflow-x: hidden; overflow-y: auto; position: relative;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility; padding: 20px;
 }
 
-/* ─────────────────────────────────────────────────────────────
-   ATMOSPHERIC LAYERS (z: 0-3)
-   ───────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   ATMOSPHERIC LAYERS
+   ═══════════════════════════════════════════════════════════════ */
 #lava-canvas {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
   will-change: transform;
 }
 
 .atmos {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
   background:
     radial-gradient(ellipse 95% 55% at 50% -5%, rgba(255, 90, 0, 0.28) 0%, transparent 60%),
     radial-gradient(ellipse 75% 45% at 50% 105%, rgba(180, 30, 0, 0.22) 0%, transparent 60%),
@@ -102,112 +61,113 @@ body {
 }
 
 @keyframes atmosShift {
-  0%   { filter: hue-rotate(0deg) brightness(1); }
+  0% { filter: hue-rotate(0deg) brightness(1); }
   100% { filter: hue-rotate(8deg) brightness(1.08); }
 }
 
 .lava-river {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 36vh;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(0deg,
-    rgba(255, 70, 0, 0.22) 0%,
-    rgba(255, 100, 0, 0.08) 40%,
-    transparent 100%);
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: 36vh; z-index: 1; pointer-events: none;
+  background: linear-gradient(0deg, rgba(255, 70, 0, 0.22) 0%, rgba(255, 100, 0, 0.08) 40%, transparent 100%);
   animation: riverGlow 4s ease-in-out infinite;
 }
 
 @keyframes riverGlow {
   0%, 100% { opacity: 0.7; transform: scaleY(1); }
-  50%      { opacity: 1.0; transform: scaleY(1.04); }
+  50% { opacity: 1.0; transform: scaleY(1.04); }
 }
 
 .scanlines {
-  position: fixed;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background: repeating-linear-gradient(0deg,
-    transparent,
-    transparent 3px,
-    rgba(0, 0, 0, 0.05) 3px,
-    rgba(0, 0, 0, 0.05) 4px);
+  position: fixed; inset: 0; z-index: 2; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0, 0, 0, 0.05) 3px, rgba(0, 0, 0, 0.05) 4px);
   mix-blend-mode: multiply;
 }
 
 .embers {
-  position: fixed;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
+  position: fixed; inset: 0; z-index: 2; pointer-events: none;
   background-image:
-    radial-gradient(2px 2px at 15% 85%, rgba(255, 180, 50, 0.7)  0%, transparent 100%),
-    radial-gradient(3px 3px at 25% 90%, rgba(255, 140, 0,  0.6)  0%, transparent 100%),
-    radial-gradient(1px 1px at 35% 80%, rgba(255, 200, 80, 0.5)  0%, transparent 100%),
-    radial-gradient(2px 2px at 70% 88%, rgba(255, 160, 40, 0.6)  0%, transparent 100%),
-    radial-gradient(3px 3px at 85% 82%, rgba(255, 120, 20, 0.5)  0%, transparent 100%),
-    radial-gradient(1px 1px at 50% 75%, rgba(255, 220, 100, 0.4) 0%, transparent 100%);
+    radial-gradient(2px 2px at 15% 85%, rgba(255, 180, 50, 0.7) 0%, transparent 100%),
+    radial-gradient(3px 3px at 25% 90%, rgba(255, 140, 0, 0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 35% 80%, rgba(255, 200, 80, 0.5) 0%, transparent 100%),
+    radial-gradient(2px 2px at 70% 88%, rgba(255, 160, 40, 0.6) 0%, transparent 100%),
+    radial-gradient(3px 3px at 85% 82%, rgba(255, 120, 20, 0.5) 0%, transparent 100%);
   background-size: 200% 200%;
   animation: embersFloat 8s ease-in-out infinite alternate;
 }
 
 @keyframes embersFloat {
-  0%   { transform: translateY(0)     translateX(0); opacity: 0.8; }
-  50%  { transform: translateY(-15px) translateX(10px); opacity: 1; }
-  100% { transform: translateY(-5px)  translateX(-5px); opacity: 0.85; }
+  0% { transform: translateY(0) translateX(0); opacity: 0.8; }
+  50% { transform: translateY(-15px) translateX(10px); opacity: 1; }
+  100% { transform: translateY(-5px) translateX(-5px); opacity: 0.85; }
 }
 
 .vignette {
-  position: fixed;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
+  position: fixed; inset: 0; z-index: 3; pointer-events: none;
   background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.55) 100%);
 }
 
-.heat-shimmer {
+/* ═══════════════════════════════════════════════════════════════
+   TIER BANNER (Welcome back returning users)
+   ═══════════════════════════════════════════════════════════════ */
+#tier-banner {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 25vh;
-  z-index: 3;
-  pointer-events: none;
-  background: linear-gradient(0deg,
-    rgba(255, 100, 0, 0.06),
-    transparent);
-  animation: shimmer 3s ease-in-out infinite;
-  mix-blend-mode: screen;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: none;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.95) 0%, rgba(255, 140, 0, 0.95) 100%);
+  border: 2px solid rgba(255, 235, 100, 0.7);
+  border-radius: 24px;
+  padding: 10px 20px;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 30px rgba(255, 180, 0, 0.4), 0 0 50px rgba(255, 215, 0, 0.3);
+  animation: bannerDrop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
-@keyframes shimmer {
-  0%, 100% { opacity: 0.5; transform: translateY(0); }
-  50%      { opacity: 0.9; transform: translateY(-2px); }
+#tier-banner.show { display: flex; }
+
+@keyframes bannerDrop {
+  from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0); opacity: 1; }
 }
 
-/* ─────────────────────────────────────────────────────────────
-   MAIN PANEL (z: 10)
-   ───────────────────────────────────────────────────────────── */
+.tb-icon {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
+}
+
+.tb-text {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 2.2px;
+  color: #1a0800;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.tb-text .tb-tier {
+  background: rgba(0, 0, 0, 0.25);
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 4px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MAIN PANEL
+   ═══════════════════════════════════════════════════════════════ */
 .panel {
-  position: relative;
-  z-index: 10;
-  background:
-    linear-gradient(180deg, var(--panel-bright) 0%, var(--panel) 100%);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 48px 42px 38px;
-  width: 92%;
-  max-width: 580px;
+  position: relative; z-index: 10;
+  background: linear-gradient(180deg, var(--panel-bright) 0%, var(--panel) 100%);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 48px 42px 38px; width: 100%; max-width: 580px;
   text-align: center;
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.95),
-    var(--shadow-deep),
-    var(--shadow-glow),
-    var(--shadow-inset);
+    0 24px 70px rgba(0, 0, 0, 0.92),
+    0 0 120px rgba(255, 80, 0, 0.18),
+    inset 0 1px 0 rgba(255, 200, 120, 0.14);
   backdrop-filter: blur(8px) saturate(1.2);
   -webkit-backdrop-filter: blur(8px) saturate(1.2);
   animation: panelIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -215,7 +175,7 @@ body {
 
 @keyframes panelIn {
   from { opacity: 0; transform: translateY(28px) scale(0.96); }
-  to   { opacity: 1; transform: none; }
+  to { opacity: 1; transform: none; }
 }
 
 @media (max-width: 540px) {
@@ -223,139 +183,57 @@ body {
 }
 
 .panel::before {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: 12px;
-  pointer-events: none;
-  background: linear-gradient(135deg,
-    rgba(255, 150, 30, 0.5) 0%,
-    transparent 30%,
-    transparent 70%,
-    rgba(255, 140, 0, 0.32) 100%);
+  content: ""; position: absolute; inset: -1px;
+  border-radius: 12px; pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 150, 30, 0.5) 0%, transparent 30%, transparent 70%, rgba(255, 140, 0, 0.32) 100%);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-          mask-composite: exclude;
-  padding: 1px;
-  opacity: 0.9;
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  padding: 1px; opacity: 0.9;
 }
 
-.panel::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 12px;
-  pointer-events: none;
-  background: linear-gradient(180deg, rgba(255, 180, 80, 0.05) 0%, transparent 40%);
-}
+.c { position: absolute; width: 16px; height: 16px; pointer-events: none; z-index: 1; }
+.c-tl { top: -1px; left: -1px; border-top: 2px solid var(--orange-bright); border-left: 2px solid var(--orange-bright); border-radius: 4px 0 0 0; filter: drop-shadow(0 0 5px var(--orange-glow)); }
+.c-tr { top: -1px; right: -1px; border-top: 2px solid var(--orange-bright); border-right: 2px solid var(--orange-bright); border-radius: 0 4px 0 0; filter: drop-shadow(0 0 5px var(--orange-glow)); }
+.c-bl { bottom: -1px; left: -1px; border-bottom: 2px solid var(--orange-bright); border-left: 2px solid var(--orange-bright); border-radius: 0 0 0 4px; filter: drop-shadow(0 0 5px var(--orange-glow)); }
+.c-br { bottom: -1px; right: -1px; border-bottom: 2px solid var(--orange-bright); border-right: 2px solid var(--orange-bright); border-radius: 0 0 4px 0; filter: drop-shadow(0 0 5px var(--orange-glow)); }
 
-/* Corner Brackets */
-.c {
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  pointer-events: none;
-  z-index: 1;
-}
-.c-tl { top: -1px; left: -1px;
-  border-top: 2px solid var(--orange-bright);
-  border-left: 2px solid var(--orange-bright);
-  border-radius: 4px 0 0 0;
-  filter: drop-shadow(0 0 5px var(--orange-glow));
-}
-.c-tr { top: -1px; right: -1px;
-  border-top: 2px solid var(--orange-bright);
-  border-right: 2px solid var(--orange-bright);
-  border-radius: 0 4px 0 0;
-  filter: drop-shadow(0 0 5px var(--orange-glow));
-}
-.c-bl { bottom: -1px; left: -1px;
-  border-bottom: 2px solid var(--orange-bright);
-  border-left: 2px solid var(--orange-bright);
-  border-radius: 0 0 0 4px;
-  filter: drop-shadow(0 0 5px var(--orange-glow));
-}
-.c-br { bottom: -1px; right: -1px;
-  border-bottom: 2px solid var(--orange-bright);
-  border-right: 2px solid var(--orange-bright);
-  border-radius: 0 0 4px 0;
-  filter: drop-shadow(0 0 5px var(--orange-glow));
-}
-
-/* ─────────────────────────────────────────────────────────────
-   LOGO / HEADER
-   ───────────────────────────────────────────────────────────── */
-.logo-wrap {
-  position: relative;
-  display: inline-block;
-  margin-bottom: 4px;
-}
+.logo-wrap { position: relative; display: inline-block; margin-bottom: 4px; }
 
 .logo-wrap::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
+  content: ""; position: absolute; top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  width: 360px;
-  height: 95px;
-  background: radial-gradient(ellipse at center,
-    rgba(255, 180, 50, 0.22) 0%,
-    rgba(255, 120, 0,  0.10) 40%,
-    transparent 70%);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: -1;
-  animation: auraOuter 4s ease-in-out infinite;
-  filter: blur(10px);
+  width: 360px; height: 95px;
+  background: radial-gradient(ellipse at center, rgba(255, 180, 50, 0.22) 0%, rgba(255, 120, 0, 0.10) 40%, transparent 70%);
+  border-radius: 50%; pointer-events: none; z-index: -1;
+  animation: auraOuter 4s ease-in-out infinite; filter: blur(10px);
 }
 
 .logo-wrap::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
+  content: ""; position: absolute; top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  width: 230px;
-  height: 58px;
-  background: radial-gradient(ellipse at center,
-    rgba(255, 220, 100, 0.42) 0%,
-    rgba(255, 140, 0,   0.22) 45%,
-    transparent 70%);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: -1;
-  animation: auraInner 4s ease-in-out infinite;
-  filter: blur(5px);
+  width: 230px; height: 58px;
+  background: radial-gradient(ellipse at center, rgba(255, 220, 100, 0.42) 0%, rgba(255, 140, 0, 0.22) 45%, transparent 70%);
+  border-radius: 50%; pointer-events: none; z-index: -1;
+  animation: auraInner 4s ease-in-out infinite; filter: blur(5px);
 }
 
 @keyframes auraOuter {
   0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
-  50%      { opacity: 1.0; transform: translate(-50%, -50%) scale(1.16); }
+  50% { opacity: 1.0; transform: translate(-50%, -50%) scale(1.16); }
 }
 
 @keyframes auraInner {
   0%, 100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
-  50%      { opacity: 1.0; transform: translate(-50%, -50%) scale(1.10); }
+  50% { opacity: 1.0; transform: translate(-50%, -50%) scale(1.10); }
 }
 
-.logo-eyebrow {
-  font-size: 0.55rem;
-  letter-spacing: 5px;
-  color: var(--orange-deep);
-  text-transform: uppercase;
-  margin-bottom: 10px;
-  font-weight: 500;
-}
+.logo-eyebrow { font-size: 0.55rem; letter-spacing: 5px; color: var(--orange-deep); text-transform: uppercase; margin-bottom: 10px; font-weight: 500; }
 
 h1 {
   font-family: 'Orbitron', sans-serif;
-  font-size: 2.1rem;
-  font-weight: 900;
-  letter-spacing: 7px;
+  font-size: 2.1rem; font-weight: 900; letter-spacing: 7px;
   background: linear-gradient(180deg, #fff0c0 0%, #ffaa33 35%, #ff6600 70%, #aa3300 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   background-clip: text;
   filter: drop-shadow(0 0 26px rgba(255, 140, 0, 0.65));
   line-height: 1.05;
@@ -363,361 +241,341 @@ h1 {
 }
 
 @keyframes logoBreath {
-  0%, 100% { filter: drop-shadow(0 0 26px rgba(255, 140, 0,  0.55)); }
-  50%      { filter: drop-shadow(0 0 42px rgba(255, 170, 50, 1));   }
+  0%, 100% { filter: drop-shadow(0 0 26px rgba(255, 140, 0, 0.55)); }
+  50% { filter: drop-shadow(0 0 42px rgba(255, 170, 50, 1)); }
 }
 
-.logo-sub {
-  font-size: 0.52rem;
-  letter-spacing: 7px;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-top: 12px;
-  margin-bottom: 28px;
-  font-weight: 500;
-}
+.logo-sub { font-size: 0.52rem; letter-spacing: 7px; color: var(--muted); text-transform: uppercase; margin-top: 12px; margin-bottom: 28px; font-weight: 500; }
 
 .divider {
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(90deg,
-    transparent,
-    rgba(255, 140, 0, 0.35) 30%,
-    rgba(255, 140, 0, 0.55) 50%,
-    rgba(255, 140, 0, 0.35) 70%,
-    transparent);
-  margin-bottom: 24px;
-  position: relative;
+  width: 100%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 140, 0, 0.35) 30%, rgba(255, 140, 0, 0.55) 50%, rgba(255, 140, 0, 0.35) 70%, transparent);
+  margin-bottom: 24px; position: relative;
 }
 
 .divider::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
+  content: ""; position: absolute; top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
+  width: 7px; height: 7px; border-radius: 50%;
   background: var(--orange);
-  box-shadow:
-    0 0 12px var(--orange-glow),
-    0 0 4px #fff inset;
+  box-shadow: 0 0 12px var(--orange-glow), 0 0 4px #fff inset;
   animation: dividerPulse 2.5s ease-in-out infinite;
 }
 
 @keyframes dividerPulse {
-  0%, 100% { transform: translate(-50%, -50%) scale(1);   opacity: 1;   }
-  50%      { transform: translate(-50%, -50%) scale(1.2); opacity: 0.7; }
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.7; }
 }
 
-/* ─────────────────────────────────────────────────────────────
-   INFO LINE & STATUS
-   ───────────────────────────────────────────────────────────── */
 .info-line {
-  font-size: 0.62rem;
-  letter-spacing: 1.5px;
-  color: var(--dim);
-  text-transform: uppercase;
-  margin-bottom: 24px;
-  line-height: 1.75;
+  font-size: 0.62rem; letter-spacing: 1.5px;
+  color: var(--dim); text-transform: uppercase;
+  margin-bottom: 24px; line-height: 1.75;
 }
 
-.info-line strong {
-  color: var(--orange);
-  font-weight: 500;
-}
+.info-line strong { color: var(--orange); font-weight: 500; }
 
 #status {
-  font-size: 0.68rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--dim);
-  margin-bottom: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 1.1em;
-  font-weight: 500;
-  transition: color 0.3s;
+  font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--dim); margin-bottom: 18px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 1.1em; font-weight: 500; transition: color 0.3s;
 }
 
 .sdot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--muted);
-  animation: pulse 2s ease-in-out infinite;
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--muted); animation: pulse 2s ease-in-out infinite;
   flex-shrink: 0;
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1;   transform: scale(1);    }
-  50%      { opacity: 0.3; transform: scale(0.85); }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.85); }
 }
 
 #status.green .sdot { background: var(--green); box-shadow: 0 0 12px var(--green-glow); }
-#status.green       { color: var(--green); }
-
-#status.red .sdot   { background: var(--red);   box-shadow: 0 0 12px var(--red-glow); animation: none; }
-#status.red         { color: var(--red); }
-
+#status.green { color: var(--green); }
+#status.red .sdot { background: var(--red); box-shadow: 0 0 12px var(--red-glow); animation: none; }
+#status.red { color: var(--red); }
 #status.amber .sdot { background: var(--orange); box-shadow: 0 0 12px var(--orange-glow); }
-#status.amber       { color: var(--orange-bright); }
+#status.amber { color: var(--orange-bright); }
 
-/* ─────────────────────────────────────────────────────────────
-   POW / SECURITY ROW
-   ───────────────────────────────────────────────────────────── */
-#pow-row {
+/* ═══════════════════════════════════════════════════════════════
+   COMPACT INIT PROGRESS BAR
+   ═══════════════════════════════════════════════════════════════ */
+#init-progress {
   display: none;
-  font-size: 0.55rem;
-  letter-spacing: 1.5px;
-  color: var(--dim);
-  text-transform: uppercase;
   margin-bottom: 14px;
   padding: 10px 14px;
-  border: 1px solid rgba(255, 140, 0, 0.14);
+  border: 1px solid rgba(255, 140, 0, 0.18);
   border-radius: 5px;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.15) 100%);
-  position: relative;
-  overflow: hidden;
+  position: relative; overflow: hidden;
 }
 
-#pow-row.show {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  animation: slideIn 0.4s ease both;
-}
+#init-progress.show { display: block; animation: slideIn 0.4s ease both; }
 
 @keyframes slideIn {
   from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: none; }
+  to { opacity: 1; transform: none; }
 }
 
-#pow-row .lbl { color: var(--muted); }
-#pow-row .val {
+.init-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.55rem; letter-spacing: 1.5px;
+  color: var(--dim); text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.init-row .lbl { color: var(--muted); }
+.init-row .val {
   color: var(--orange);
   font-family: 'Orbitron', sans-serif;
-  font-weight: 700;
-  letter-spacing: 1px;
+  font-weight: 700; letter-spacing: 1px;
   text-shadow: 0 0 8px var(--orange-glow);
 }
 
-#pow-row::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 140, 0, 0.06), transparent);
-  transform: translateX(-100%);
-  animation: scanGlow 3s linear infinite;
+.init-bar-track {
+  width: 100%; height: 3px;
+  background: rgba(255, 140, 0, 0.1);
+  border-radius: 2px; overflow: hidden;
 }
 
-@keyframes scanGlow {
-  0%   { transform: translateX(-100%); }
-  100% { transform: translateX(100%);  }
+#init-bar-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--orange-deep), var(--orange), var(--gold));
+  border-radius: 2px;
+  transition: width 0.4s cubic-bezier(0.2, 0.8, 0.3, 1);
+  box-shadow: 0 0 10px var(--orange-glow);
 }
 
-/* ─────────────────────────────────────────────────────────────
+#init-progress.complete .val { color: var(--green); text-shadow: 0 0 8px var(--green-glow); }
+#init-progress.complete #init-bar-fill {
+  background: linear-gradient(90deg, var(--green), #80ffaa);
+  box-shadow: 0 0 10px var(--green-glow);
+}
+
+/* ═══════════════════════════════════════════════════════════════
    PROVIDER BUTTONS
-   ───────────────────────────────────────────────────────────── */
+   ═══════════════════════════════════════════════════════════════ */
 .btn-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: flex; flex-direction: column; gap: 12px;
 }
 
 .provider-btn {
-  position: relative;
-  padding: 16px 18px;
-  cursor: pointer;
-  border-radius: 7px;
+  position: relative; padding: 16px 18px;
+  cursor: pointer; border-radius: 7px;
   font-family: 'Orbitron', sans-serif;
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 2.4px;
-  text-transform: uppercase;
+  font-size: 0.74rem; font-weight: 700;
+  letter-spacing: 2.4px; text-transform: uppercase;
   transition: all 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
   border: 1px solid;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  overflow: hidden;
-  user-select: none;
-  -webkit-user-select: none;
+  display: flex; justify-content: space-between;
+  align-items: center; gap: 10px; overflow: hidden;
+  user-select: none; -webkit-user-select: none;
+  min-height: 56px;
 }
 
 .provider-btn::before {
-  content: "";
-  position: absolute;
-  inset: 0;
+  content: ""; position: absolute; inset: 0;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.24), transparent);
-  transform: translateX(-100%);
-  transition: transform 0.65s;
+  transform: translateX(-100%); transition: transform 0.65s;
 }
 
 .provider-btn:hover:not(:disabled)::before { transform: translateX(100%); }
-.provider-btn:hover:not(:disabled)         { transform: translateY(-2px); }
-.provider-btn:active:not(:disabled)        { transform: translateY(0);    }
+.provider-btn:hover:not(:disabled) { transform: translateY(-2px); }
+.provider-btn:active:not(:disabled) { transform: translateY(0); }
 
 .provider-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  filter: grayscale(0.3);
+  opacity: 0.45; cursor: not-allowed; filter: grayscale(0.3);
 }
 
-.provider-btn .left {
-  display: flex;
-  align-items: center;
-  gap: 11px;
+.provider-btn.loading {
+  opacity: 0.85; cursor: wait;
+  pointer-events: none;
 }
+
+.provider-btn.loading .pdot {
+  animation: btnDotLoad 0.6s linear infinite;
+}
+
+@keyframes btnDotLoad {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.provider-btn .left { display: flex; align-items: center; gap: 11px; }
 
 .provider-btn .pdot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+  width: 8px; height: 8px; border-radius: 50%;
   flex-shrink: 0;
   animation: btnDot 2s ease-in-out infinite;
 }
 
 @keyframes btnDot {
-  0%, 100% { opacity: 1;   transform: scale(1);    }
-  50%      { opacity: 0.55; transform: scale(0.82); }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.82); }
 }
 
 .provider-btn .duration {
-  font-size: 0.56rem;
-  letter-spacing: 1.6px;
-  font-weight: 700;
-  opacity: 0.92;
-  padding: 4px 10px;
-  border-radius: 12px;
+  font-size: 0.56rem; letter-spacing: 1.6px;
+  font-weight: 700; opacity: 0.92;
+  padding: 4px 10px; border-radius: 12px;
   white-space: nowrap;
 }
 
-/* Linkvertise (Orange) */
+/* Linkvertise */
 #go-btn-lv {
   background: linear-gradient(180deg, #ff9920 0%, #ff6600 100%);
   color: #1a0800;
   border-color: rgba(255, 180, 80, 0.55);
-  box-shadow:
-    0 4px 18px rgba(255, 100, 0, 0.4),
-    inset 0 1px 0 rgba(255, 220, 150, 0.45);
+  box-shadow: 0 4px 18px rgba(255, 100, 0, 0.4), inset 0 1px 0 rgba(255, 220, 150, 0.45);
 }
 #go-btn-lv:hover:not(:disabled) {
-  box-shadow:
-    0 10px 30px rgba(255, 100, 0, 0.55),
-    inset 0 1px 0 rgba(255, 220, 150, 0.6);
+  box-shadow: 0 10px 30px rgba(255, 100, 0, 0.55), inset 0 1px 0 rgba(255, 220, 150, 0.6);
 }
-#go-btn-lv .pdot     { background: #1a0800; box-shadow: 0 0 6px #1a0800; }
+#go-btn-lv .pdot { background: #1a0800; box-shadow: 0 0 6px #1a0800; }
 #go-btn-lv .duration { background: rgba(0, 0, 0, 0.28); color: #3a1500; }
 
-/* LootLabs (Purple) */
+/* LootLabs */
 #go-btn-ll {
   background: linear-gradient(180deg, #b290ff 0%, #7a4dff 100%);
   color: #1a0033;
   border-color: rgba(180, 140, 255, 0.55);
-  box-shadow:
-    0 4px 18px rgba(120, 80, 255, 0.4),
-    inset 0 1px 0 rgba(220, 200, 255, 0.45);
+  box-shadow: 0 4px 18px rgba(120, 80, 255, 0.4), inset 0 1px 0 rgba(220, 200, 255, 0.45);
 }
 #go-btn-ll:hover:not(:disabled) {
-  box-shadow:
-    0 10px 30px rgba(120, 80, 255, 0.55),
-    inset 0 1px 0 rgba(220, 200, 255, 0.6);
+  box-shadow: 0 10px 30px rgba(120, 80, 255, 0.55), inset 0 1px 0 rgba(220, 200, 255, 0.6);
 }
-#go-btn-ll .pdot     { background: #1a0033; box-shadow: 0 0 6px #1a0033; }
+#go-btn-ll .pdot { background: #1a0033; box-shadow: 0 0 6px #1a0033; }
 #go-btn-ll .duration { background: rgba(0, 0, 0, 0.28); color: #1a0033; }
 
-/* Work.ink (Green) */
+/* Work.ink */
 #go-btn-wi {
   background: linear-gradient(180deg, #25dd96 0%, #0faa68 100%);
   color: #001a0e;
   border-color: rgba(50, 220, 140, 0.55);
-  box-shadow:
-    0 4px 18px rgba(0, 180, 100, 0.4),
-    inset 0 1px 0 rgba(180, 255, 220, 0.4);
+  box-shadow: 0 4px 18px rgba(0, 180, 100, 0.4), inset 0 1px 0 rgba(180, 255, 220, 0.4);
 }
 #go-btn-wi:hover:not(:disabled) {
-  box-shadow:
-    0 10px 30px rgba(0, 200, 120, 0.55),
-    inset 0 1px 0 rgba(180, 255, 220, 0.55);
+  box-shadow: 0 10px 30px rgba(0, 200, 120, 0.55), inset 0 1px 0 rgba(180, 255, 220, 0.55);
 }
-#go-btn-wi .pdot     { background: #001a0e; box-shadow: 0 0 6px #001a0e; }
+#go-btn-wi .pdot { background: #001a0e; box-shadow: 0 0 6px #001a0e; }
 #go-btn-wi .duration { background: rgba(0, 0, 0, 0.28); color: #001a0e; }
 
-/* Recommended Badge */
+/* Recommended badge */
 .recommended-tag {
   position: absolute;
-  top: -8px;
-  right: 12px;
+  top: -8px; right: 12px;
   background: linear-gradient(135deg, var(--gold) 0%, #ff9900 100%);
   color: #1a0800;
-  font-size: 0.5rem;
-  letter-spacing: 1.5px;
-  padding: 3px 8px;
-  border-radius: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
+  font-size: 0.5rem; letter-spacing: 1.5px;
+  padding: 3px 8px; border-radius: 10px;
+  font-weight: 800; text-transform: uppercase;
   box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
   z-index: 2;
   animation: recBlink 2s ease-in-out infinite;
 }
 
 @keyframes recBlink {
-  0%, 100% { transform: scale(1);    box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5); }
-  50%      { transform: scale(1.06); box-shadow: 0 2px 16px rgba(255, 215, 0, 0.8); }
+  0%, 100% { transform: scale(1); box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5); }
+  50% { transform: scale(1.06); box-shadow: 0 2px 16px rgba(255, 215, 0, 0.8); }
 }
+
+.tier-locked-badge {
+  position: absolute;
+  top: 50%; right: 14px;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 0.5rem; letter-spacing: 1.5px;
+  padding: 3px 8px; border-radius: 10px;
+  font-weight: 700; text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BUTTON LOADING SPINNER (right side of button)
+   ═══════════════════════════════════════════════════════════════ */
+.btn-spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(0, 0, 0, 0.25);
+  border-top-color: rgba(0, 0, 0, 0.85);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.provider-btn.loading .btn-spinner { display: block; }
+.provider-btn.loading .duration { display: none; }
 
 /* Honeypots */
 .hp-trap {
-  position: absolute;
-  left: -9999px;
-  opacity: 0;
-  height: 0;
-  width: 0;
-  pointer-events: none;
-  visibility: hidden;
+  position: absolute; left: -9999px;
+  opacity: 0; height: 0; width: 0;
+  pointer-events: none; visibility: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FAST LOADING OVERLAY (for redirects)
+   ═══════════════════════════════════════════════════════════════ */
+#redirect-overlay {
+  display: none; position: fixed; inset: 0; z-index: 600;
+  background: radial-gradient(ellipse at center, rgba(15, 6, 0, 0.96) 0%, rgba(2, 0, 0, 0.99) 100%);
+  flex-direction: column; justify-content: center; align-items: center;
+  gap: 26px;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  animation: overlayIn 0.25s ease both;
+}
+
+#redirect-overlay.show { display: flex; }
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+
+.ro-ring {
+  width: 70px; height: 70px;
+  border: 2px solid rgba(255, 140, 0, 0.1);
+  border-top-color: var(--orange);
+  border-right-color: rgba(255, 140, 0, 0.5);
+  border-radius: 50%;
+  animation: spin 0.9s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite;
+  filter: drop-shadow(0 0 12px var(--orange-glow));
+}
+
+#redirect-overlay.lv .ro-ring { border-top-color: #ff8c00; border-right-color: rgba(255, 140, 0, 0.5); }
+#redirect-overlay.ll .ro-ring { border-top-color: #a070ff; border-right-color: rgba(160, 112, 255, 0.5); filter: drop-shadow(0 0 12px var(--purple-glow)); }
+#redirect-overlay.wi .ro-ring { border-top-color: #20cc88; border-right-color: rgba(30, 210, 130, 0.5); filter: drop-shadow(0 0 12px var(--green-glow)); }
+
+.ro-text {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.85rem; letter-spacing: 4px;
+  color: var(--orange-bright);
+  text-transform: uppercase;
+  text-shadow: 0 0 12px var(--orange-glow);
+  font-weight: 700;
+}
+
+#redirect-overlay.ll .ro-text { color: #c4a8ff; text-shadow: 0 0 12px var(--purple-glow); }
+#redirect-overlay.wi .ro-text { color: #50dda0; text-shadow: 0 0 12px var(--green-glow); }
+
+.ro-sub {
+  font-size: 0.55rem; letter-spacing: 2.5px;
+  color: var(--dim); text-transform: uppercase;
 }
 
 /* Footer */
 .footer {
-  margin-top: 28px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  padding-top: 18px;
-  border-top: 1px solid rgba(255, 140, 0, 0.10);
+  margin-top: 28px; display: flex;
+  justify-content: center; align-items: center; gap: 12px;
+  padding-top: 18px; border-top: 1px solid rgba(255, 140, 0, 0.10);
   flex-wrap: wrap;
 }
 
-.fi {
-  font-size: 0.46rem;
-  letter-spacing: 2.2px;
-  color: #1a0e06;
-  text-transform: uppercase;
-  font-weight: 600;
-}
+.fi { font-size: 0.46rem; letter-spacing: 2.2px; color: #1a0e06; text-transform: uppercase; font-weight: 600; }
+.fd { width: 2.5px; height: 2.5px; border-radius: 50%; background: #1a0e06; }
 
-.fd {
-  width: 2.5px;
-  height: 2.5px;
-  border-radius: 50%;
-  background: #1a0e06;
-}
-
-.country-tag {
-  display: inline-block;
-  margin-left: 4px;
-  font-size: 0.46rem;
-  color: var(--orange-deep);
-  letter-spacing: 1.5px;
-}
-
-/* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -729,14 +587,26 @@ h1 {
 </head>
 <body>
 
+<!-- Tier banner -->
+<div id="tier-banner">
+  <span class="tb-icon">🔓</span>
+  <span class="tb-text">Continue your journey to <span class="tb-tier" id="tb-tier">PRO</span></span>
+</div>
+
 <!-- Atmospheric Layers -->
 <canvas id="lava-canvas" aria-hidden="true"></canvas>
-<div class="atmos"     aria-hidden="true"></div>
+<div class="atmos" aria-hidden="true"></div>
 <div class="lava-river" aria-hidden="true"></div>
-<div class="embers"    aria-hidden="true"></div>
+<div class="embers" aria-hidden="true"></div>
 <div class="scanlines" aria-hidden="true"></div>
-<div class="vignette"  aria-hidden="true"></div>
-<div class="heat-shimmer" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+
+<!-- Redirect Overlay -->
+<div id="redirect-overlay">
+  <div class="ro-ring"></div>
+  <div class="ro-text" id="ro-text">Redirecting...</div>
+  <div class="ro-sub" id="ro-sub">Opening provider</div>
+</div>
 
 <!-- Main Panel -->
 <div class="panel" role="main">
@@ -748,7 +618,7 @@ h1 {
   <div class="logo-sub">Premium Key Generation</div>
   <div class="divider"></div>
 
-  <div class="info-line">
+  <div class="info-line" id="info-line">
     Choose your provider. Complete <strong>1 short ad</strong>.<br>
     Receive your <strong>access key</strong> instantly.
   </div>
@@ -758,31 +628,37 @@ h1 {
     <span id="status-txt">Initializing system...</span>
   </div>
 
-  <div id="pow-row">
-    <span class="lbl">Security Challenge</span>
-    <span class="val" id="pow-val">—</span>
+  <div id="init-progress">
+    <div class="init-row">
+      <span class="lbl" id="init-lbl">Security Challenge</span>
+      <span class="val" id="init-val">—</span>
+    </div>
+    <div class="init-bar-track"><div id="init-bar-fill"></div></div>
   </div>
 
   <div class="btn-stack">
     <button id="go-btn-lv" class="provider-btn" type="button" disabled aria-label="Continue with Linkvertise">
       <span class="left"><span class="pdot"></span><span>Linkvertise</span></span>
       <span class="duration">6h Key</span>
+      <div class="btn-spinner"></div>
     </button>
     <button id="go-btn-ll" class="provider-btn" type="button" disabled aria-label="Continue with LootLabs">
       <span class="left"><span class="pdot"></span><span>LootLabs</span></span>
       <span class="duration">10h Key</span>
+      <div class="btn-spinner"></div>
     </button>
     <button id="go-btn-wi" class="provider-btn" type="button" disabled aria-label="Continue with Work.ink">
+      <div class="recommended-tag">★ Best Value</div>
       <span class="left"><span class="pdot"></span><span>Work.ink</span></span>
       <span class="duration">14h Key</span>
+      <div class="btn-spinner"></div>
     </button>
   </div>
 
-  <!-- Honeypot Traps -->
-  <input class="hp-trap" name="website"        tabindex="-1" autocomplete="off" aria-hidden="true">
-  <input class="hp-trap" name="email_confirm"  tabindex="-1" autocomplete="off" aria-hidden="true">
-  <input class="hp-trap" name="phone_alt"      tabindex="-1" autocomplete="off" aria-hidden="true">
-  <input class="hp-trap" name="username_check" tabindex="-1" autocomplete="off" aria-hidden="true">
+  <!-- Honeypots -->
+  <input class="hp-trap" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+  <input class="hp-trap" name="email_confirm" tabindex="-1" autocomplete="off" aria-hidden="true">
+  <input class="hp-trap" name="phone_alt" tabindex="-1" autocomplete="off" aria-hidden="true">
 
   <div class="footer">
     <span class="fi">AES-256</span><div class="fd"></div>
@@ -796,63 +672,104 @@ h1 {
 (() => {
 'use strict';
 
-/* ════════════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════════════════
    CONFIGURATION
-   ════════════════════════════════════════════════════════════════════ */
+   ════════════════════════════════════════════════════════════════ */
 const CONFIG = {
   API:           "https://rezurx-backend.onrender.com",
-  LOOTLABS_URL:  "https://lootdest.org/s?ty42ubzt",          // ← YOUR CORRECT LOOTLABS LINK
+  LOOTLABS_URL:  "https://lootdest.org/s?ty42ubzt",
   WORKINK_URL:   "https://work.ink/2hdZ/key-system",
   REDIRECT_URL:  "https://rezurxshinn.github.io/RezurX-site/index.html",
   SESSION_KEY:   'rzx_session_v5',
   CSRF_KEY:      'rzx_csrf_v5',
   SBLOB_KEY:     'rzx_sblob_v5',
   TOTP_KEY:      'rzx_totp_v5',
+  TIER_KEY:      'rzx_tier_v5',
   AB_KEY:        'rzx_ab_v5',
   BIND_SECRET:   'rzx_fp_bind_9x2_fortress',
   FETCH_TIMEOUT: 25000,
   POW_TIMEOUT:   60000,
 };
 
-/* ════════════════════════════════════════════════════════════════════
-   FRAME-BUST PROTECTION
-   ════════════════════════════════════════════════════════════════════ */
+const TIER_NAMES = ['BASIC', 'PRO', 'VIP'];
+const TIER_HOURS = [6, 24, 48];
+
+/* Frame-bust */
 if (top !== self) {
   try { top.location = self.location; }
   catch (_) { document.body.innerHTML = ''; }
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   DOM REFERENCES
-   ════════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════
+   DOM
+   ════════════════════════════════════════════════════════════════ */
 const goBtnLv  = document.getElementById('go-btn-lv');
 const goBtnLl  = document.getElementById('go-btn-ll');
 const goBtnWi  = document.getElementById('go-btn-wi');
 const statusEl = document.getElementById('status');
 const statusTx = document.getElementById('status-txt');
-const powRow   = document.getElementById('pow-row');
-const powVal   = document.getElementById('pow-val');
+const initBox  = document.getElementById('init-progress');
+const initLbl  = document.getElementById('init-lbl');
+const initVal  = document.getElementById('init-val');
+const initBar  = document.getElementById('init-bar-fill');
+const tierBanner = document.getElementById('tier-banner');
+const tbTier   = document.getElementById('tb-tier');
+const redirectOverlay = document.getElementById('redirect-overlay');
+const roText = document.getElementById('ro-text');
+const roSub = document.getElementById('ro-sub');
+const infoLine = document.getElementById('info-line');
 
-/* ════════════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════════════════
    STATE
-   ════════════════════════════════════════════════════════════════════ */
+   ════════════════════════════════════════════════════════════════ */
 let powSolution     = null;
+let cachedFingerprint = null;
 let behaviorPayload = null;
 let sessionInFlight = false;
 let powStartTime    = 0;
+let initComplete    = false;
+let cachedSession   = null; // { token, csrf, sblob, totp, abVariant }
+let lootlabsEncryptedUrl = null; // pre-computed for instant redirect
 
-/* ════════════════════════════════════════════════════════════════════
-   FINGERPRINTING
-   ════════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════
+   URL PARAMS (tier upgrade flow)
+   ════════════════════════════════════════════════════════════════ */
+const urlParams = new URLSearchParams(location.search);
+const requestedTier = parseInt(urlParams.get('tier') || '0');
+const bonusId = urlParams.get('bonus');
+const expired = urlParams.get('expired') === '1';
+
+if (requestedTier > 0 && requestedTier < TIER_NAMES.length) {
+  tbTier.textContent = TIER_NAMES[requestedTier];
+  tierBanner.classList.add('show');
+
+  // Update info line for tier upgrade context
+  infoLine.innerHTML = `One more ad to unlock <strong>${TIER_NAMES[requestedTier]}</strong> tier!<br>` +
+    `Reward: <strong>${TIER_HOURS[requestedTier]}h key</strong> + bonus perks`;
+
+  // Clean URL after reading
+  history.replaceState({}, '', location.pathname);
+}
+
+if (expired) {
+  setTimeout(() => {
+    setStatus('● Session expired — please try again', 'red');
+  }, 100);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   FINGERPRINTING (memoized)
+   ════════════════════════════════════════════════════════════════ */
 async function getFingerprint() {
+  if (cachedFingerprint) return cachedFingerprint;
+
   const nav = navigator;
   const scr = screen;
   let canvasHash = 'nc';
 
   try {
     const cv = document.createElement('canvas');
-    cv.width  = 200;
-    cv.height = 50;
+    cv.width = 200; cv.height = 50;
     const cx = cv.getContext('2d');
     cx.textBaseline = 'top';
     cx.font = '14px Arial';
@@ -881,97 +798,92 @@ async function getFingerprint() {
   } catch (_) {}
 
   const components = [
-    nav.userAgent          || '',
-    nav.language           || '',
+    nav.userAgent || '',
+    nav.language || '',
     nav.languages?.join(',') || '',
     nav.hardwareConcurrency || 0,
-    nav.maxTouchPoints     || 0,
-    nav.deviceMemory       || 0,
-    scr.colorDepth         || 0,
-    scr.pixelDepth         || 0,
+    nav.maxTouchPoints || 0,
+    nav.deviceMemory || 0,
+    scr.colorDepth || 0,
+    scr.pixelDepth || 0,
     scr.width + 'x' + scr.height,
     scr.availWidth + 'x' + scr.availHeight,
     Intl.DateTimeFormat().resolvedOptions().timeZone || '',
     new Date().getTimezoneOffset(),
-    nav.platform           || '',
-    nav.vendor             || '',
-    nav.cookieEnabled      ? '1' : '0',
+    nav.platform || '',
+    nav.vendor || '',
+    nav.cookieEnabled ? '1' : '0',
     'ontouchstart' in window ? '1' : '0',
-    canvasHash,
-    webglVendor,
+    canvasHash, webglVendor,
     CONFIG.BIND_SECRET,
   ].join('|');
 
   const buf = new TextEncoder().encode(components);
   const hash = await crypto.subtle.digest('SHA-256', buf);
-  return Array.from(new Uint8Array(hash))
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('');
+  cachedFingerprint = Array.from(new Uint8Array(hash))
+    .map(b => b.toString(16).padStart(2, '0')).join('');
+  return cachedFingerprint;
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   BEHAVIOURAL TRACKING (one-shot, captured once)
-   ════════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════
+   BEHAVIOR TRACKING
+   ════════════════════════════════════════════════════════════════ */
 function captureBehavior() {
-  const track = {
-    mouse:  0,
-    key:    0,
-    scroll: 0,
-    start:  Date.now()
-  };
-
-  const onMouse  = () => { track.mouse++;  };
-  const onKey    = () => { track.key++;    };
+  const track = { mouse: 0, key: 0, scroll: 0, start: Date.now() };
+  const onMouse = () => { track.mouse++; };
+  const onKey = () => { track.key++; };
   const onScroll = () => { track.scroll++; };
 
-  window.addEventListener('mousemove',  onMouse,  { passive: true });
-  window.addEventListener('mousedown',  onMouse,  { passive: true });
-  window.addEventListener('touchstart', onMouse,  { passive: true });
-  window.addEventListener('keydown',    onKey,    { passive: true });
-  window.addEventListener('scroll',     onScroll, { passive: true });
+  window.addEventListener('mousemove', onMouse, { passive: true });
+  window.addEventListener('mousedown', onMouse, { passive: true });
+  window.addEventListener('touchstart', onMouse, { passive: true });
+  window.addEventListener('keydown', onKey, { passive: true });
+  window.addEventListener('scroll', onScroll, { passive: true });
 
-  // Return a function that stops tracking and returns the payload
   return () => {
-    window.removeEventListener('mousemove',  onMouse);
-    window.removeEventListener('mousedown',  onMouse);
+    window.removeEventListener('mousemove', onMouse);
+    window.removeEventListener('mousedown', onMouse);
     window.removeEventListener('touchstart', onMouse);
-    window.removeEventListener('keydown',    onKey);
-    window.removeEventListener('scroll',     onScroll);
+    window.removeEventListener('keydown', onKey);
+    window.removeEventListener('scroll', onScroll);
 
     const focusTime = Date.now() - track.start;
     const payload = JSON.stringify({
-      mouseEvents:  track.mouse,
-      keyEvents:    track.key,
+      mouseEvents: track.mouse,
+      keyEvents: track.key,
       scrollEvents: track.scroll,
       focusTime,
     });
-    // base64url encode
     return btoa(payload).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   };
 }
 
-const getBehaviorPayload = captureBehavior(); // stores the stop function
+const getBehaviorPayload = captureBehavior();
 
-/* ════════════════════════════════════════════════════════════════════
-   STORAGE HELPERS
-   ════════════════════════════════════════════════════════════════════ */
-function saveSession(token, fp, provider, csrf, sblob, totp, abVariant) {
+/* ════════════════════════════════════════════════════════════════
+   STORAGE
+   ════════════════════════════════════════════════════════════════ */
+function saveSession(token, fp, provider, csrf, sblob, totp, abVariant, tier) {
   try {
     localStorage.setItem(CONFIG.SESSION_KEY, JSON.stringify({
-      token, fp, ts: Date.now(), provider, ab: abVariant || null,
+      token, fp, ts: Date.now(), provider,
+      ab: abVariant || null,
+      tier: tier || 0,
+      bonusId: bonusId || null,
     }));
-    localStorage.setItem(CONFIG.CSRF_KEY,  csrf);
+    localStorage.setItem(CONFIG.CSRF_KEY, csrf);
     localStorage.setItem(CONFIG.SBLOB_KEY, sblob);
-    localStorage.setItem(CONFIG.TOTP_KEY,  JSON.stringify({ totp, ts: Date.now() }));
+    localStorage.setItem(CONFIG.TOTP_KEY, JSON.stringify({ totp, ts: Date.now() }));
     if (abVariant) localStorage.setItem(CONFIG.AB_KEY, abVariant);
+    if (tier) localStorage.setItem(CONFIG.TIER_KEY, String(tier));
   } catch (e) {
     console.error('[STORAGE]', e);
   }
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   UI HELPERS
-   ════════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════
+   UI
+   ════════════════════════════════════════════════════════════════ */
 function setStatus(msg, tone = '') {
   statusTx.textContent = msg;
   statusEl.className = tone;
@@ -983,19 +895,32 @@ function setBtns(disabled) {
   goBtnWi.disabled = disabled;
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   FETCH WITH BROWSER HEADERS (FIXED)
-   ════════════════════════════════════════════════════════════════════ */
+function setInitProgress(label, value, pct, complete = false) {
+  initLbl.textContent = label;
+  initVal.textContent = value;
+  initBar.style.width = pct + '%';
+  if (complete) initBox.classList.add('complete');
+  else initBox.classList.remove('complete');
+}
+
+function showRedirectOverlay(provider, msg = 'Redirecting...', sub = 'Opening provider') {
+  redirectOverlay.classList.remove('lv', 'll', 'wi');
+  if (provider) redirectOverlay.classList.add(provider === 'workink' ? 'wi' : provider === 'lootlabs' ? 'll' : 'lv');
+  roText.textContent = msg;
+  roSub.textContent = sub;
+  redirectOverlay.classList.add('show');
+}
+
+/* ════════════════════════════════════════════════════════════════
+   FETCH
+   ════════════════════════════════════════════════════════════════ */
 async function fetchT(url, opts = {}, ms = CONFIG.FETCH_TIMEOUT) {
   const ctrl = new AbortController();
-  const tid  = setTimeout(() => ctrl.abort(), ms);
+  const tid = setTimeout(() => ctrl.abort(), ms);
   try {
     return await fetch(url, {
-      ...opts,
-      signal: ctrl.signal,
-      mode: 'cors',
-      credentials: 'omit',
-      cache: 'no-store',
+      ...opts, signal: ctrl.signal,
+      mode: 'cors', credentials: 'omit', cache: 'no-store',
       headers: {
         'Accept': 'application/json',
         'Accept-Language': 'en-US,en;q=0.9',
@@ -1007,22 +932,109 @@ async function fetchT(url, opts = {}, ms = CONFIG.FETCH_TIMEOUT) {
   }
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   PROOF-OF-WORK SOLVER (FIXED: zero‑padded nonce)
-   ════════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════
+   POW SOLVER (Web Worker for non-blocking)
+   ════════════════════════════════════════════════════════════════ */
+function createPowWorker() {
+  const workerCode = `
+    self.onmessage = async function(e) {
+      const { challenge, target, startNonce, batchSize } = e.data;
+      const enc = new TextEncoder();
+      let nonce = startNonce;
+      const lastReport = { time: Date.now() };
+
+      while (true) {
+        for (let i = 0; i < batchSize; i++) {
+          let nStr = nonce.toString(16);
+          while (nStr.length < 16) nStr = '0' + nStr;
+
+          const data = enc.encode(challenge + ':' + nStr);
+          const buf = await crypto.subtle.digest('SHA-256', data);
+          const arr = new Uint8Array(buf);
+
+          let zeros = 0;
+          let found = false;
+
+          outer: for (let j = 0; j < arr.length; j++) {
+            const b = arr[j];
+            if (b === 0) { zeros += 8; continue; }
+            for (let k = 7; k >= 0; k--) {
+              if ((b >> k) & 1) { found = true; break outer; }
+              zeros++;
+            }
+            break;
+          }
+
+          if (zeros >= target) {
+            self.postMessage({ type: 'done', nonce: nStr, tries: nonce - startNonce + 1 });
+            return;
+          }
+          nonce++;
+        }
+
+        if (Date.now() - lastReport.time > 200) {
+          self.postMessage({ type: 'progress', tries: nonce - startNonce });
+          lastReport.time = Date.now();
+        }
+      }
+    };
+  `;
+  const blob = new Blob([workerCode], { type: 'application/javascript' });
+  return new Worker(URL.createObjectURL(blob));
+}
+
 async function solvePow() {
   const r = await fetchT(CONFIG.API + '/api/pow-challenge', { method: 'GET' }, 20000);
   if (!r.ok) throw new Error('Cannot fetch challenge');
 
   const ch = await r.json();
   const target = ch.bits;
-  const enc = new TextEncoder();
-  let nonce = 0;
 
   powStartTime = Date.now();
 
+  // Try Web Worker for non-blocking PoW
+  if (typeof Worker !== 'undefined') {
+    return new Promise((resolve, reject) => {
+      const worker = createPowWorker();
+      const timeout = setTimeout(() => {
+        worker.terminate();
+        reject(new Error('PoW timeout'));
+      }, CONFIG.POW_TIMEOUT);
+
+      worker.onmessage = (e) => {
+        if (e.data.type === 'progress') {
+          setInitProgress('Security Challenge', e.data.tries.toLocaleString() + ' tries', 25 + Math.min(40, e.data.tries / 2000));
+        } else if (e.data.type === 'done') {
+          clearTimeout(timeout);
+          worker.terminate();
+          resolve({ ...ch, nonce: e.data.nonce });
+        }
+      };
+
+      worker.onerror = (err) => {
+        clearTimeout(timeout);
+        worker.terminate();
+        // Fallback to main thread
+        solvePowMainThread(ch, target).then(resolve).catch(reject);
+      };
+
+      worker.postMessage({
+        challenge: ch.challenge,
+        target,
+        startNonce: 0,
+        batchSize: 500,
+      });
+    });
+  } else {
+    return solvePowMainThread(ch, target);
+  }
+}
+
+async function solvePowMainThread(ch, target) {
+  const enc = new TextEncoder();
+  let nonce = 0;
+
   while (true) {
-    // Pad nonce to at least 16 hex characters (backend requires 16‑64 hex chars)
     let nStr = nonce.toString(16);
     while (nStr.length < 16) nStr = '0' + nStr;
 
@@ -1043,14 +1055,12 @@ async function solvePow() {
       break;
     }
 
-    if (zeros >= target) {
-      return { ...ch, nonce: nStr };
-    }
+    if (zeros >= target) return { ...ch, nonce: nStr };
 
     nonce++;
 
-    if (nonce % 5000 === 0) {
-      powVal.textContent = nonce.toLocaleString() + ' tries';
+    if (nonce % 3000 === 0) {
+      setInitProgress('Security Challenge', nonce.toLocaleString() + ' tries', 25 + Math.min(40, nonce / 2000));
       await new Promise(r => setTimeout(r, 0));
 
       if (Date.now() - powStartTime > CONFIG.POW_TIMEOUT) {
@@ -1060,47 +1070,88 @@ async function solvePow() {
   }
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   INIT FLOW
-   ════════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════
+   INIT (Parallel everything)
+   ════════════════════════════════════════════════════════════════ */
 async function init() {
-  setStatus('Waking server...', 'amber');
+  setStatus('● Waking server...', 'amber');
   setBtns(true);
+  initBox.classList.add('show');
+  setInitProgress('Connecting', 'Loading', 5);
 
   try {
-    // Quick health check
-    await fetchT(CONFIG.API + '/health', { method: 'GET' }, 30000);
+    // Run health check + fingerprint in parallel with PoW
+    const healthPromise = fetchT(CONFIG.API + '/health', { method: 'GET' }, 30000)
+      .then(() => true).catch(() => false);
 
-    setStatus('● Solving security challenge', 'amber');
-    powRow.classList.add('show');
+    const fpPromise = getFingerprint();
 
-    powSolution = await solvePow();
-    powVal.textContent = '✓ ' + (Date.now() - powStartTime) + 'ms';
+    setInitProgress('Security Challenge', 'Fetching', 15);
 
-    // Now capture the behaviour (once) for the session request
+    // Start PoW (runs in worker, non-blocking for UI)
+    const powPromise = solvePow();
+
+    // Wait for health to confirm server is up
+    await healthPromise;
+    setInitProgress('Security Challenge', 'Solving', 25);
+
+    // Now wait for PoW
+    powSolution = await powPromise;
+    const elapsed = Date.now() - powStartTime;
+    setInitProgress('Security Challenge', '✓ ' + elapsed + 'ms', 95, true);
+
+    // Capture behavior payload
     behaviorPayload = getBehaviorPayload();
 
-    setStatus('● System Online — Choose Provider', 'green');
+    // Wait for fingerprint
+    await fpPromise;
+    setInitProgress('System Ready', '✓ Online', 100, true);
+
+    // Success
+    initComplete = true;
+    setStatus('● Choose your provider', 'green');
     setBtns(false);
+
+    // Auto-collapse init bar after 2s
+    setTimeout(() => {
+      if (initBox && initComplete) {
+        initBox.style.transition = 'opacity 0.5s, max-height 0.5s';
+        initBox.style.maxHeight = '0';
+        initBox.style.opacity = '0';
+        initBox.style.padding = '0 14px';
+        initBox.style.marginBottom = '0';
+        initBox.style.overflow = 'hidden';
+      }
+    }, 2000);
+
+    // Pre-create session in background for INSTANT click response
+    // (We don't want to do this for security – session must be tied to user click)
+    // But we can prefetch the LootLabs encrypt endpoint to warm DNS/TLS
+    fetchT(CONFIG.API + '/health', { method: 'GET' }, 5000).catch(() => {});
+
   } catch (e) {
     console.error('[INIT]', e);
     setStatus('● Connection issue — Refresh to retry', 'red');
-    powVal.textContent = '✗ Failed';
+    setInitProgress('Failed', '✗ Error', 0);
   }
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   PROVIDER CLICK HANDLER
-   ════════════════════════════════════════════════════════════════════ */
-async function handleClick(provider) {
-  if (sessionInFlight) return;
+/* ════════════════════════════════════════════════════════════════
+   PROVIDER CLICK (OPTIMIZED)
+   ════════════════════════════════════════════════════════════════ */
+async function handleClick(provider, btn) {
+  if (sessionInFlight || !initComplete) return;
   sessionInFlight = true;
-  setStatus('Generating session...', 'amber');
+
+  // INSTANT visual feedback (within 16ms)
+  btn.classList.add('loading');
   setBtns(true);
+  setStatus('● Generating session...', 'amber');
 
   try {
-    const fp = await getFingerprint();
+    const fp = await getFingerprint(); // already cached, instant
 
+    // Single API call — no health check, no extra round trips
     const r = await fetchT(CONFIG.API + '/api/initiate-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1109,8 +1160,10 @@ async function handleClick(provider) {
         pow: powSolution,
         behavior: behaviorPayload,
         abVariant: provider,
+        tier: requestedTier,
+        bonusId: bonusId || undefined,
       }),
-    }, 20000);
+    }, 15000);
 
     const data = await r.json().catch(() => ({}));
 
@@ -1118,77 +1171,111 @@ async function handleClick(provider) {
       throw new Error(data.error || 'Session creation failed');
     }
 
+    cachedSession = {
+      token: data.token,
+      csrf: data.csrf,
+      sblob: data.session,
+      totp: data.totp,
+      abVariant: data.abVariant,
+    };
+
     saveSession(
       data.token, fp, provider,
-      data.csrf, data.session,
-      data.totp, data.abVariant
+      data.csrf, data.session, data.totp,
+      data.abVariant, requestedTier
     );
 
     setStatus('● Redirecting...', 'green');
 
+    // Provider-specific redirect logic
     if (provider === 'linkvertise') {
+      showRedirectOverlay('lv', 'Opening Linkvertise', 'Get ready');
       setTimeout(() => {
         location.href = 'ad.html?token=' + encodeURIComponent(data.token);
-      }, 500);
+      }, 350);
+
     } else if (provider === 'lootlabs') {
+      showRedirectOverlay('ll', 'Preparing LootLabs', 'Encrypting session');
+
+      // PARALLEL: Start encryption AND set fallback timer
+      // If encryption takes >3s, we fall back to plain LootLabs URL
+      const encPromise = fetchT(CONFIG.API + '/api/lootlabs/encrypt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': data.csrf,
+        },
+        body: JSON.stringify({
+          url: CONFIG.REDIRECT_URL +
+            '?token=' + encodeURIComponent(data.token) +
+            '&session=' + encodeURIComponent(data.session) +
+            '&csrf=' + encodeURIComponent(data.csrf) +
+            '&totp=' + encodeURIComponent(data.totp) +
+            '&provider=lootlabs',
+        }),
+      }, 6000);
+
+      // Race: encryption vs 4-second timeout
+      const fallbackTimer = new Promise(resolve =>
+        setTimeout(() => resolve({ fallback: true }), 4000)
+      );
+
       try {
-        // Build a full destination URL with all the verification data
-        const destination =
-          CONFIG.REDIRECT_URL +
-          '?token=' + encodeURIComponent(data.token) +
-          '&session=' + encodeURIComponent(data.session) +
-          '&csrf=' + encodeURIComponent(data.csrf) +
-          '&totp=' + encodeURIComponent(data.totp) +
-          '&provider=lootlabs';
+        const result = await Promise.race([
+          encPromise.then(async r => {
+            const ed = await r.json().catch(() => ({}));
+            return r.ok && ed.encrypted ? { encrypted: ed.encrypted } : { fallback: true };
+          }),
+          fallbackTimer,
+        ]);
 
-        // Ask the backend to encrypt that entire URL
-        const enc = await fetchT(CONFIG.API + '/api/lootlabs/encrypt', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-csrf-token': data.csrf,
-          },
-          body: JSON.stringify({ url: destination }),
-        }, 10000);
-
-        const ed = await enc.json().catch(() => ({}));
-        if (enc.ok && ed.encrypted) {
+        if (result.encrypted) {
           location.href = CONFIG.LOOTLABS_URL +
             (CONFIG.LOOTLABS_URL.includes('?') ? '&' : '?') +
-            'data=' + encodeURIComponent(ed.encrypted);
-          return;
+            'data=' + encodeURIComponent(result.encrypted);
+        } else {
+          // Fallback to plain LootLabs URL — token is in localStorage
+          roSub.textContent = 'Loading directly...';
+          location.href = CONFIG.LOOTLABS_URL;
         }
-      } catch (_) {}
-      // If encryption fails, fallback to plain LootLabs link (less secure)
-      location.href = CONFIG.LOOTLABS_URL;
+      } catch (_) {
+        // Last-resort fallback
+        location.href = CONFIG.LOOTLABS_URL;
+      }
+
     } else if (provider === 'workink') {
-      setTimeout(() => { location.href = CONFIG.WORKINK_URL; }, 500);
+      showRedirectOverlay('wi', 'Opening Work.ink', 'Best CPM rates');
+      setTimeout(() => {
+        location.href = CONFIG.WORKINK_URL;
+      }, 350);
     }
+
   } catch (err) {
     console.error('[CLICK]', err);
+    btn.classList.remove('loading');
     setStatus('● ' + (err.message || 'Error occurred'), 'red');
     setBtns(false);
     sessionInFlight = false;
   }
 }
 
-goBtnLv.addEventListener('click', () => handleClick('linkvertise'));
-goBtnLl.addEventListener('click', () => handleClick('lootlabs'));
-goBtnWi.addEventListener('click', () => handleClick('workink'));
+goBtnLv.addEventListener('click', () => handleClick('linkvertise', goBtnLv));
+goBtnLl.addEventListener('click', () => handleClick('lootlabs', goBtnLl));
+goBtnWi.addEventListener('click', () => handleClick('workink', goBtnWi));
 
-/* ════════════════════════════════════════════════════════════════════
-   LIVE LAVA PHYSICS ENGINE
-   ════════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════
+   LIVE LAVA ENGINE (optimized)
+   ════════════════════════════════════════════════════════════════ */
 (function lavaEngine() {
-  const cv  = document.getElementById('lava-canvas');
+  const cv = document.getElementById('lava-canvas');
   const ctx = cv.getContext('2d', { alpha: true });
   let dpr = Math.min(window.devicePixelRatio || 1, 2);
 
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
-    cv.width  = innerWidth  * dpr;
+    cv.width = innerWidth * dpr;
     cv.height = innerHeight * dpr;
-    cv.style.width  = innerWidth  + 'px';
+    cv.style.width = innerWidth + 'px';
     cv.style.height = innerHeight + 'px';
     ctx.scale(dpr, dpr);
   }
@@ -1196,10 +1283,8 @@ goBtnWi.addEventListener('click', () => handleClick('workink'));
   window.addEventListener('resize', resize);
 
   const palette = [
-    [255,  80,   0], [255, 120,  10], [255,  60,   0],
-    [220,  40,   0], [255, 155,  20], [180,  30,   0],
-    [255, 140,   0], [200,  50,   0], [255, 100,   5],
-    [240,  90,  10], [255, 165,  30], [210,  55,   0],
+    [255, 80, 0], [255, 120, 10], [255, 60, 0], [220, 40, 0],
+    [255, 155, 20], [180, 30, 0], [255, 140, 0], [200, 50, 0], [255, 100, 5],
   ];
 
   const rnd = (a, b) => a + Math.random() * (b - a);
@@ -1210,10 +1295,8 @@ goBtnWi.addEventListener('click', () => handleClick('workink'));
     return {
       x: innerWidth * 0.5 + rnd(-spreadW, spreadW),
       y: initialSpread ? rnd(-innerHeight, 0) : rnd(-100, 0),
-      vy: rnd(1.4, 4.0),
-      vx: rnd(-0.85, 0.85),
-      radius: rnd(4, 16),
-      tail: [],
+      vy: rnd(1.4, 4.0), vx: rnd(-0.85, 0.85),
+      radius: rnd(4, 16), tail: [],
       maxTail: Math.floor(rnd(16, 36)),
       r: c[0], g: c[1], b: c[2],
       alpha: rnd(0.55, 0.95),
@@ -1223,54 +1306,48 @@ goBtnWi.addEventListener('click', () => handleClick('workink'));
       heat: rnd(0.7, 1.0),
       flickerPhase: rnd(0, Math.PI * 2),
       flickerSpd: rnd(0.05, 0.15),
-      life: 1.0,
     };
   }
 
-  const TARGET_DROPS = innerWidth < 600 ? 80 : 130;
+  // Reduce drops when initialization is happening to free up CPU
+  const TARGET_DROPS = innerWidth < 600 ? 70 : 110;
   const drops = [];
   for (let i = 0; i < TARGET_DROPS; i++) drops.push(makeDrop(true));
 
   function drawDrop(d) {
     const { x, y, radius: rd, r, g, b, alpha, tail } = d;
 
-    // Trailing particles
     for (let i = 0; i < tail.length; i++) {
       const t = tail[i];
       const pct = i / tail.length;
       const a = alpha * pct * 0.48 * d.heat;
       const rad = rd * pct * 0.72;
-
       if (rad < 0.5 || a < 0.01) continue;
-
       ctx.beginPath();
       ctx.arc(t.x, t.y, rad, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
       ctx.fill();
     }
 
-    // Outer glow
     const gr = ctx.createRadialGradient(x, y, 0, x, y, rd * 6);
-    gr.addColorStop(0,   `rgba(${r},${g},${b},${alpha * 0.5 * d.heat})`);
+    gr.addColorStop(0, `rgba(${r},${g},${b},${alpha * 0.5 * d.heat})`);
     gr.addColorStop(0.5, `rgba(${r},${g},${b},${alpha * 0.2 * d.heat})`);
-    gr.addColorStop(1,   `rgba(${r},${g},${b},0)`);
+    gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
     ctx.beginPath();
     ctx.arc(x, y, rd * 6, 0, Math.PI * 2);
     ctx.fillStyle = gr;
     ctx.fill();
 
-    // Main body with flicker
     const flicker = 0.92 + Math.sin(d.flickerPhase) * 0.08;
     const gm = ctx.createRadialGradient(x - rd * 0.35, y - rd * 0.4, 0, x, y, rd);
-    gm.addColorStop(0,    `rgba(255,235,170,${alpha * 0.95 * flicker})`);
+    gm.addColorStop(0, `rgba(255,235,170,${alpha * 0.95 * flicker})`);
     gm.addColorStop(0.35, `rgba(${r},${g},${b},${alpha * flicker})`);
-    gm.addColorStop(1,    `rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
+    gm.addColorStop(1, `rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
     ctx.beginPath();
     ctx.arc(x, y, rd * flicker, 0, Math.PI * 2);
     ctx.fillStyle = gm;
     ctx.fill();
 
-    // Hot spot highlight
     ctx.beginPath();
     ctx.arc(x - rd * 0.3, y - rd * 0.32, rd * 0.28, 0, Math.PI * 2);
     ctx.fillStyle = `rgba(255,255,250,${alpha * 0.8 * flicker})`;
@@ -1280,8 +1357,18 @@ goBtnWi.addEventListener('click', () => handleClick('workink'));
   let lastFrameTime = 0;
   const FPS_CAP = 60;
   const FRAME_INTERVAL = 1000 / FPS_CAP;
+  let isHidden = false;
+
+  document.addEventListener('visibilitychange', () => {
+    isHidden = document.hidden;
+  });
 
   function animate(now) {
+    if (isHidden) {
+      setTimeout(() => requestAnimationFrame(animate), 200);
+      return;
+    }
+
     const delta = now - lastFrameTime;
     if (delta < FRAME_INTERVAL) {
       requestAnimationFrame(animate);
@@ -1292,14 +1379,12 @@ goBtnWi.addEventListener('click', () => handleClick('workink'));
     ctx.clearRect(0, 0, cv.width, cv.height);
 
     for (const d of drops) {
-      d.wobble       += d.wobbleSpd;
+      d.wobble += d.wobbleSpd;
       d.flickerPhase += d.flickerSpd;
-      d.x            += Math.sin(d.wobble) * d.wobbleAmp + d.vx;
-      d.y            += d.vy;
-
+      d.x += Math.sin(d.wobble) * d.wobbleAmp + d.vx;
+      d.y += d.vy;
       d.tail.push({ x: d.x, y: d.y });
       if (d.tail.length > d.maxTail) d.tail.shift();
-
       drawDrop(d);
 
       if (d.y - d.radius > innerHeight + 30) {
@@ -1313,9 +1398,9 @@ goBtnWi.addEventListener('click', () => handleClick('workink'));
   requestAnimationFrame(animate);
 })();
 
-/* ════════════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════════════════
    START
-   ════════════════════════════════════════════════════════════════════ */
+   ════════════════════════════════════════════════════════════════ */
 init();
 
 })();
