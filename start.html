@@ -6,25 +6,730 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0a0200">
 <meta name="description" content="RezurXLab Premium Key System">
-<meta http-equiv="X-Frame-Options" content="DENY">
-<meta http-equiv="X-Content-Type-Options" content="nosniff">
-<meta http-equiv="Referrer-Policy" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://rezurx-backend.onrender.com; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self' https://rezurx-backend.onrender.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+<!-- X-Frame-Options and frame-ancestors removed – must be sent via HTTP, not <meta> -->
 <title>RezurXLab | Access Portal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-/* ... all CSS unchanged ... */
-:root { /* ... */ }
-*,*::before,*::after{/*...*/}
-/* I'll keep the full style block for completeness but you can copy from your original file */
-/* For brevity I'm indicating the full style remains identical; it's included in the final file you can copy from below */
+/* ════════════════════════════════════════════════════════════════════
+   REZURXLAB v4.0 — FORTRESS EDITION FRONTEND
+   Premium UI with Live Lava Physics Engine
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Primary Palette */
+  --orange:        #ff8c00;
+  --orange-bright: #ffaa33;
+  --orange-deep:   #aa4400;
+  --orange-glow:   rgba(255, 140, 0, 0.45);
+  --orange-soft:   rgba(255, 140, 0, 0.12);
+  --gold:          #ffd700;
+  --gold-soft:     rgba(255, 215, 0, 0.3);
+
+  /* Status Colors */
+  --green:         #00ff88;
+  --green-glow:    rgba(0, 255, 136, 0.45);
+  --teal:          #20cc88;
+  --purple:        #a070ff;
+  --purple-glow:   rgba(160, 112, 255, 0.4);
+  --red:           #ff4455;
+  --red-glow:      rgba(255, 68, 85, 0.45);
+
+  /* Surfaces */
+  --bg:            #050100;
+  --bg-elevated:   #0a0200;
+  --panel:         rgba(8, 3, 0, 0.93);
+  --panel-bright:  rgba(14, 6, 1, 0.95);
+  --muted:         #3a3028;
+  --dim:           #6a5848;
+  --border:        rgba(255, 140, 0, 0.22);
+  --border-bright: rgba(255, 140, 0, 0.4);
+
+  /* Effects */
+  --shadow-deep:   0 24px 70px rgba(0, 0, 0, 0.92);
+  --shadow-glow:   0 0 120px rgba(255, 80, 0, 0.18);
+  --shadow-inset:  inset 0 1px 0 rgba(255, 200, 120, 0.14);
+}
+
+* , *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: #fff;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ATMOSPHERIC LAYERS (z: 0-3)
+   ───────────────────────────────────────────────────────────── */
+#lava-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.atmos {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 95% 55% at 50% -5%, rgba(255, 90, 0, 0.28) 0%, transparent 60%),
+    radial-gradient(ellipse 75% 45% at 50% 105%, rgba(180, 30, 0, 0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, transparent 30%, rgba(0, 0, 0, 0.84) 100%);
+  animation: atmosShift 20s ease-in-out infinite alternate;
+}
+
+@keyframes atmosShift {
+  0%   { filter: hue-rotate(0deg) brightness(1); }
+  100% { filter: hue-rotate(8deg) brightness(1.08); }
+}
+
+.lava-river {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 36vh;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(0deg,
+    rgba(255, 70, 0, 0.22) 0%,
+    rgba(255, 100, 0, 0.08) 40%,
+    transparent 100%);
+  animation: riverGlow 4s ease-in-out infinite;
+}
+
+@keyframes riverGlow {
+  0%, 100% { opacity: 0.7; transform: scaleY(1); }
+  50%      { opacity: 1.0; transform: scaleY(1.04); }
+}
+
+.scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.05) 3px,
+    rgba(0, 0, 0, 0.05) 4px);
+  mix-blend-mode: multiply;
+}
+
+.embers {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background-image:
+    radial-gradient(2px 2px at 15% 85%, rgba(255, 180, 50, 0.7)  0%, transparent 100%),
+    radial-gradient(3px 3px at 25% 90%, rgba(255, 140, 0,  0.6)  0%, transparent 100%),
+    radial-gradient(1px 1px at 35% 80%, rgba(255, 200, 80, 0.5)  0%, transparent 100%),
+    radial-gradient(2px 2px at 70% 88%, rgba(255, 160, 40, 0.6)  0%, transparent 100%),
+    radial-gradient(3px 3px at 85% 82%, rgba(255, 120, 20, 0.5)  0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 75%, rgba(255, 220, 100, 0.4) 0%, transparent 100%);
+  background-size: 200% 200%;
+  animation: embersFloat 8s ease-in-out infinite alternate;
+}
+
+@keyframes embersFloat {
+  0%   { transform: translateY(0)     translateX(0); opacity: 0.8; }
+  50%  { transform: translateY(-15px) translateX(10px); opacity: 1; }
+  100% { transform: translateY(-5px)  translateX(-5px); opacity: 0.85; }
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+.heat-shimmer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 25vh;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(0deg,
+    rgba(255, 100, 0, 0.06),
+    transparent);
+  animation: shimmer 3s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.5; transform: translateY(0); }
+  50%      { opacity: 0.9; transform: translateY(-2px); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MAIN PANEL (z: 10)
+   ───────────────────────────────────────────────────────────── */
+.panel {
+  position: relative;
+  z-index: 10;
+  background:
+    linear-gradient(180deg, var(--panel-bright) 0%, var(--panel) 100%);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 48px 42px 38px;
+  width: 92%;
+  max-width: 580px;
+  text-align: center;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.95),
+    var(--shadow-deep),
+    var(--shadow-glow),
+    var(--shadow-inset);
+  backdrop-filter: blur(8px) saturate(1.2);
+  -webkit-backdrop-filter: blur(8px) saturate(1.2);
+  animation: panelIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(28px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (max-width: 540px) {
+  .panel { padding: 36px 24px 30px; }
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 12px;
+  pointer-events: none;
+  background: linear-gradient(135deg,
+    rgba(255, 150, 30, 0.5) 0%,
+    transparent 30%,
+    transparent 70%,
+    rgba(255, 140, 0, 0.32) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  padding: 1px;
+  opacity: 0.9;
+}
+
+.panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 180, 80, 0.05) 0%, transparent 40%);
+}
+
+/* Corner Brackets */
+.c {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  z-index: 1;
+}
+.c-tl { top: -1px; left: -1px;
+  border-top: 2px solid var(--orange-bright);
+  border-left: 2px solid var(--orange-bright);
+  border-radius: 4px 0 0 0;
+  filter: drop-shadow(0 0 5px var(--orange-glow));
+}
+.c-tr { top: -1px; right: -1px;
+  border-top: 2px solid var(--orange-bright);
+  border-right: 2px solid var(--orange-bright);
+  border-radius: 0 4px 0 0;
+  filter: drop-shadow(0 0 5px var(--orange-glow));
+}
+.c-bl { bottom: -1px; left: -1px;
+  border-bottom: 2px solid var(--orange-bright);
+  border-left: 2px solid var(--orange-bright);
+  border-radius: 0 0 0 4px;
+  filter: drop-shadow(0 0 5px var(--orange-glow));
+}
+.c-br { bottom: -1px; right: -1px;
+  border-bottom: 2px solid var(--orange-bright);
+  border-right: 2px solid var(--orange-bright);
+  border-radius: 0 0 4px 0;
+  filter: drop-shadow(0 0 5px var(--orange-glow));
+}
+
+/* ─────────────────────────────────────────────────────────────
+   LOGO / HEADER
+   ───────────────────────────────────────────────────────────── */
+.logo-wrap {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+
+.logo-wrap::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 360px;
+  height: 95px;
+  background: radial-gradient(ellipse at center,
+    rgba(255, 180, 50, 0.22) 0%,
+    rgba(255, 120, 0,  0.10) 40%,
+    transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+  animation: auraOuter 4s ease-in-out infinite;
+  filter: blur(10px);
+}
+
+.logo-wrap::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 230px;
+  height: 58px;
+  background: radial-gradient(ellipse at center,
+    rgba(255, 220, 100, 0.42) 0%,
+    rgba(255, 140, 0,   0.22) 45%,
+    transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+  animation: auraInner 4s ease-in-out infinite;
+  filter: blur(5px);
+}
+
+@keyframes auraOuter {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  50%      { opacity: 1.0; transform: translate(-50%, -50%) scale(1.16); }
+}
+
+@keyframes auraInner {
+  0%, 100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
+  50%      { opacity: 1.0; transform: translate(-50%, -50%) scale(1.10); }
+}
+
+.logo-eyebrow {
+  font-size: 0.55rem;
+  letter-spacing: 5px;
+  color: var(--orange-deep);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2.1rem;
+  font-weight: 900;
+  letter-spacing: 7px;
+  background: linear-gradient(180deg, #fff0c0 0%, #ffaa33 35%, #ff6600 70%, #aa3300 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 26px rgba(255, 140, 0, 0.65));
+  line-height: 1.05;
+  animation: logoBreath 4s ease-in-out infinite;
+}
+
+@keyframes logoBreath {
+  0%, 100% { filter: drop-shadow(0 0 26px rgba(255, 140, 0,  0.55)); }
+  50%      { filter: drop-shadow(0 0 42px rgba(255, 170, 50, 1));   }
+}
+
+.logo-sub {
+  font-size: 0.52rem;
+  letter-spacing: 7px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: 12px;
+  margin-bottom: 28px;
+  font-weight: 500;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(255, 140, 0, 0.35) 30%,
+    rgba(255, 140, 0, 0.55) 50%,
+    rgba(255, 140, 0, 0.35) 70%,
+    transparent);
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--orange);
+  box-shadow:
+    0 0 12px var(--orange-glow),
+    0 0 4px #fff inset;
+  animation: dividerPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes dividerPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1);   opacity: 1;   }
+  50%      { transform: translate(-50%, -50%) scale(1.2); opacity: 0.7; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   INFO LINE & STATUS
+   ───────────────────────────────────────────────────────────── */
+.info-line {
+  font-size: 0.62rem;
+  letter-spacing: 1.5px;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  line-height: 1.75;
+}
+
+.info-line strong {
+  color: var(--orange);
+  font-weight: 500;
+}
+
+#status {
+  font-size: 0.68rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 1.1em;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.sdot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+  animation: pulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1;   transform: scale(1);    }
+  50%      { opacity: 0.3; transform: scale(0.85); }
+}
+
+#status.green .sdot { background: var(--green); box-shadow: 0 0 12px var(--green-glow); }
+#status.green       { color: var(--green); }
+
+#status.red .sdot   { background: var(--red);   box-shadow: 0 0 12px var(--red-glow); animation: none; }
+#status.red         { color: var(--red); }
+
+#status.amber .sdot { background: var(--orange); box-shadow: 0 0 12px var(--orange-glow); }
+#status.amber       { color: var(--orange-bright); }
+
+/* ─────────────────────────────────────────────────────────────
+   POW / SECURITY ROW
+   ───────────────────────────────────────────────────────────── */
+#pow-row {
+  display: none;
+  font-size: 0.55rem;
+  letter-spacing: 1.5px;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 140, 0, 0.14);
+  border-radius: 5px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.15) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+#pow-row.show {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  animation: slideIn 0.4s ease both;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+#pow-row .lbl { color: var(--muted); }
+#pow-row .val {
+  color: var(--orange);
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px var(--orange-glow);
+}
+
+#pow-row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 140, 0, 0.06), transparent);
+  transform: translateX(-100%);
+  animation: scanGlow 3s linear infinite;
+}
+
+@keyframes scanGlow {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%);  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PROVIDER BUTTONS
+   ───────────────────────────────────────────────────────────── */
+.btn-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.provider-btn {
+  position: relative;
+  padding: 16px 18px;
+  cursor: pointer;
+  border-radius: 7px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+  transition: all 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+  border: 1px solid;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.provider-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.24), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.65s;
+}
+
+.provider-btn:hover:not(:disabled)::before { transform: translateX(100%); }
+.provider-btn:hover:not(:disabled)         { transform: translateY(-2px); }
+.provider-btn:active:not(:disabled)        { transform: translateY(0);    }
+
+.provider-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.3);
+}
+
+.provider-btn .left {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.provider-btn .pdot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: btnDot 2s ease-in-out infinite;
+}
+
+@keyframes btnDot {
+  0%, 100% { opacity: 1;   transform: scale(1);    }
+  50%      { opacity: 0.55; transform: scale(0.82); }
+}
+
+.provider-btn .duration {
+  font-size: 0.56rem;
+  letter-spacing: 1.6px;
+  font-weight: 700;
+  opacity: 0.92;
+  padding: 4px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+/* Linkvertise (Orange) */
+#go-btn-lv {
+  background: linear-gradient(180deg, #ff9920 0%, #ff6600 100%);
+  color: #1a0800;
+  border-color: rgba(255, 180, 80, 0.55);
+  box-shadow:
+    0 4px 18px rgba(255, 100, 0, 0.4),
+    inset 0 1px 0 rgba(255, 220, 150, 0.45);
+}
+#go-btn-lv:hover:not(:disabled) {
+  box-shadow:
+    0 10px 30px rgba(255, 100, 0, 0.55),
+    inset 0 1px 0 rgba(255, 220, 150, 0.6);
+}
+#go-btn-lv .pdot     { background: #1a0800; box-shadow: 0 0 6px #1a0800; }
+#go-btn-lv .duration { background: rgba(0, 0, 0, 0.28); color: #3a1500; }
+
+/* LootLabs (Purple) */
+#go-btn-ll {
+  background: linear-gradient(180deg, #b290ff 0%, #7a4dff 100%);
+  color: #1a0033;
+  border-color: rgba(180, 140, 255, 0.55);
+  box-shadow:
+    0 4px 18px rgba(120, 80, 255, 0.4),
+    inset 0 1px 0 rgba(220, 200, 255, 0.45);
+}
+#go-btn-ll:hover:not(:disabled) {
+  box-shadow:
+    0 10px 30px rgba(120, 80, 255, 0.55),
+    inset 0 1px 0 rgba(220, 200, 255, 0.6);
+}
+#go-btn-ll .pdot     { background: #1a0033; box-shadow: 0 0 6px #1a0033; }
+#go-btn-ll .duration { background: rgba(0, 0, 0, 0.28); color: #1a0033; }
+
+/* Work.ink (Green) */
+#go-btn-wi {
+  background: linear-gradient(180deg, #25dd96 0%, #0faa68 100%);
+  color: #001a0e;
+  border-color: rgba(50, 220, 140, 0.55);
+  box-shadow:
+    0 4px 18px rgba(0, 180, 100, 0.4),
+    inset 0 1px 0 rgba(180, 255, 220, 0.4);
+}
+#go-btn-wi:hover:not(:disabled) {
+  box-shadow:
+    0 10px 30px rgba(0, 200, 120, 0.55),
+    inset 0 1px 0 rgba(180, 255, 220, 0.55);
+}
+#go-btn-wi .pdot     { background: #001a0e; box-shadow: 0 0 6px #001a0e; }
+#go-btn-wi .duration { background: rgba(0, 0, 0, 0.28); color: #001a0e; }
+
+/* Recommended Badge */
+.recommended-tag {
+  position: absolute;
+  top: -8px;
+  right: 12px;
+  background: linear-gradient(135deg, var(--gold) 0%, #ff9900 100%);
+  color: #1a0800;
+  font-size: 0.5rem;
+  letter-spacing: 1.5px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
+  z-index: 2;
+  animation: recBlink 2s ease-in-out infinite;
+}
+
+@keyframes recBlink {
+  0%, 100% { transform: scale(1);    box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5); }
+  50%      { transform: scale(1.06); box-shadow: 0 2px 16px rgba(255, 215, 0, 0.8); }
+}
+
+/* Honeypots */
+.hp-trap {
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+  height: 0;
+  width: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* Footer */
+.footer {
+  margin-top: 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 140, 0, 0.10);
+  flex-wrap: wrap;
+}
+
+.fi {
+  font-size: 0.46rem;
+  letter-spacing: 2.2px;
+  color: #1a0e06;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.fd {
+  width: 2.5px;
+  height: 2.5px;
+  border-radius: 50%;
+  background: #1a0e06;
+}
+
+.country-tag {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 0.46rem;
+  color: var(--orange-deep);
+  letter-spacing: 1.5px;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 </style>
 </head>
 <body>
 
-<!-- Atmospheric Layers (same as before) -->
+<!-- Atmospheric Layers -->
 <canvas id="lava-canvas" aria-hidden="true"></canvas>
 <div class="atmos"     aria-hidden="true"></div>
 <div class="lava-river" aria-hidden="true"></div>
@@ -33,14 +738,67 @@
 <div class="vignette"  aria-hidden="true"></div>
 <div class="heat-shimmer" aria-hidden="true"></div>
 
-<!-- Main Panel (unchanged) -->
-...
+<!-- Main Panel -->
+<div class="panel" role="main">
+  <div class="c c-tl"></div><div class="c c-tr"></div>
+  <div class="c c-bl"></div><div class="c c-br"></div>
+
+  <div class="logo-eyebrow">◆ Access Portal ◆</div>
+  <div class="logo-wrap"><h1>REZURXLAB</h1></div>
+  <div class="logo-sub">Premium Key Generation</div>
+  <div class="divider"></div>
+
+  <div class="info-line">
+    Choose your provider. Complete <strong>1 short ad</strong>.<br>
+    Receive your <strong>access key</strong> instantly.
+  </div>
+
+  <div id="status" role="status" aria-live="polite">
+    <span class="sdot"></span>
+    <span id="status-txt">Initializing system...</span>
+  </div>
+
+  <div id="pow-row">
+    <span class="lbl">Security Challenge</span>
+    <span class="val" id="pow-val">—</span>
+  </div>
+
+  <div class="btn-stack">
+    <button id="go-btn-lv" class="provider-btn" type="button" disabled aria-label="Continue with Linkvertise">
+      <span class="left"><span class="pdot"></span><span>Linkvertise</span></span>
+      <span class="duration">6h Key</span>
+    </button>
+    <button id="go-btn-ll" class="provider-btn" type="button" disabled aria-label="Continue with LootLabs">
+      <span class="left"><span class="pdot"></span><span>LootLabs</span></span>
+      <span class="duration">10h Key</span>
+    </button>
+    <button id="go-btn-wi" class="provider-btn" type="button" disabled aria-label="Continue with Work.ink">
+      <span class="left"><span class="pdot"></span><span>Work.ink</span></span>
+      <span class="duration">14h Key</span>
+    </button>
+  </div>
+
+  <!-- Honeypot Traps -->
+  <input class="hp-trap" name="website"        tabindex="-1" autocomplete="off" aria-hidden="true">
+  <input class="hp-trap" name="email_confirm"  tabindex="-1" autocomplete="off" aria-hidden="true">
+  <input class="hp-trap" name="phone_alt"      tabindex="-1" autocomplete="off" aria-hidden="true">
+  <input class="hp-trap" name="username_check" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+  <div class="footer">
+    <span class="fi">AES-256</span><div class="fd"></div>
+    <span class="fi">PoW Locked</span><div class="fd"></div>
+    <span class="fi">TOTP</span><div class="fd"></div>
+    <span class="fi">v4.0 Fortress</span>
+  </div>
+</div>
 
 <script>
 (() => {
 'use strict';
 
-/* CONFIG – unchanged */
+/* ════════════════════════════════════════════════════════════════════
+   CONFIGURATION
+   ════════════════════════════════════════════════════════════════════ */
 const CONFIG = {
   API:           "https://rezurx-backend.onrender.com",
   LOOTLABS_URL:  "https://loot-link.com/s?5cN9oCrm",
@@ -56,12 +814,17 @@ const CONFIG = {
   POW_TIMEOUT:   60000,
 };
 
-// Frame-bust
+/* ════════════════════════════════════════════════════════════════════
+   FRAME-BUST PROTECTION
+   ════════════════════════════════════════════════════════════════════ */
 if (top !== self) {
   try { top.location = self.location; }
   catch (_) { document.body.innerHTML = ''; }
 }
 
+/* ════════════════════════════════════════════════════════════════════
+   DOM REFERENCES
+   ════════════════════════════════════════════════════════════════════ */
 const goBtnLv  = document.getElementById('go-btn-lv');
 const goBtnLl  = document.getElementById('go-btn-ll');
 const goBtnWi  = document.getElementById('go-btn-wi');
@@ -70,80 +833,162 @@ const statusTx = document.getElementById('status-txt');
 const powRow   = document.getElementById('pow-row');
 const powVal   = document.getElementById('pow-val');
 
+/* ════════════════════════════════════════════════════════════════════
+   STATE
+   ════════════════════════════════════════════════════════════════════ */
 let powSolution     = null;
 let behaviorPayload = null;
 let sessionInFlight = false;
 let powStartTime    = 0;
 
-/* ── FINGERPRINTING (unchanged) ── */
+/* ════════════════════════════════════════════════════════════════════
+   FINGERPRINTING
+   ════════════════════════════════════════════════════════════════════ */
 async function getFingerprint() {
-  // ... same as before ...
-  const nav = navigator, scr = screen;
+  const nav = navigator;
+  const scr = screen;
   let canvasHash = 'nc';
+
   try {
-    const cv = document.createElement('canvas'); cv.width=200; cv.height=50;
+    const cv = document.createElement('canvas');
+    cv.width  = 200;
+    cv.height = 50;
     const cx = cv.getContext('2d');
-    cx.textBaseline='top'; cx.font='14px Arial'; cx.fillStyle='#ff8c00';
-    cx.fillText('RezurXFortress',2,20);
-    cx.fillStyle='rgba(0,200,100,0.7)'; cx.fillRect(8,30,70,10);
-    cx.strokeStyle='rgba(255,0,0,0.5)'; cx.beginPath(); cx.arc(100,25,12,0,Math.PI*2); cx.stroke();
-    canvasHash=cv.toDataURL().slice(-64);
-  }catch(_){}
-  let webglVendor='nw';
-  try{
-    const cv=document.createElement('canvas');
-    const gl=cv.getContext('webgl')||cv.getContext('experimental-webgl');
-    if(gl){const ext=gl.getExtension('WEBGL_debug_renderer_info'); if(ext) webglVendor=gl.getParameter(ext.UNMASKED_VENDOR_WEBGL)+'|'+gl.getParameter(ext.UNMASKED_RENDERER_WEBGL);}
-  }catch(_){}
-  const comp=[nav.userAgent||'', nav.language||'', nav.languages?.join(',')||'', nav.hardwareConcurrency||0, nav.maxTouchPoints||0, nav.deviceMemory||0, scr.colorDepth||0, scr.pixelDepth||0, scr.width+'x'+scr.height, scr.availWidth+'x'+scr.availHeight, Intl.DateTimeFormat().resolvedOptions().timeZone||'', new Date().getTimezoneOffset(), nav.platform||'', nav.vendor||'', nav.cookieEnabled?'1':'0', 'ontouchstart' in window?'1':'0', canvasHash, webglVendor, CONFIG.BIND_SECRET].join('|');
-  const buf=new TextEncoder().encode(comp);
-  const hash=await crypto.subtle.digest('SHA-256',buf);
-  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    cx.textBaseline = 'top';
+    cx.font = '14px Arial';
+    cx.fillStyle = '#ff8c00';
+    cx.fillText('RezurX🔥Fortress', 2, 20);
+    cx.fillStyle = 'rgba(0, 200, 100, 0.7)';
+    cx.fillRect(8, 30, 70, 10);
+    cx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+    cx.beginPath();
+    cx.arc(100, 25, 12, 0, Math.PI * 2);
+    cx.stroke();
+    canvasHash = cv.toDataURL().slice(-64);
+  } catch (_) {}
+
+  let webglVendor = 'nw';
+  try {
+    const cv = document.createElement('canvas');
+    const gl = cv.getContext('webgl') || cv.getContext('experimental-webgl');
+    if (gl) {
+      const ext = gl.getExtension('WEBGL_debug_renderer_info');
+      if (ext) {
+        webglVendor = gl.getParameter(ext.UNMASKED_VENDOR_WEBGL) + '|' +
+                      gl.getParameter(ext.UNMASKED_RENDERER_WEBGL);
+      }
+    }
+  } catch (_) {}
+
+  const components = [
+    nav.userAgent          || '',
+    nav.language           || '',
+    nav.languages?.join(',') || '',
+    nav.hardwareConcurrency || 0,
+    nav.maxTouchPoints     || 0,
+    nav.deviceMemory       || 0,
+    scr.colorDepth         || 0,
+    scr.pixelDepth         || 0,
+    scr.width + 'x' + scr.height,
+    scr.availWidth + 'x' + scr.availHeight,
+    Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+    new Date().getTimezoneOffset(),
+    nav.platform           || '',
+    nav.vendor             || '',
+    nav.cookieEnabled      ? '1' : '0',
+    'ontouchstart' in window ? '1' : '0',
+    canvasHash,
+    webglVendor,
+    CONFIG.BIND_SECRET,
+  ].join('|');
+
+  const buf = new TextEncoder().encode(components);
+  const hash = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hash))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
 }
 
-/* ── BEHAVIOUR CAPTURE (unchanged) ── */
+/* ════════════════════════════════════════════════════════════════════
+   BEHAVIOURAL TRACKING (one-shot, captured once)
+   ════════════════════════════════════════════════════════════════════ */
 function captureBehavior() {
-  const track = { mouse:0, key:0, scroll:0, focusTime:0, start:Date.now() };
-  const onMouse = ()=>{ track.mouse++; };
-  const onKey = ()=>{ track.key++; };
-  const onScroll = ()=>{ track.scroll++; };
-  window.addEventListener('mousemove', onMouse,{passive:true});
-  window.addEventListener('mousedown', onMouse,{passive:true});
-  window.addEventListener('touchstart',onMouse,{passive:true});
-  window.addEventListener('keydown',   onKey,  {passive:true});
-  window.addEventListener('scroll',   onScroll,{passive:true});
-  return ()=>{
-    window.removeEventListener('mousemove',onMouse);
-    window.removeEventListener('mousedown',onMouse);
-    window.removeEventListener('touchstart',onMouse);
-    window.removeEventListener('keydown',   onKey);
-    window.removeEventListener('scroll',   onScroll);
-    track.focusTime = Date.now() - track.start;
-    const payload = JSON.stringify({ mouseEvents:track.mouse, keyEvents:track.key, scrollEvents:track.scroll, focusTime:track.focusTime });
-    return btoa(payload).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  const track = {
+    mouse:  0,
+    key:    0,
+    scroll: 0,
+    start:  Date.now()
+  };
+
+  const onMouse  = () => { track.mouse++;  };
+  const onKey    = () => { track.key++;    };
+  const onScroll = () => { track.scroll++; };
+
+  window.addEventListener('mousemove',  onMouse,  { passive: true });
+  window.addEventListener('mousedown',  onMouse,  { passive: true });
+  window.addEventListener('touchstart', onMouse,  { passive: true });
+  window.addEventListener('keydown',    onKey,    { passive: true });
+  window.addEventListener('scroll',     onScroll, { passive: true });
+
+  // Return a function that stops tracking and returns the payload
+  return () => {
+    window.removeEventListener('mousemove',  onMouse);
+    window.removeEventListener('mousedown',  onMouse);
+    window.removeEventListener('touchstart', onMouse);
+    window.removeEventListener('keydown',    onKey);
+    window.removeEventListener('scroll',     onScroll);
+
+    const focusTime = Date.now() - track.start;
+    const payload = JSON.stringify({
+      mouseEvents:  track.mouse,
+      keyEvents:    track.key,
+      scrollEvents: track.scroll,
+      focusTime,
+    });
+    // base64url encode
+    return btoa(payload).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   };
 }
-const getBehaviorPayload = captureBehavior();
 
-/* ── STORAGE HELPERS (unchanged) ── */
+const getBehaviorPayload = captureBehavior(); // stores the stop function
+
+/* ════════════════════════════════════════════════════════════════════
+   STORAGE HELPERS
+   ════════════════════════════════════════════════════════════════════ */
 function saveSession(token, fp, provider, csrf, sblob, totp, abVariant) {
   try {
-    localStorage.setItem(CONFIG.SESSION_KEY, JSON.stringify({token, fp, ts:Date.now(), provider, ab:abVariant||null}));
-    localStorage.setItem(CONFIG.CSRF_KEY, csrf);
+    localStorage.setItem(CONFIG.SESSION_KEY, JSON.stringify({
+      token, fp, ts: Date.now(), provider, ab: abVariant || null,
+    }));
+    localStorage.setItem(CONFIG.CSRF_KEY,  csrf);
     localStorage.setItem(CONFIG.SBLOB_KEY, sblob);
-    localStorage.setItem(CONFIG.TOTP_KEY, JSON.stringify({totp, ts:Date.now()}));
-    if(abVariant) localStorage.setItem(CONFIG.AB_KEY, abVariant);
-  }catch(e){console.error('[STORAGE]',e);}
+    localStorage.setItem(CONFIG.TOTP_KEY,  JSON.stringify({ totp, ts: Date.now() }));
+    if (abVariant) localStorage.setItem(CONFIG.AB_KEY, abVariant);
+  } catch (e) {
+    console.error('[STORAGE]', e);
+  }
 }
 
-/* ── UI HELPERS (unchanged) ── */
-function setStatus(msg,tone=''){ statusTx.textContent=msg; statusEl.className=tone; }
-function setBtns(disabled){ goBtnLv.disabled=goBtnLl.disabled=goBtnWi.disabled=disabled; }
+/* ════════════════════════════════════════════════════════════════════
+   UI HELPERS
+   ════════════════════════════════════════════════════════════════════ */
+function setStatus(msg, tone = '') {
+  statusTx.textContent = msg;
+  statusEl.className = tone;
+}
 
-/* ── FETCH WITH BROWSER HEADERS (unchanged) ── */
-async function fetchT(url, opts={}, ms=CONFIG.FETCH_TIMEOUT) {
+function setBtns(disabled) {
+  goBtnLv.disabled = disabled;
+  goBtnLl.disabled = disabled;
+  goBtnWi.disabled = disabled;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   FETCH WITH BROWSER HEADERS (FIXED)
+   ════════════════════════════════════════════════════════════════════ */
+async function fetchT(url, opts = {}, ms = CONFIG.FETCH_TIMEOUT) {
   const ctrl = new AbortController();
-  const tid = setTimeout(()=>ctrl.abort(), ms);
+  const tid  = setTimeout(() => ctrl.abort(), ms);
   try {
     return await fetch(url, {
       ...opts,
@@ -154,187 +999,311 @@ async function fetchT(url, opts={}, ms=CONFIG.FETCH_TIMEOUT) {
       headers: {
         'Accept': 'application/json',
         'Accept-Language': 'en-US,en;q=0.9',
-        ...(opts.headers||{}),
+        ...(opts.headers || {}),
       },
     });
-  } finally { clearTimeout(tid); }
+  } finally {
+    clearTimeout(tid);
+  }
 }
 
-/* ── POW SOLVER (FIXED: nonce padded to 16+ hex chars) ── */
+/* ════════════════════════════════════════════════════════════════════
+   PROOF-OF-WORK SOLVER (FIXED: zero‑padded nonce)
+   ════════════════════════════════════════════════════════════════════ */
 async function solvePow() {
-  const r = await fetchT(CONFIG.API+'/api/pow-challenge',{method:'GET'},20000);
-  if(!r.ok) throw new Error('Challenge download failed');
+  const r = await fetchT(CONFIG.API + '/api/pow-challenge', { method: 'GET' }, 20000);
+  if (!r.ok) throw new Error('Cannot fetch challenge');
+
   const ch = await r.json();
   const target = ch.bits;
   const enc = new TextEncoder();
   let nonce = 0;
+
   powStartTime = Date.now();
 
-  while(true){
-    // Pad nonce to at least 16 hex characters (required by backend)
+  while (true) {
+    // Pad nonce to at least 16 hex characters (backend requires 16‑64 hex chars)
     let nStr = nonce.toString(16);
     while (nStr.length < 16) nStr = '0' + nStr;
 
-    const buf = await crypto.subtle.digest('SHA-256', enc.encode(`${ch.challenge}:${nStr}`));
+    const data = enc.encode(`${ch.challenge}:${nStr}`);
+    const buf = await crypto.subtle.digest('SHA-256', data);
     const arr = new Uint8Array(buf);
-    let zeros=0, found=false;
-    outer: for(let i=0;i<arr.length;i++){
-      const b=arr[i];
-      if(b===0){ zeros+=8; continue; }
-      for(let j=7;j>=0;j--){
-        if((b>>j)&1){ found=true; break outer; }
+
+    let zeros = 0;
+    let found = false;
+
+    outer: for (let i = 0; i < arr.length; i++) {
+      const b = arr[i];
+      if (b === 0) { zeros += 8; continue; }
+      for (let j = 7; j >= 0; j--) {
+        if ((b >> j) & 1) { found = true; break outer; }
         zeros++;
       }
       break;
     }
-    if(zeros>=target) return { ...ch, nonce: nStr };
+
+    if (zeros >= target) {
+      return { ...ch, nonce: nStr };
+    }
 
     nonce++;
-    if(nonce%5000===0){
+
+    if (nonce % 5000 === 0) {
       powVal.textContent = nonce.toLocaleString() + ' tries';
-      await new Promise(r=>setTimeout(r,0));
-      if(Date.now()-powStartTime>CONFIG.POW_TIMEOUT) throw new Error('PoW timeout');
+      await new Promise(r => setTimeout(r, 0));
+
+      if (Date.now() - powStartTime > CONFIG.POW_TIMEOUT) {
+        throw new Error('PoW timeout');
+      }
     }
   }
 }
 
-/* ── INIT (unchanged) ── */
-async function init(){
-  setStatus('Waking server...','amber'); setBtns(true);
+/* ════════════════════════════════════════════════════════════════════
+   INIT FLOW
+   ════════════════════════════════════════════════════════════════════ */
+async function init() {
+  setStatus('Waking server...', 'amber');
+  setBtns(true);
+
   try {
-    await fetchT(CONFIG.API+'/health',{method:'GET'},30000);
-    setStatus('● Solving security challenge','amber');
+    // Quick health check
+    await fetchT(CONFIG.API + '/health', { method: 'GET' }, 30000);
+
+    setStatus('● Solving security challenge', 'amber');
     powRow.classList.add('show');
+
     powSolution = await solvePow();
-    powVal.textContent = '✓ '+(Date.now()-powStartTime)+'ms';
-    behaviorPayload = getBehaviorPayload();  // stop tracking & capture
-    setStatus('● System Online — Choose Provider','green');
+    powVal.textContent = '✓ ' + (Date.now() - powStartTime) + 'ms';
+
+    // Now capture the behaviour (once) for the session request
+    behaviorPayload = getBehaviorPayload();
+
+    setStatus('● System Online — Choose Provider', 'green');
     setBtns(false);
-  } catch(e){
-    console.error('[INIT]',e);
-    setStatus('● Connection issue — Refresh to retry','red');
-    powVal.textContent='✗ Failed';
+  } catch (e) {
+    console.error('[INIT]', e);
+    setStatus('● Connection issue — Refresh to retry', 'red');
+    powVal.textContent = '✗ Failed';
   }
 }
 
-/* ── CLICK HANDLER (unchanged) ── */
-async function handleClick(provider){
-  if(sessionInFlight) return;
+/* ════════════════════════════════════════════════════════════════════
+   PROVIDER CLICK HANDLER
+   ════════════════════════════════════════════════════════════════════ */
+async function handleClick(provider) {
+  if (sessionInFlight) return;
   sessionInFlight = true;
-  setStatus('Generating session...','amber');
+  setStatus('Generating session...', 'amber');
   setBtns(true);
+
   try {
     const fp = await getFingerprint();
-    const r = await fetchT(CONFIG.API+'/api/initiate-session', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ fp, pow:powSolution, behavior:behaviorPayload, abVariant:provider }),
-    },20000);
-    const data = await r.json().catch(()=>({}));
-    if(!r.ok||!data.token||!data.csrf||!data.session){
-      throw new Error(data.error||'Session creation failed');
+
+    const r = await fetchT(CONFIG.API + '/api/initiate-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fp,
+        pow: powSolution,
+        behavior: behaviorPayload,
+        abVariant: provider,
+      }),
+    }, 20000);
+
+    const data = await r.json().catch(() => ({}));
+
+    if (!r.ok || !data.token || !data.csrf || !data.session) {
+      throw new Error(data.error || 'Session creation failed');
     }
-    saveSession(data.token, fp, provider, data.csrf, data.session, data.totp, data.abVariant);
-    setStatus('● Redirecting...','green');
-    if(provider==='linkvertise'){
-      setTimeout(()=>{ location.href='ad.html?token='+encodeURIComponent(data.token); },500);
-    } else if(provider==='lootlabs'){
-      try{
-        const enc = await fetchT(CONFIG.API+'/api/lootlabs/encrypt', {
-          method:'POST',
-          headers:{ 'Content-Type':'application/json', 'x-csrf-token':data.csrf },
-          body: JSON.stringify({ url:CONFIG.REDIRECT_URL }),
-        },10000);
-        const ed = await enc.json().catch(()=>({}));
-        if(enc.ok&&ed.encrypted){
-          location.href=CONFIG.LOOTLABS_URL+(CONFIG.LOOTLABS_URL.includes('?')?'&':'?')+'data='+encodeURIComponent(ed.encrypted);
+
+    saveSession(
+      data.token, fp, provider,
+      data.csrf, data.session,
+      data.totp, data.abVariant
+    );
+
+    setStatus('● Redirecting...', 'green');
+
+    if (provider === 'linkvertise') {
+      setTimeout(() => {
+        location.href = 'ad.html?token=' + encodeURIComponent(data.token);
+      }, 500);
+    } else if (provider === 'lootlabs') {
+      try {
+        const enc = await fetchT(CONFIG.API + '/api/lootlabs/encrypt', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-csrf-token': data.csrf,
+          },
+          body: JSON.stringify({ url: CONFIG.REDIRECT_URL }),
+        }, 10000);
+        const ed = await enc.json().catch(() => ({}));
+        if (enc.ok && ed.encrypted) {
+          location.href = CONFIG.LOOTLABS_URL +
+            (CONFIG.LOOTLABS_URL.includes('?') ? '&' : '?') +
+            'data=' + encodeURIComponent(ed.encrypted);
           return;
         }
-      } catch(_){}
-      location.href=CONFIG.LOOTLABS_URL;
-    } else if(provider==='workink'){
-      setTimeout(()=>{ location.href=CONFIG.WORKINK_URL; },500);
+      } catch (_) {}
+      location.href = CONFIG.LOOTLABS_URL;
+    } else if (provider === 'workink') {
+      setTimeout(() => { location.href = CONFIG.WORKINK_URL; }, 500);
     }
-  } catch(err){
-    console.error('[CLICK]',err);
-    setStatus('● '+(err.message||'Error occurred'),'red');
+  } catch (err) {
+    console.error('[CLICK]', err);
+    setStatus('● ' + (err.message || 'Error occurred'), 'red');
     setBtns(false);
     sessionInFlight = false;
   }
 }
 
-goBtnLv.addEventListener('click',()=>handleClick('linkvertise'));
-goBtnLl.addEventListener('click',()=>handleClick('lootlabs'));
-goBtnWi.addEventListener('click',()=>handleClick('workink'));
+goBtnLv.addEventListener('click', () => handleClick('linkvertise'));
+goBtnLl.addEventListener('click', () => handleClick('lootlabs'));
+goBtnWi.addEventListener('click', () => handleClick('workink'));
 
-/* ── LAVA ENGINE (unchanged) ── */
-(function lavaEngine(){
-  const cv=document.getElementById('lava-canvas'), ctx=cv.getContext('2d',{alpha:true});
-  let dpr=Math.min(window.devicePixelRatio||1,2);
-  function resize(){
-    dpr=Math.min(window.devicePixelRatio||1,2);
-    cv.width=innerWidth*dpr; cv.height=innerHeight*dpr;
-    cv.style.width=innerWidth+'px'; cv.style.height=innerHeight+'px';
-    ctx.scale(dpr,dpr);
+/* ════════════════════════════════════════════════════════════════════
+   LIVE LAVA PHYSICS ENGINE
+   ════════════════════════════════════════════════════════════════════ */
+(function lavaEngine() {
+  const cv  = document.getElementById('lava-canvas');
+  const ctx = cv.getContext('2d', { alpha: true });
+  let dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width  = innerWidth  * dpr;
+    cv.height = innerHeight * dpr;
+    cv.style.width  = innerWidth  + 'px';
+    cv.style.height = innerHeight + 'px';
+    ctx.scale(dpr, dpr);
   }
-  resize(); window.addEventListener('resize',resize);
+  resize();
+  window.addEventListener('resize', resize);
 
-  const palette=[[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0],[255,140,0],[200,50,0],[255,100,5],[240,90,10],[255,165,30],[210,55,0]];
-  const rnd=(a,b)=>a+Math.random()*(b-a);
-  function makeDrop(spread){
-    const c=palette[Math.floor(Math.random()*palette.length)];
-    const sw=innerWidth*0.32;
+  const palette = [
+    [255,  80,   0], [255, 120,  10], [255,  60,   0],
+    [220,  40,   0], [255, 155,  20], [180,  30,   0],
+    [255, 140,   0], [200,  50,   0], [255, 100,   5],
+    [240,  90,  10], [255, 165,  30], [210,  55,   0],
+  ];
+
+  const rnd = (a, b) => a + Math.random() * (b - a);
+
+  function makeDrop(initialSpread) {
+    const c = palette[Math.floor(Math.random() * palette.length)];
+    const spreadW = innerWidth * 0.32;
     return {
-      x: innerWidth*0.5+rnd(-sw,sw), y: spread?rnd(-innerHeight,0):rnd(-100,0),
-      vy: rnd(1.4,4.0), vx: rnd(-0.85,0.85), radius: rnd(4,16),
-      tail:[], maxTail:Math.floor(rnd(16,36)), r:c[0],g:c[1],b:c[2],
-      alpha: rnd(0.55,0.95), wobble: rnd(0,Math.PI*2), wobbleSpd: rnd(0.008,0.052),
-      wobbleAmp: rnd(0.3,1.9), heat: rnd(0.7,1.0),
-      flickerPhase: rnd(0,Math.PI*2), flickerSpd: rnd(0.05,0.15), life:1.0
+      x: innerWidth * 0.5 + rnd(-spreadW, spreadW),
+      y: initialSpread ? rnd(-innerHeight, 0) : rnd(-100, 0),
+      vy: rnd(1.4, 4.0),
+      vx: rnd(-0.85, 0.85),
+      radius: rnd(4, 16),
+      tail: [],
+      maxTail: Math.floor(rnd(16, 36)),
+      r: c[0], g: c[1], b: c[2],
+      alpha: rnd(0.55, 0.95),
+      wobble: rnd(0, Math.PI * 2),
+      wobbleSpd: rnd(0.008, 0.052),
+      wobbleAmp: rnd(0.3, 1.9),
+      heat: rnd(0.7, 1.0),
+      flickerPhase: rnd(0, Math.PI * 2),
+      flickerSpd: rnd(0.05, 0.15),
+      life: 1.0,
     };
   }
-  const TARGET=innerWidth<600?80:130;
-  const drops=[]; for(let i=0;i<TARGET;i++) drops.push(makeDrop(true));
-  function draw(d){
-    const {x,y,radius:rd,r,g,b,alpha,tail}=d;
-    for(let i=0;i<tail.length;i++){
-      const t=tail[i], pct=i/tail.length, a=alpha*pct*0.48*d.heat, rad=rd*pct*0.72;
-      if(rad<0.5||a<0.01) continue;
-      ctx.beginPath(); ctx.arc(t.x,t.y,rad,0,Math.PI*2);
-      ctx.fillStyle=`rgba(${r},${g},${b},${a})`; ctx.fill();
+
+  const TARGET_DROPS = innerWidth < 600 ? 80 : 130;
+  const drops = [];
+  for (let i = 0; i < TARGET_DROPS; i++) drops.push(makeDrop(true));
+
+  function drawDrop(d) {
+    const { x, y, radius: rd, r, g, b, alpha, tail } = d;
+
+    // Trailing particles
+    for (let i = 0; i < tail.length; i++) {
+      const t = tail[i];
+      const pct = i / tail.length;
+      const a = alpha * pct * 0.48 * d.heat;
+      const rad = rd * pct * 0.72;
+
+      if (rad < 0.5 || a < 0.01) continue;
+
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, rad, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
+      ctx.fill();
     }
-    const gr=ctx.createRadialGradient(x,y,0,x,y,rd*6);
-    gr.addColorStop(0,`rgba(${r},${g},${b},${alpha*0.5*d.heat})`);
-    gr.addColorStop(0.5,`rgba(${r},${g},${b},${alpha*0.2*d.heat})`);
-    gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
-    ctx.beginPath(); ctx.arc(x,y,rd*6,0,Math.PI*2); ctx.fillStyle=gr; ctx.fill();
-    const f=0.92+Math.sin(d.flickerPhase)*0.08;
-    const gm=ctx.createRadialGradient(x-rd*0.35,y-rd*0.4,0,x,y,rd);
-    gm.addColorStop(0,`rgba(255,235,170,${alpha*0.95*f})`);
-    gm.addColorStop(0.35,`rgba(${r},${g},${b},${alpha*f})`);
-    gm.addColorStop(1,`rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
-    ctx.beginPath(); ctx.arc(x,y,rd*f,0,Math.PI*2); ctx.fillStyle=gm; ctx.fill();
-    ctx.beginPath(); ctx.arc(x-rd*0.3,y-rd*0.32,rd*0.28,0,Math.PI*2);
-    ctx.fillStyle=`rgba(255,255,250,${alpha*0.8*f})`; ctx.fill();
+
+    // Outer glow
+    const gr = ctx.createRadialGradient(x, y, 0, x, y, rd * 6);
+    gr.addColorStop(0,   `rgba(${r},${g},${b},${alpha * 0.5 * d.heat})`);
+    gr.addColorStop(0.5, `rgba(${r},${g},${b},${alpha * 0.2 * d.heat})`);
+    gr.addColorStop(1,   `rgba(${r},${g},${b},0)`);
+    ctx.beginPath();
+    ctx.arc(x, y, rd * 6, 0, Math.PI * 2);
+    ctx.fillStyle = gr;
+    ctx.fill();
+
+    // Main body with flicker
+    const flicker = 0.92 + Math.sin(d.flickerPhase) * 0.08;
+    const gm = ctx.createRadialGradient(x - rd * 0.35, y - rd * 0.4, 0, x, y, rd);
+    gm.addColorStop(0,    `rgba(255,235,170,${alpha * 0.95 * flicker})`);
+    gm.addColorStop(0.35, `rgba(${r},${g},${b},${alpha * flicker})`);
+    gm.addColorStop(1,    `rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
+    ctx.beginPath();
+    ctx.arc(x, y, rd * flicker, 0, Math.PI * 2);
+    ctx.fillStyle = gm;
+    ctx.fill();
+
+    // Hot spot highlight
+    ctx.beginPath();
+    ctx.arc(x - rd * 0.3, y - rd * 0.32, rd * 0.28, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,250,${alpha * 0.8 * flicker})`;
+    ctx.fill();
   }
-  let last=0;
-  function tick(now){
-    const delta=now-last;
-    if(delta<16.67){ requestAnimationFrame(tick); return; }
-    last=now;
-    ctx.clearRect(0,0,cv.width,cv.height);
-    for(const d of drops){
-      d.wobble+=d.wobbleSpd; d.flickerPhase+=d.flickerSpd;
-      d.x+=Math.sin(d.wobble)*d.wobbleAmp+d.vx; d.y+=d.vy;
-      d.tail.push({x:d.x,y:d.y}); if(d.tail.length>d.maxTail) d.tail.shift();
-      draw(d);
-      if(d.y-d.radius>innerHeight+30){ Object.assign(d,makeDrop(false)); d.tail=[]; }
+
+  let lastFrameTime = 0;
+  const FPS_CAP = 60;
+  const FRAME_INTERVAL = 1000 / FPS_CAP;
+
+  function animate(now) {
+    const delta = now - lastFrameTime;
+    if (delta < FRAME_INTERVAL) {
+      requestAnimationFrame(animate);
+      return;
     }
-    requestAnimationFrame(tick);
+    lastFrameTime = now;
+
+    ctx.clearRect(0, 0, cv.width, cv.height);
+
+    for (const d of drops) {
+      d.wobble       += d.wobbleSpd;
+      d.flickerPhase += d.flickerSpd;
+      d.x            += Math.sin(d.wobble) * d.wobbleAmp + d.vx;
+      d.y            += d.vy;
+
+      d.tail.push({ x: d.x, y: d.y });
+      if (d.tail.length > d.maxTail) d.tail.shift();
+
+      drawDrop(d);
+
+      if (d.y - d.radius > innerHeight + 30) {
+        Object.assign(d, makeDrop(false));
+        d.tail = [];
+      }
+    }
+
+    requestAnimationFrame(animate);
   }
-  requestAnimationFrame(tick);
+  requestAnimationFrame(animate);
 })();
 
+/* ════════════════════════════════════════════════════════════════════
+   START
+   ════════════════════════════════════════════════════════════════════ */
 init();
 
 })();
