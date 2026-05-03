@@ -1002,6 +1002,11 @@ function setBtns(disabled) {
   goBtnWi.disabled = disabled;
 }
 
+/* ════════════════════════════════════════════════════════════════════
+   FETCH WITH TIMEOUT
+   FIX: Added Accept and Accept-Language headers so the backend
+   uaGate middleware does not reject the request with 403.
+   ════════════════════════════════════════════════════════════════════ */
 async function fetchT(url, opts = {}, ms = CONFIG.FETCH_TIMEOUT) {
   const ctrl = new AbortController();
   const tid  = setTimeout(() => ctrl.abort(), ms);
@@ -1012,6 +1017,11 @@ async function fetchT(url, opts = {}, ms = CONFIG.FETCH_TIMEOUT) {
       mode: 'cors',
       credentials: 'omit',
       cache: 'no-store',
+      headers: {
+        'Accept': 'application/json',
+        'Accept-Language': 'en-US,en;q=0.9',
+        ...(opts.headers || {}),
+      },
     });
   } finally {
     clearTimeout(tid);
