@@ -801,7 +801,7 @@ h1 {
    ════════════════════════════════════════════════════════════════════ */
 const CONFIG = {
   API:           "https://rezurx-backend.onrender.com",
-  LOOTLABS_URL:  "https://loot-link.com/s?5cN9oCrm",
+  LOOTLABS_URL:  "https://lootdest.org/s?ty42ubzt",          // ← YOUR CORRECT LOOTLABS LINK
   WORKINK_URL:   "https://work.ink/2hdZ/key-system",
   REDIRECT_URL:  "https://rezurxshinn.github.io/RezurX-site/index.html",
   SESSION_KEY:   'rzx_session_v5',
@@ -1132,14 +1132,25 @@ async function handleClick(provider) {
       }, 500);
     } else if (provider === 'lootlabs') {
       try {
+        // Build a full destination URL with all the verification data
+        const destination =
+          CONFIG.REDIRECT_URL +
+          '?token=' + encodeURIComponent(data.token) +
+          '&session=' + encodeURIComponent(data.session) +
+          '&csrf=' + encodeURIComponent(data.csrf) +
+          '&totp=' + encodeURIComponent(data.totp) +
+          '&provider=lootlabs';
+
+        // Ask the backend to encrypt that entire URL
         const enc = await fetchT(CONFIG.API + '/api/lootlabs/encrypt', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'x-csrf-token': data.csrf,
           },
-          body: JSON.stringify({ url: CONFIG.REDIRECT_URL }),
+          body: JSON.stringify({ url: destination }),
         }, 10000);
+
         const ed = await enc.json().catch(() => ({}));
         if (enc.ok && ed.encrypted) {
           location.href = CONFIG.LOOTLABS_URL +
@@ -1148,6 +1159,7 @@ async function handleClick(provider) {
           return;
         }
       } catch (_) {}
+      // If encryption fails, fallback to plain LootLabs link (less secure)
       location.href = CONFIG.LOOTLABS_URL;
     } else if (provider === 'workink') {
       setTimeout(() => { location.href = CONFIG.WORKINK_URL; }, 500);
