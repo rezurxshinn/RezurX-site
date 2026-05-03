@@ -10,13 +10,16 @@
 <title>RezurXLab | Access Granted</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://rezurx-backend.onrender.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root {
   --orange: #ff8c00; --orange-bright: #ffaa33; --orange-deep: #aa4400;
   --orange-glow: rgba(255, 140, 0, 0.45); --gold: #ffd700;
+  --gold-bright: #ffea70; --gold-glow: rgba(255, 215, 0, 0.6);
   --green: #00ff88; --green-glow: rgba(0, 255, 136, 0.45);
   --teal: #20cc88; --purple: #a070ff; --purple-glow: rgba(160, 112, 255, 0.4);
+  --diamond: #80e8ff; --diamond-glow: rgba(128, 232, 255, 0.5);
   --red: #ff4455; --red-glow: rgba(255, 68, 85, 0.45);
   --bg: #060100; --panel: rgba(8, 3, 0, 0.92);
   --muted: #3a3028; --dim: #6a5848;
@@ -35,8 +38,9 @@ body {
   display: flex; flex-direction: column;
   justify-content: center; align-items: center;
   min-height: 100vh; min-height: 100dvh;
-  overflow: hidden; position: relative;
+  overflow-x: hidden; position: relative;
   -webkit-font-smoothing: antialiased;
+  padding: 20px;
 }
 
 #lava-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
@@ -90,7 +94,80 @@ body {
 
 #confetti-canvas { position: fixed; inset: 0; z-index: 999; pointer-events: none; }
 
-/* Loading Overlay */
+#achievement-toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 1000;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.95) 0%, rgba(255, 140, 0, 0.95) 100%);
+  border: 2px solid rgba(255, 235, 100, 0.8);
+  border-radius: 10px;
+  padding: 14px 20px;
+  display: none;
+  align-items: center;
+  gap: 14px;
+  box-shadow:
+    0 10px 40px rgba(255, 180, 0, 0.5),
+    0 0 60px rgba(255, 215, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 200, 0.6);
+  min-width: 280px;
+  max-width: 90vw;
+  animation: achievementSlide 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+#achievement-toast.show { display: flex; }
+
+@keyframes achievementSlide {
+  0% { transform: translateX(120%) scale(0.8); opacity: 0; }
+  60% { transform: translateX(-10px) scale(1.02); }
+  100% { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+@keyframes achievementOut {
+  to { transform: translateX(120%) scale(0.8); opacity: 0; }
+}
+
+#achievement-toast.hiding {
+  animation: achievementOut 0.5s ease-in both;
+}
+
+.ach-icon {
+  width: 48px; height: 48px;
+  flex-shrink: 0;
+  background: radial-gradient(circle at 30% 30%, #fff8c0, #ffd700, #ff9900);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.8), inset 0 -3px 6px rgba(170, 80, 0, 0.4);
+  animation: achIconSpin 0.8s ease-out;
+}
+
+@keyframes achIconSpin {
+  0% { transform: rotate(-180deg) scale(0); }
+  100% { transform: rotate(0) scale(1); }
+}
+
+.ach-content { flex: 1; }
+
+.ach-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  color: #1a0800;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.ach-msg {
+  font-size: 0.65rem;
+  color: #2a1400;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
 #loading-overlay {
   display: none; position: fixed; inset: 0; z-index: 500;
   background: radial-gradient(ellipse at center, rgba(20, 8, 0, 0.97) 0%, rgba(4, 1, 0, 0.99) 100%);
@@ -118,15 +195,6 @@ body {
   color: var(--orange-deep); text-transform: uppercase;
 }
 
-.ov-provider {
-  font-size: 0.48rem; letter-spacing: 3px; text-transform: uppercase;
-  font-weight: 600; padding: 4px 12px; border-radius: 20px; border: 1px solid;
-}
-
-.ov-provider.lv { color: rgba(255, 140, 0, 0.85); border-color: rgba(255, 140, 0, 0.35); background: rgba(255, 140, 0, 0.06); }
-.ov-provider.ll { color: rgba(160, 112, 255, 0.85); border-color: rgba(160, 112, 255, 0.35); background: rgba(160, 112, 255, 0.06); }
-.ov-provider.wi { color: rgba(30, 210, 130, 0.85); border-color: rgba(30, 210, 130, 0.35); background: rgba(30, 210, 130, 0.06); }
-
 .ov-ring { width: 92px; height: 92px; position: relative; }
 
 .ov-ring::before, .ov-ring::after {
@@ -144,37 +212,6 @@ body {
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
-
-.ov-inner {
-  position: absolute; inset: 14px; border-radius: 50%;
-  border: 1.5px solid transparent;
-  border-bottom-color: rgba(255, 170, 50, 0.6);
-  border-left-color: rgba(255, 140, 0, 0.25);
-  animation: spinR 0.8s linear infinite reverse;
-}
-
-@keyframes spinR { to { transform: rotate(360deg); } }
-
-.ov-core {
-  position: absolute; inset: 30px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 200, 100, 0.18) 0%, transparent 70%);
-  animation: coreP 2s ease-in-out infinite;
-}
-
-@keyframes coreP {
-  0%, 100% { transform: scale(0.85); opacity: 0.5; }
-  50% { transform: scale(1.12); opacity: 1; }
-}
-
-#loading-overlay.wi .ov-ring::after { border-top-color: #20cc88; border-right-color: rgba(30, 210, 130, 0.5); filter: drop-shadow(0 0 10px rgba(30, 210, 130, 0.5)); }
-#loading-overlay.wi .ov-inner { border-bottom-color: rgba(50, 230, 150, 0.6); border-left-color: rgba(30, 210, 130, 0.25); }
-#loading-overlay.wi #ov-bar { background: linear-gradient(90deg, #0a6640, #20cc88, #80ffcc); box-shadow: 0 0 14px rgba(30, 210, 130, 0.5); }
-#loading-overlay.wi #ov-status { color: #50dda0; text-shadow: 0 0 12px rgba(30, 210, 130, 0.55); }
-
-#loading-overlay.ll .ov-ring::after { border-top-color: #a070ff; border-right-color: rgba(160, 112, 255, 0.5); filter: drop-shadow(0 0 10px rgba(160, 112, 255, 0.5)); }
-#loading-overlay.ll .ov-inner { border-bottom-color: rgba(180, 140, 255, 0.6); border-left-color: rgba(160, 112, 255, 0.25); }
-#loading-overlay.ll #ov-bar { background: linear-gradient(90deg, #3a1a80, #a070ff, #d4c0ff); box-shadow: 0 0 14px rgba(160, 112, 255, 0.5); }
-#loading-overlay.ll #ov-status { color: #c4a8ff; text-shadow: 0 0 12px rgba(160, 112, 255, 0.55); }
 
 .ov-content { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 18px; }
 
@@ -204,13 +241,12 @@ body {
   min-height: 1em; font-weight: 300;
 }
 
-/* Panel */
 .panel {
   position: relative; z-index: 10;
   background: linear-gradient(180deg, rgba(22, 9, 1, 0.96) 0%, rgba(8, 3, 0, 0.96) 100%);
   border: 1px solid rgba(255, 140, 0, 0.20);
   border-radius: 12px;
-  padding: 50px 44px 38px; width: 92%; max-width: 560px; text-align: center;
+  padding: 50px 44px 38px; width: 100%; max-width: 580px; text-align: center;
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.95),
     0 14px 70px rgba(0, 0, 0, 0.92),
@@ -337,7 +373,151 @@ h1 {
 #status.amber .sdot { background: var(--orange); box-shadow: 0 0 12px var(--orange-glow); }
 #status.amber { color: var(--orange-bright); }
 
-/* Key Display */
+#tier-progress {
+  display: none;
+  margin-bottom: 22px;
+  padding: 16px 14px 14px;
+  background: linear-gradient(180deg, rgba(255, 140, 0, 0.08) 0%, rgba(255, 140, 0, 0.02) 100%);
+  border: 1px solid rgba(255, 140, 0, 0.20);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+#tier-progress.show { display: block; animation: slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+#tier-progress::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.06), transparent);
+  transform: translateX(-100%);
+  animation: tierShine 4s linear infinite;
+}
+
+@keyframes tierShine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.tier-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.tier-label-l {
+  color: var(--orange-bright);
+  text-shadow: 0 0 8px var(--orange-glow);
+}
+
+.tier-current {
+  color: var(--gold);
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-shadow: 0 0 10px var(--gold-glow);
+}
+
+.tier-track {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.tier-node {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.tier-node-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid rgba(255, 140, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--dim);
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+
+.tier-node.active .tier-node-circle {
+  background: radial-gradient(circle at 30% 30%, #fff8c0, #ffd700, #ff9900);
+  border-color: rgba(255, 235, 100, 1);
+  color: #1a0800;
+  box-shadow: 0 0 20px var(--gold-glow), inset 0 -3px 6px rgba(170, 80, 0, 0.4);
+  transform: scale(1.15);
+}
+
+.tier-node.complete .tier-node-circle {
+  background: radial-gradient(circle at 30% 30%, #80ffaa, #00ff88, #00aa55);
+  border-color: rgba(100, 255, 170, 1);
+  color: #001a0e;
+  box-shadow: 0 0 16px var(--green-glow);
+}
+
+.tier-node.complete .tier-node-circle::after {
+  content: "✓";
+  font-size: 0.8rem;
+}
+
+.tier-node.complete .tier-node-circle .tier-node-num {
+  display: none;
+}
+
+.tier-node-label {
+  font-size: 0.46rem;
+  letter-spacing: 1.5px;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-top: 6px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tier-node.active .tier-node-label,
+.tier-node.complete .tier-node-label {
+  color: var(--orange-bright);
+}
+
+.tier-connector {
+  flex: 1;
+  height: 2px;
+  background: rgba(255, 140, 0, 0.15);
+  position: relative;
+  margin-top: -16px;
+  z-index: 1;
+}
+
+.tier-connector::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--orange), var(--gold));
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 0 8px var(--orange-glow);
+}
+
+.tier-connector.filled::after { transform: scaleX(1); }
+
 #key-box { display: none; }
 #key-box.show { display: block; animation: slideUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
@@ -435,45 +615,312 @@ h1 {
   box-shadow: 0 0 22px rgba(0, 255, 136, 0.32);
 }
 
-/* Bonus Offer */
-#bonus-box {
-  display: none; margin-top: 16px;
-  padding: 16px;
-  background: linear-gradient(180deg, rgba(255, 215, 0, 0.10) 0%, rgba(255, 140, 0, 0.04) 100%);
+#upgrade-box {
+  display: none;
+  margin-top: 20px;
+  padding: 22px 20px;
+  background:
+    linear-gradient(135deg, rgba(255, 215, 0, 0.14) 0%, rgba(255, 100, 0, 0.10) 50%, rgba(160, 80, 255, 0.08) 100%);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 8px 30px rgba(255, 180, 0, 0.18),
+    inset 0 1px 0 rgba(255, 235, 100, 0.25);
+}
+
+#upgrade-box.show {
+  display: block;
+  animation: upgradeIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes upgradeIn {
+  0% { opacity: 0; transform: translateY(30px) scale(0.9); }
+  60% { transform: translateY(-4px) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+#upgrade-box::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 10px;
+  padding: 2px;
+  background: linear-gradient(135deg, #ffd700, #ff8c00, #a070ff, #ffd700);
+  background-size: 300% 300%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: borderRainbow 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes borderRainbow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+#upgrade-box::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.12) 50%, transparent 70%);
+  transform: translateX(-100%);
+  animation: upgradeShine 3.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes upgradeShine {
+  0%, 30% { transform: translateX(-100%); }
+  60%, 100% { transform: translateX(100%); }
+}
+
+.upgrade-banner {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--gold) 0%, #ff9500 100%);
+  color: #1a0800;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 3px;
+  padding: 5px 14px;
+  border-radius: 14px;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 14px rgba(255, 215, 0, 0.5);
+  position: relative;
+  z-index: 2;
+  animation: bannerPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes bannerPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); box-shadow: 0 6px 20px rgba(255, 215, 0, 0.7); }
+}
+
+.upgrade-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  background: linear-gradient(180deg, #fff5d0 0%, #ffd700 50%, #ff9500 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.6));
+  position: relative;
+  z-index: 2;
+}
+
+.upgrade-comparison {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 16px 0;
+  position: relative;
+  z-index: 2;
+}
+
+.upgrade-card {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 140, 0, 0.18);
+  border-radius: 7px;
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.upgrade-card.before {
+  opacity: 0.6;
+}
+
+.upgrade-card.after {
+  background: linear-gradient(180deg, rgba(255, 215, 0, 0.18) 0%, rgba(255, 140, 0, 0.08) 100%);
+  border-color: rgba(255, 215, 0, 0.5);
+  box-shadow: 0 0 18px rgba(255, 215, 0, 0.25);
+  transform: scale(1.05);
+}
+
+.upgrade-card-label {
+  font-size: 0.46rem;
+  letter-spacing: 1.8px;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.upgrade-card.after .upgrade-card-label {
+  color: var(--gold);
+  text-shadow: 0 0 8px var(--gold-glow);
+}
+
+.upgrade-card-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.upgrade-card.after .upgrade-card-value {
+  background: linear-gradient(180deg, #fff5d0 0%, #ffd700 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 8px var(--gold-glow));
+}
+
+.upgrade-card-unit {
+  font-size: 0.55rem;
+  color: var(--dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.upgrade-arrow {
+  font-size: 1.3rem;
+  color: var(--gold);
+  filter: drop-shadow(0 0 10px var(--gold-glow));
+  animation: arrowBounce 1.5s ease-in-out infinite;
+}
+
+@keyframes arrowBounce {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(6px); }
+}
+
+.upgrade-msg {
+  font-size: 0.7rem;
+  color: rgba(255, 235, 180, 0.95);
+  letter-spacing: 0.5px;
+  line-height: 1.6;
+  margin-bottom: 14px;
+  position: relative;
+  z-index: 2;
+}
+
+.upgrade-msg strong {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+#upgrade-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--gold);
+  background: rgba(0, 0, 0, 0.4);
+  padding: 6px 14px;
+  border-radius: 14px;
   border: 1px solid rgba(255, 215, 0, 0.3);
-  border-radius: 6px; animation: slideUp 0.6s ease both;
+  margin-bottom: 14px;
+  position: relative;
+  z-index: 2;
 }
 
-#bonus-box.show { display: block; }
-
-.bonus-header {
-  font-size: 0.55rem; letter-spacing: 3px; color: var(--gold);
-  text-transform: uppercase; font-weight: 700;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-  margin-bottom: 10px;
+#upgrade-timer .clock-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 8px var(--gold-glow);
+  animation: pulse 1s ease-in-out infinite;
 }
 
-.bonus-msg {
-  font-size: 0.68rem; color: rgba(255, 220, 130, 0.85);
-  letter-spacing: 0.5px; line-height: 1.5; margin-bottom: 14px;
+#upgrade-timer.urgent {
+  color: var(--red);
+  border-color: rgba(255, 68, 85, 0.5);
+  animation: urgentShake 0.5s ease-in-out infinite;
 }
 
-#bonus-btn {
+#upgrade-timer.urgent .clock-dot {
+  background: var(--red);
+  box-shadow: 0 0 8px var(--red-glow);
+}
+
+@keyframes urgentShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+.upgrade-actions {
+  display: flex;
+  gap: 10px;
+  position: relative;
+  z-index: 2;
+}
+
+#upgrade-btn {
+  flex: 2;
   background: linear-gradient(180deg, #ffd700 0%, #ff9500 100%);
-  border: 1px solid rgba(255, 215, 0, 0.65);
-  color: #1a0e00; font-family: 'Orbitron', sans-serif;
-  font-size: 0.6rem; letter-spacing: 2.5px; text-transform: uppercase;
-  padding: 12px; width: 100%; cursor: pointer; border-radius: 4px;
-  transition: all 0.25s; font-weight: 700;
-  box-shadow: 0 4px 14px rgba(255, 215, 0, 0.4);
+  border: 1px solid rgba(255, 235, 100, 0.7);
+  color: #1a0800;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  padding: 14px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+  font-weight: 800;
+  box-shadow:
+    0 6px 20px rgba(255, 215, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 200, 0.6);
+  position: relative;
+  overflow: hidden;
 }
 
-#bonus-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(255, 215, 0, 0.6);
+#upgrade-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s;
 }
 
-/* Error */
+#upgrade-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow:
+    0 12px 30px rgba(255, 215, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 200, 0.7);
+}
+
+#upgrade-btn:hover::before { transform: translateX(100%); }
+
+#upgrade-btn:active { transform: translateY(-1px) scale(1); }
+
+#upgrade-decline {
+  flex: 1;
+  background: transparent;
+  border: 1px solid rgba(255, 140, 0, 0.2);
+  color: var(--dim);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 14px 8px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.25s;
+  font-weight: 600;
+}
+
+#upgrade-decline:hover {
+  color: var(--orange-deep);
+  border-color: rgba(255, 140, 0, 0.35);
+}
+
 #error-box { display: none; }
 #error-box.show { display: block; animation: slideUp 0.4s ease both; }
 
@@ -545,16 +992,20 @@ h1 {
 </head>
 <body>
 
+<div id="achievement-toast">
+  <div class="ach-icon" id="ach-icon">🏆</div>
+  <div class="ach-content">
+    <div class="ach-title" id="ach-title">Achievement Unlocked!</div>
+    <div class="ach-msg" id="ach-msg">Welcome to RezurXLab</div>
+  </div>
+</div>
+
 <div id="loading-overlay">
   <div class="ov-brand">
     <div class="ov-logo">REZURXLAB</div>
     <div class="ov-tag">Verification Engine</div>
-    <div class="ov-provider lv" id="ov-provider-badge">Linkvertise</div>
   </div>
-  <div class="ov-ring">
-    <div class="ov-inner"></div>
-    <div class="ov-core"></div>
-  </div>
+  <div class="ov-ring"></div>
   <div class="ov-content">
     <div id="ov-status">Initializing...</div>
     <div class="ov-track"><div id="ov-bar"></div></div>
@@ -579,6 +1030,29 @@ h1 {
   <div class="logo-sub">Premium Key System</div>
   <div class="divider"></div>
 
+  <div id="tier-progress">
+    <div class="tier-header">
+      <span class="tier-label-l">◆ Your Progression</span>
+      <span class="tier-current" id="tier-current">BASIC</span>
+    </div>
+    <div class="tier-track">
+      <div class="tier-node complete" data-tier="0">
+        <div class="tier-node-circle"><span class="tier-node-num">1</span></div>
+        <div class="tier-node-label">Basic</div>
+      </div>
+      <div class="tier-connector" data-conn="0"></div>
+      <div class="tier-node" data-tier="1">
+        <div class="tier-node-circle"><span class="tier-node-num">2</span></div>
+        <div class="tier-node-label">Pro · 24h</div>
+      </div>
+      <div class="tier-connector" data-conn="1"></div>
+      <div class="tier-node" data-tier="2">
+        <div class="tier-node-circle"><span class="tier-node-num">3</span></div>
+        <div class="tier-node-label">VIP · 48h</div>
+      </div>
+    </div>
+  </div>
+
   <div id="status" role="status" aria-live="polite">
     <span class="sdot"></span>
     <span id="status-txt">Verifying session...</span>
@@ -593,10 +1067,38 @@ h1 {
     <div id="key-expiry"></div>
     <button id="copy-btn" type="button">[ Copy to Clipboard ]</button>
 
-    <div id="bonus-box">
-      <div class="bonus-header">★ Bonus Offer ★</div>
-      <div class="bonus-msg" id="bonus-msg"></div>
-      <button id="bonus-btn" type="button">[ Get Bonus Key ]</button>
+    <div id="upgrade-box">
+      <div class="upgrade-banner" id="upgrade-banner">★ Limited Time Offer ★</div>
+      <div class="upgrade-title" id="upgrade-title">Upgrade to PRO!</div>
+
+      <div class="upgrade-comparison">
+        <div class="upgrade-card before">
+          <div class="upgrade-card-label">Current</div>
+          <div class="upgrade-card-value" id="up-before">6</div>
+          <div class="upgrade-card-unit">Hours</div>
+        </div>
+        <div class="upgrade-arrow">→</div>
+        <div class="upgrade-card after">
+          <div class="upgrade-card-label">After Upgrade</div>
+          <div class="upgrade-card-value" id="up-after">24</div>
+          <div class="upgrade-card-unit">Hours</div>
+        </div>
+      </div>
+
+      <div class="upgrade-msg" id="upgrade-msg">
+        Watch <strong>1 more ad</strong> to instantly extend your key by <strong>4×</strong>!<br>
+        No HWID lock · Auto-update enabled
+      </div>
+
+      <div id="upgrade-timer">
+        <span class="clock-dot"></span>
+        <span id="upgrade-time-text">Expires in 0:30</span>
+      </div>
+
+      <div class="upgrade-actions">
+        <button id="upgrade-btn" type="button">⚡ Claim Upgrade</button>
+        <button id="upgrade-decline" type="button">Skip</button>
+      </div>
     </div>
   </div>
 
@@ -626,10 +1128,12 @@ const CONFIG = {
   CSRF_KEY:      'rzx_csrf_v5',
   SBLOB_KEY:     'rzx_sblob_v5',
   TOTP_KEY:      'rzx_totp_v5',
+  TIER_KEY:      'rzx_tier_v5',
   HASH_RE:       /^[A-Za-z0-9_\-=.#/+]{6,512}$/,
   WITOKEN_RE:    /^[A-Za-z0-9_\-=+/]{4,512}$/,
   LLTOKEN_RE:    /^[A-Za-z0-9_\-=+/.]{4,512}$/,
   TOKEN_RE:      /^[a-f0-9]{16,128}$/i,
+  UPGRADE_TIMEOUT: 30,
 };
 
 if (top !== self) {
@@ -641,7 +1145,6 @@ const overlay  = document.getElementById('loading-overlay');
 const ovStatus = document.getElementById('ov-status');
 const ovBar    = document.getElementById('ov-bar');
 const ovSub    = document.getElementById('ov-substatus');
-const ovBadge  = document.getElementById('ov-provider-badge');
 const statusEl = document.getElementById('status');
 const statusTx = document.getElementById('status-txt');
 const keyBox   = document.getElementById('key-box');
@@ -650,12 +1153,30 @@ const keyExp   = document.getElementById('key-expiry');
 const copyBtn  = document.getElementById('copy-btn');
 const errorBox = document.getElementById('error-box');
 const errorMsg = document.getElementById('error-msg');
-const bonusBox = document.getElementById('bonus-box');
-const bonusMsg = document.getElementById('bonus-msg');
-const bonusBtn = document.getElementById('bonus-btn');
+
+const upgradeBox = document.getElementById('upgrade-box');
+const upgradeBtn = document.getElementById('upgrade-btn');
+const upgradeDecline = document.getElementById('upgrade-decline');
+const upgradeTitle = document.getElementById('upgrade-title');
+const upgradeMsg = document.getElementById('upgrade-msg');
+const upgradeBanner = document.getElementById('upgrade-banner');
+const upBefore = document.getElementById('up-before');
+const upAfter = document.getElementById('up-after');
+const upgradeTimer = document.getElementById('upgrade-timer');
+const upgradeTimeText = document.getElementById('upgrade-time-text');
+
+const tierProgress = document.getElementById('tier-progress');
+const tierCurrent = document.getElementById('tier-current');
+
+const achToast = document.getElementById('achievement-toast');
+const achIcon = document.getElementById('ach-icon');
+const achTitle = document.getElementById('ach-title');
+const achMsg = document.getElementById('ach-msg');
 
 let currentKey = '';
 let currentBonus = null;
+let currentTierLevel = 0;
+let upgradeCountdownInterval = null;
 
 function loadSession() {
   try {
@@ -668,17 +1189,51 @@ function loadSession() {
   } catch (_) { return null; }
 }
 
-function loadCsrf()  { try { return localStorage.getItem(CONFIG.CSRF_KEY);  } catch (_) { return null; } }
-function loadSblob() { try { return localStorage.getItem(CONFIG.SBLOB_KEY); } catch (_) { return null; } }
+function loadCsrf() {
+  try {
+    const ls = localStorage.getItem(CONFIG.CSRF_KEY);
+    if (ls) return ls;
+    const q = new URLSearchParams(location.search).get('csrf');
+    return q || null;
+  } catch (_) {
+    try { return new URLSearchParams(location.search).get('csrf'); } catch (_) { return null; }
+  }
+}
+
+function loadSblob() {
+  try {
+    const ls = localStorage.getItem(CONFIG.SBLOB_KEY);
+    if (ls) return ls;
+    const q = new URLSearchParams(location.search).get('session');
+    return q || null;
+  } catch (_) {
+    try { return new URLSearchParams(location.search).get('session'); } catch (_) { return null; }
+  }
+}
 
 function loadTotp() {
   try {
     const raw = localStorage.getItem(CONFIG.TOTP_KEY);
-    if (!raw) return null;
-    const d = JSON.parse(raw);
-    if (Date.now() - d.ts > 90 * 1000) return null;
-    return d.totp;
-  } catch (_) { return null; }
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (Date.now() - d.ts <= 90 * 1000) return d.totp;
+    }
+    const q = new URLSearchParams(location.search).get('totp');
+    return q || null;
+  } catch (_) {
+    try { return new URLSearchParams(location.search).get('totp'); } catch (_) { return null; }
+  }
+}
+
+function loadTierLevel() {
+  try {
+    const raw = localStorage.getItem(CONFIG.TIER_KEY);
+    return raw ? parseInt(raw) : 0;
+  } catch (_) { return 0; }
+}
+
+function saveTierLevel(level) {
+  try { localStorage.setItem(CONFIG.TIER_KEY, String(level)); } catch (_) {}
 }
 
 function clearAll() {
@@ -695,6 +1250,12 @@ function recoverToken() {
   if (s && !s.expired && CONFIG.TOKEN_RE.test(s.token)) {
     return { token: s.token, fp: s.fp || '', source: 'storage' };
   }
+
+  const qToken = new URLSearchParams(location.search).get('token');
+  if (qToken && CONFIG.TOKEN_RE.test(qToken)) {
+    return { token: qToken, fp: '', source: 'query' };
+  }
+
   const h = location.hash;
   if (h) {
     const m = h.match(/token=([a-f0-9]{16,128})/i);
@@ -702,6 +1263,17 @@ function recoverToken() {
       return { token: m[1], fp: '', source: 'fragment' };
     }
   }
+
+  try {
+    const ss = sessionStorage.getItem(CONFIG.SESSION_KEY);
+    if (ss) {
+      const d = JSON.parse(ss);
+      if (d.token && CONFIG.TOKEN_RE.test(d.token)) {
+        return { token: d.token, fp: d.fp || '', source: 'sessionStorage' };
+      }
+    }
+  } catch (_) {}
+
   return { token: null, expired: s?.expired };
 }
 
@@ -716,28 +1288,13 @@ function setOverlay(s, p, sub) {
   ovSub.textContent = sub || '';
 }
 
-function showOverlay(provider) {
-  overlay.classList.remove('wi', 'll');
-  if (provider === 'workink') {
-    overlay.classList.add('wi');
-    ovBadge.textContent = 'Work.ink';
-    ovBadge.className = 'ov-provider wi';
-  } else if (provider === 'lootlabs') {
-    overlay.classList.add('ll');
-    ovBadge.textContent = 'LootLabs';
-    ovBadge.className = 'ov-provider ll';
-  } else {
-    ovBadge.textContent = 'Linkvertise';
-    ovBadge.className = 'ov-provider lv';
-  }
-  overlay.classList.add('show');
-}
+function showOverlay() { overlay.classList.add('show'); }
 
 function hideOverlay(cb) {
   overlay.style.transition = 'opacity 0.55s';
   overlay.style.opacity = '0';
   setTimeout(() => {
-    overlay.classList.remove('show', 'wi', 'll');
+    overlay.classList.remove('show');
     overlay.style.opacity = '';
     overlay.style.transition = '';
     if (cb) cb();
@@ -749,6 +1306,156 @@ function showError(m) {
   errorBox.classList.add('show');
   setStatus('ERROR', 'red');
 }
+
+function showAchievement(icon, title, msg, duration = 4000) {
+  achIcon.textContent = icon;
+  achTitle.textContent = title;
+  achMsg.textContent = msg;
+  achToast.classList.remove('hiding');
+  achToast.classList.add('show');
+
+  try { playDing(); } catch(_) {}
+
+  setTimeout(() => {
+    achToast.classList.add('hiding');
+    setTimeout(() => {
+      achToast.classList.remove('show', 'hiding');
+    }, 500);
+  }, duration);
+}
+
+function playDing() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.4);
+  } catch(_) {}
+}
+
+const TIER_NAMES = ['BASIC', 'PRO', 'VIP'];
+const TIER_HOURS = [6, 24, 48];
+
+function updateTierDisplay(level) {
+  currentTierLevel = level;
+  tierCurrent.textContent = TIER_NAMES[level] || 'BASIC';
+
+  document.querySelectorAll('.tier-node').forEach((node, idx) => {
+    node.classList.remove('active', 'complete');
+    if (idx < level) node.classList.add('complete');
+    else if (idx === level) node.classList.add('active');
+  });
+
+  document.querySelectorAll('.tier-connector').forEach((conn, idx) => {
+    conn.classList.remove('filled');
+    if (idx < level) conn.classList.add('filled');
+  });
+
+  tierProgress.classList.add('show');
+}
+
+function showUpgradePrompt(currentHours, nextLevel) {
+  if (nextLevel >= TIER_NAMES.length) return;
+
+  const nextHours = TIER_HOURS[nextLevel];
+  const nextName = TIER_NAMES[nextLevel];
+  const multiplier = Math.round(nextHours / currentHours);
+
+  upBefore.textContent = currentHours;
+  upAfter.textContent = nextHours;
+  upgradeTitle.textContent = `Upgrade to ${nextName}!`;
+
+  if (nextLevel === 1) {
+    upgradeBanner.textContent = '★ Recommended ★';
+    upgradeMsg.innerHTML = `Watch <strong>1 more ad</strong> to extend your key by <strong>${multiplier}×</strong>!<br>No HWID lock · Resettable`;
+  } else if (nextLevel === 2) {
+    upgradeBanner.textContent = '★ Maximum Tier ★';
+    upgradeMsg.innerHTML = `One last ad for the <strong>VIP experience</strong>:<br>${nextHours}h key · Auto-updates · Priority support`;
+  }
+
+  setTimeout(() => {
+    upgradeBox.classList.add('show');
+    showAchievement('🔓', 'Upgrade Available!', `Watch 1 ad for ${nextHours}h key`);
+    startUpgradeCountdown();
+  }, 1400);
+}
+
+function startUpgradeCountdown() {
+  let remaining = CONFIG.UPGRADE_TIMEOUT;
+
+  const update = () => {
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    upgradeTimeText.textContent = `Expires in ${m}:${String(s).padStart(2, '0')}`;
+
+    if (remaining <= 10) {
+      upgradeTimer.classList.add('urgent');
+    }
+
+    if (remaining <= 0) {
+      clearInterval(upgradeCountdownInterval);
+      upgradeBox.style.transition = 'opacity 0.5s, transform 0.5s';
+      upgradeBox.style.opacity = '0';
+      upgradeBox.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        upgradeBox.classList.remove('show');
+        upgradeBox.style.transition = '';
+        upgradeBox.style.opacity = '';
+        upgradeBox.style.transform = '';
+      }, 500);
+      return;
+    }
+
+    remaining--;
+  };
+
+  update();
+  upgradeCountdownInterval = setInterval(update, 1000);
+}
+
+upgradeBtn.addEventListener('click', () => {
+  if (upgradeCountdownInterval) clearInterval(upgradeCountdownInterval);
+
+  const nextLevel = currentTierLevel + 1;
+  saveTierLevel(nextLevel);
+
+  try {
+    const session = JSON.parse(localStorage.getItem(CONFIG.SESSION_KEY) || '{}');
+    if (currentBonus) session.bonusId = currentBonus.bonusId;
+    session.tier = nextLevel;
+    localStorage.setItem(CONFIG.SESSION_KEY, JSON.stringify(session));
+  } catch (_) {}
+
+  showAchievement('⚡', 'Upgrade Started!', `Heading to ${TIER_NAMES[nextLevel]} tier...`, 2000);
+
+  upgradeBtn.textContent = '⏳ Loading...';
+  upgradeBtn.disabled = true;
+
+  setTimeout(() => {
+    const params = new URLSearchParams();
+    if (currentBonus) params.set('bonus', currentBonus.bonusId);
+    params.set('tier', nextLevel);
+    location.href = 'start.html?' + params.toString();
+  }, 900);
+});
+
+upgradeDecline.addEventListener('click', () => {
+  if (upgradeCountdownInterval) clearInterval(upgradeCountdownInterval);
+  upgradeBox.style.transition = 'opacity 0.4s, transform 0.4s';
+  upgradeBox.style.opacity = '0';
+  upgradeBox.style.transform = 'translateY(-10px)';
+  setTimeout(() => {
+    upgradeBox.classList.remove('show');
+  }, 400);
+});
 
 async function fetchT(url, opts = {}, ms = 25000) {
   const ctrl = new AbortController();
@@ -768,6 +1475,7 @@ function copyKey() {
   const ok = () => {
     copyBtn.textContent = '[ ✓ Copied! ]';
     copyBtn.classList.add('copied');
+    showAchievement('📋', 'Key Copied!', 'Paste it into your script', 2500);
     setTimeout(() => {
       copyBtn.textContent = '[ Copy to Clipboard ]';
       copyBtn.classList.remove('copied');
@@ -795,17 +1503,6 @@ function copyKey() {
 
 copyBtn.addEventListener('click', copyKey);
 
-bonusBtn.addEventListener('click', () => {
-  if (!currentBonus) return;
-  // Save bonusId for next session
-  try {
-    const session = JSON.parse(localStorage.getItem(CONFIG.SESSION_KEY) || '{}');
-    session.bonusId = currentBonus.bonusId;
-    localStorage.setItem(CONFIG.SESSION_KEY, JSON.stringify(session));
-  } catch (_) {}
-  location.href = 'start.html?bonus=' + encodeURIComponent(currentBonus.bonusId);
-});
-
 addEventListener('load', async () => {
   const params = new URLSearchParams(location.search);
   const hash    = params.get('hash');
@@ -818,6 +1515,7 @@ addEventListener('load', async () => {
   const csrf      = loadCsrf();
   const sblob     = loadSblob();
   const totp      = loadTotp();
+  const tierLevel = loadTierLevel();
 
   const isLv = !!hash    && CONFIG.HASH_RE.test(hash);
   const isWi = !!witoken && CONFIG.WITOKEN_RE.test(witoken);
@@ -845,7 +1543,7 @@ addEventListener('load', async () => {
   const provider = isWi ? 'workink' : isLl ? 'lootlabs' : 'linkvertise';
   history.replaceState({}, '', location.pathname);
 
-  showOverlay(provider);
+  showOverlay();
   setOverlay('Establishing connection', 5, 'Reaching secure server');
   setStatus('VERIFYING...', 'amber');
 
@@ -920,26 +1618,39 @@ addEventListener('load', async () => {
 
     keyVal.textContent = currentKey;
 
+    const durationHours = data.durationHours || TIER_HOURS[tierLevel] || 6;
+
     if (data.expiresAt) {
       const exp = new Date(data.expiresAt);
-      const hrs = data.durationHours ? ` • ${data.durationHours}h key` : '';
-      const bonusTag = data.bonus ? ' • BONUS' : '';
+      const hrs = ` • ${durationHours}h key`;
+      const tierTag = tierLevel > 0 ? ` • ${TIER_NAMES[tierLevel]}` : '';
       keyExp.textContent = '◆ Expires ' +
         exp.toLocaleString('en-GB', { hour12: false }) +
-        hrs + bonusTag + ' ◆';
+        hrs + tierTag + ' ◆';
     }
 
     hideOverlay(() => {
+      updateTierDisplay(tierLevel);
+
       keyBox.classList.add('show');
       setStatus('● Key Generated Successfully', 'green');
 
-      if (currentBonus) {
-        bonusMsg.textContent = currentBonus.message ||
-          `Complete one more ad for a ${currentBonus.durationHours}h key!`;
-        setTimeout(() => bonusBox.classList.add('show'), 800);
+      const achievements = [
+        { icon: '🎉', title: 'First Key Unlocked!', msg: `${durationHours}h Basic key earned` },
+        { icon: '⭐', title: 'Pro Tier Achieved!', msg: `${durationHours}h Pro key — 4× longer!` },
+        { icon: '👑', title: 'VIP Status Unlocked!', msg: 'Maximum 48h key — legendary!' },
+      ];
+      const ach = achievements[tierLevel] || achievements[0];
+      setTimeout(() => showAchievement(ach.icon, ach.title, ach.msg), 600);
+
+      launchConfetti(tierLevel);
+
+      if (tierLevel < TIER_NAMES.length - 1) {
+        showUpgradePrompt(durationHours, tierLevel + 1);
+      } else {
+        setTimeout(() => launchConfetti(2), 1500);
       }
 
-      launchConfetti();
       setTimeout(() => keyVal.focus(), 600);
     });
 
@@ -952,28 +1663,34 @@ addEventListener('load', async () => {
   }
 });
 
-/* Confetti */
-function launchConfetti() {
+function launchConfetti(tier = 0) {
   const cv  = document.getElementById('confetti-canvas');
   const ctx = cv.getContext('2d');
   cv.width  = innerWidth;
   cv.height = innerHeight;
 
-  const pal = ['#ff8c00', '#ffb347', '#ffd700', '#00ff88', '#ffffff', '#ff6644', '#ffcc33', '#a070ff', '#ffee80', '#20cc88'];
-  const shapes = ['rect', 'circle', 'line', 'triangle'];
+  const palettes = [
+    ['#ff8c00', '#ffb347', '#ffd700', '#00ff88', '#ffffff', '#ff6644', '#ffcc33'],
+    ['#ffd700', '#ffea70', '#ff9500', '#a070ff', '#ffffff', '#ff8c00', '#ffaa33'],
+    ['#ffd700', '#80e8ff', '#a070ff', '#ff80ff', '#ffffff', '#ffea70', '#ff9500', '#00ffaa'],
+  ];
+  const pal = palettes[tier] || palettes[0];
 
-  const pieces = Array.from({ length: 320 }, () => ({
+  const count = tier === 2 ? 500 : tier === 1 ? 400 : 320;
+  const shapes = ['rect', 'circle', 'line', 'triangle', 'star'];
+
+  const pieces = Array.from({ length: count }, () => ({
     x:     innerWidth * 0.5 + (Math.random() - 0.5) * 220,
     y:     innerHeight * 0.45,
-    vx:    (Math.random() - 0.5) * 22,
-    vy:    -(Math.random() * 18 + 8),
+    vx:    (Math.random() - 0.5) * 24,
+    vy:    -(Math.random() * 20 + 9),
     ay:    0.32 + Math.random() * 0.2,
     color: pal[Math.floor(Math.random() * pal.length)],
-    size:  Math.random() * 10 + 3,
+    size:  Math.random() * 11 + 3,
     rot:   Math.random() * Math.PI * 2,
     rspd:  (Math.random() - 0.5) * 0.32,
     alpha: 1,
-    decay: 0.008 + Math.random() * 0.006,
+    decay: 0.007 + Math.random() * 0.006,
     shape: shapes[Math.floor(Math.random() * shapes.length)],
   }));
 
@@ -1002,6 +1719,19 @@ function launchConfetti() {
         ctx.moveTo(0, -p.size / 2);
         ctx.lineTo(p.size / 2, p.size / 2);
         ctx.lineTo(-p.size / 2, p.size / 2);
+        ctx.closePath();
+        ctx.fill();
+      } else if (p.shape === 'star') {
+        const spikes = 5;
+        const outerR = p.size / 2;
+        const innerR = p.size / 4;
+        ctx.beginPath();
+        for (let i = 0; i < spikes * 2; i++) {
+          const r = i % 2 === 0 ? outerR : innerR;
+          const a = (i * Math.PI) / spikes;
+          if (i === 0) ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+          else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+        }
         ctx.closePath();
         ctx.fill();
       } else {
@@ -1033,7 +1763,6 @@ addEventListener('resize', () => {
   c.height = innerHeight;
 });
 
-/* Live Lava Engine */
 (function lavaEngine() {
   const cv  = document.getElementById('lava-canvas');
   const ctx = cv.getContext('2d', { alpha: true });
