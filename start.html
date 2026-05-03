@@ -1,313 +1,419 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
-    <meta name="theme-color" content="#0a0200">
-    <title>RezurXLab | Start</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --orange:      #ff8c00;
-            --orange-dim:  #cc6600;
-            --orange-glow: rgba(255,140,0,0.45);
-            --green:       #00ff88;
-            --green-glow:  rgba(0,255,136,0.35);
-            --teal:        #20cc88;
-            --teal-glow:   rgba(32,204,136,0.4);
-            --red:         #ff4455;
-            --red-glow:    rgba(255,68,85,0.35);
-            --bg:          #0a0200;
-            --panel:       rgba(10,4,0,0.93);
-            --muted:       #3a3028;
-            --dim:         #6a5848;
-        }
-        *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
-        html,body { height:100%; }
-        body {
-            background:var(--bg); color:#fff;
-            font-family:'JetBrains Mono',monospace;
-            display:flex; flex-direction:column;
-            justify-content:center; align-items:center;
-            min-height:100vh; overflow:hidden; position:relative;
-            -webkit-font-smoothing:antialiased;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0a0200">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://rezurx-backend.onrender.com; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self' https://rezurx-backend.onrender.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+<title>RezurXLab | Start</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --orange:#ff8c00;--orange-bright:#ffaa33;--orange-deep:#aa4400;--orange-glow:rgba(255,140,0,.45);
+  --gold:#ffd700;--green:#00ff88;--green-glow:rgba(0,255,136,.45);
+  --teal:#20cc88;--purple:#a070ff;--purple-glow:rgba(160,112,255,.4);
+  --red:#ff4455;--red-glow:rgba(255,68,85,.45);
+  --bg:#070100;--panel:rgba(8,3,0,.93);--muted:#3a3028;--dim:#6a5848;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{background:var(--bg);color:#fff;font-family:'JetBrains Mono',monospace;
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    min-height:100vh;overflow:hidden;position:relative;-webkit-font-smoothing:antialiased;}
 
-        #lava-canvas { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
-        .atmos       { position:fixed; inset:0; z-index:1; pointer-events:none; background:radial-gradient(ellipse 90% 50% at 50% 0%, rgba(255,90,0,0.20) 0%, transparent 65%),radial-gradient(ellipse 100% 100% at 50% 50%, transparent 35%, rgba(0,0,0,0.72) 100%); }
-        .scanlines   { position:fixed; inset:0; z-index:2; pointer-events:none; background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.045) 3px,rgba(0,0,0,0.045) 4px); }
+/* layered atmosphere */
+#lava-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.atmos{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse 95% 55% at 50% -5%,rgba(255,90,0,.26) 0%,transparent 60%),
+             radial-gradient(ellipse 75% 45% at 50% 105%,rgba(180,30,0,.20) 0%,transparent 60%),
+             radial-gradient(ellipse 100% 100% at 50% 50%,transparent 30%,rgba(0,0,0,.82) 100%);}
+.lava-river{position:fixed;bottom:0;left:0;right:0;height:34vh;z-index:1;pointer-events:none;
+    background:linear-gradient(0deg,rgba(255,70,0,.20) 0%,rgba(255,100,0,.06) 40%,transparent 100%);
+    animation:riverGlow 4s ease-in-out infinite;}
+@keyframes riverGlow{0%,100%{opacity:.7}50%{opacity:1}}
+.scanlines{position:fixed;inset:0;z-index:2;pointer-events:none;
+    background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.05) 3px,rgba(0,0,0,.05) 4px);}
+.embers{position:fixed;inset:0;z-index:2;pointer-events:none;
+  background-image:
+    radial-gradient(2px 2px at 15% 85%,rgba(255,180,50,.7) 0%,transparent 100%),
+    radial-gradient(3px 3px at 25% 90%,rgba(255,140,0,.6) 0%,transparent 100%),
+    radial-gradient(1px 1px at 35% 80%,rgba(255,200,80,.5) 0%,transparent 100%),
+    radial-gradient(2px 2px at 70% 88%,rgba(255,160,40,.6) 0%,transparent 100%),
+    radial-gradient(3px 3px at 85% 82%,rgba(255,120,20,.5) 0%,transparent 100%);
+  background-size:200% 200%;animation:embersFloat 8s ease-in-out infinite alternate;}
+@keyframes embersFloat{0%{transform:translateY(0) translateX(0)}50%{transform:translateY(-15px) translateX(10px)}100%{transform:translateY(-5px) translateX(-5px)}}
+.vignette{position:fixed;inset:0;z-index:3;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.55) 100%);}
 
-        .panel {
-            position:relative; z-index:10;
-            background:var(--panel);
-            border:1px solid rgba(255,140,0,0.22); border-radius:6px;
-            padding:42px 38px 34px; width:92%; max-width:480px; text-align:center;
-            box-shadow:0 0 0 1px rgba(0,0,0,0.9),0 8px 40px rgba(0,0,0,0.85),0 0 100px rgba(255,80,0,0.10),inset 0 1px 0 rgba(255,180,80,0.09);
-            backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);
-            animation:panelIn .55s cubic-bezier(0.22,1,0.36,1) both;
-        }
-        @keyframes panelIn { from{opacity:0;transform:translateY(18px) scale(0.97)} to{opacity:1;transform:none} }
-        @media (max-width:480px) { .panel { padding:32px 22px 26px; } }
+/* Panel */
+.panel{position:relative;z-index:10;background:var(--panel);
+  border:1px solid rgba(255,140,0,.22);border-radius:10px;
+  padding:46px 40px 36px;width:92%;max-width:560px;text-align:center;
+  box-shadow:0 0 0 1px rgba(0,0,0,.92),0 12px 50px rgba(0,0,0,.9),
+             0 0 120px rgba(255,80,0,.15),inset 0 1px 0 rgba(255,180,80,.12);
+  backdrop-filter:blur(5px) saturate(1.15);-webkit-backdrop-filter:blur(5px) saturate(1.15);
+  animation:panelIn .65s cubic-bezier(.22,1,.36,1) both;}
+@keyframes panelIn{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:none}}
+@media (max-width:540px){.panel{padding:34px 24px 28px;}}
+.panel::before{content:"";position:absolute;inset:-1px;border-radius:10px;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,150,30,.5) 0%,transparent 30%,transparent 70%,rgba(255,140,0,.3) 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;padding:1px;opacity:.85;}
+.panel::after{content:"";position:absolute;inset:0;border-radius:10px;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,180,80,.04) 0%,transparent 40%);}
 
-        .c { position:absolute; width:14px; height:14px; }
-        .c-tl { top:-1px; left:-1px;   border-top:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:3px 0 0 0; }
-        .c-tr { top:-1px; right:-1px;  border-top:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 3px 0 0; }
-        .c-bl { bottom:-1px; left:-1px;  border-bottom:2px solid var(--orange); border-left:2px solid var(--orange);  border-radius:0 0 0 3px; }
-        .c-br { bottom:-1px; right:-1px; border-bottom:2px solid var(--orange); border-right:2px solid var(--orange); border-radius:0 0 3px 0; }
+.c{position:absolute;width:16px;height:16px;}
+.c-tl{top:-1px;left:-1px;border-top:2px solid var(--orange-bright);border-left:2px solid var(--orange-bright);border-radius:4px 0 0 0;filter:drop-shadow(0 0 5px var(--orange-glow));}
+.c-tr{top:-1px;right:-1px;border-top:2px solid var(--orange-bright);border-right:2px solid var(--orange-bright);border-radius:0 4px 0 0;filter:drop-shadow(0 0 5px var(--orange-glow));}
+.c-bl{bottom:-1px;left:-1px;border-bottom:2px solid var(--orange-bright);border-left:2px solid var(--orange-bright);border-radius:0 0 0 4px;filter:drop-shadow(0 0 5px var(--orange-glow));}
+.c-br{bottom:-1px;right:-1px;border-bottom:2px solid var(--orange-bright);border-right:2px solid var(--orange-bright);border-radius:0 0 4px 0;filter:drop-shadow(0 0 5px var(--orange-glow));}
 
-        .logo-eyebrow { font-size:.52rem; letter-spacing:4px; color:var(--muted); text-transform:uppercase; margin-bottom:10px; }
-        h1 {
-            font-family:'Orbitron',sans-serif; font-size:1.75rem; font-weight:900; letter-spacing:5px;
-            background:linear-gradient(180deg,#ffd080 0%,#ff9c20 35%,#ff6600 70%,#cc4400 100%);
-            -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-            filter:drop-shadow(0 0 20px rgba(255,140,0,0.55)); line-height:1.1;
-            animation:logoBreath 4s ease-in-out infinite;
-        }
-        @keyframes logoBreath { 0%,100%{filter:drop-shadow(0 0 20px rgba(255,140,0,0.55))} 50%{filter:drop-shadow(0 0 32px rgba(255,140,0,0.85))} }
-        .logo-sub { font-size:.5rem; letter-spacing:5px; color:var(--muted); text-transform:uppercase; margin-top:9px; margin-bottom:28px; }
-        .divider  { width:100%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,140,0,0.22),transparent); margin-bottom:22px; }
+.logo-wrap{position:relative;display:inline-block;margin-bottom:4px;}
+.logo-wrap::before{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:340px;height:90px;background:radial-gradient(ellipse at center,rgba(255,180,50,.20) 0%,rgba(255,120,0,.10) 40%,transparent 70%);
+  border-radius:50%;pointer-events:none;z-index:-1;animation:auraOuter 3.8s ease-in-out infinite;filter:blur(8px);}
+.logo-wrap::after{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:220px;height:55px;background:radial-gradient(ellipse at center,rgba(255,220,100,.4) 0%,rgba(255,140,0,.2) 45%,transparent 70%);
+  border-radius:50%;pointer-events:none;z-index:-1;animation:auraInner 3.8s ease-in-out infinite;filter:blur(4px);}
+@keyframes auraOuter{0%,100%{opacity:.6;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.14)}}
+@keyframes auraInner{0%,100%{opacity:.8;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}}
 
-        .info-line { font-size:.62rem; letter-spacing:1.5px; color:var(--dim); text-transform:uppercase; margin-bottom:24px; line-height:1.7; }
-        .info-line strong { color:var(--orange); font-weight:500; }
+.logo-eyebrow{font-size:.55rem;letter-spacing:5px;color:var(--orange-deep);text-transform:uppercase;margin-bottom:10px;font-weight:500;}
+h1{font-family:'Orbitron',sans-serif;font-size:2rem;font-weight:900;letter-spacing:7px;
+   background:linear-gradient(180deg,#fff0c0 0%,#ffaa33 35%,#ff6600 70%,#aa3300 100%);
+   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+   filter:drop-shadow(0 0 24px rgba(255,140,0,.65));line-height:1.05;
+   animation:logoBreath 4s ease-in-out infinite;}
+@keyframes logoBreath{0%,100%{filter:drop-shadow(0 0 24px rgba(255,140,0,.55))}50%{filter:drop-shadow(0 0 38px rgba(255,170,50,.95))}}
+.logo-sub{font-size:.52rem;letter-spacing:7px;color:var(--muted);text-transform:uppercase;margin-top:11px;margin-bottom:28px;font-weight:500;}
 
-        #status { font-size:.68rem; letter-spacing:2px; text-transform:uppercase; color:var(--dim); margin-bottom:20px; display:flex; align-items:center; justify-content:center; gap:8px; min-height:1.1em; }
-        .sdot   { width:5px; height:5px; border-radius:50%; background:var(--muted); animation:pulse 2s ease-in-out infinite; }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
-        #status.green .sdot { background:var(--green); box-shadow:0 0 8px var(--green-glow); }
-        #status.green       { color:var(--green); }
-        #status.red   .sdot { background:var(--red); box-shadow:0 0 8px var(--red-glow); animation:none; }
-        #status.red         { color:var(--red); }
-        #status.amber .sdot { background:var(--orange); box-shadow:0 0 8px var(--orange-glow); }
-        #status.amber       { color:var(--orange); }
+.divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,140,0,.35) 30%,rgba(255,140,0,.55) 50%,rgba(255,140,0,.35) 70%,transparent);margin-bottom:24px;position:relative;}
+.divider::after{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:7px;height:7px;border-radius:50%;background:var(--orange);box-shadow:0 0 12px var(--orange-glow),0 0 4px #fff inset;}
 
-        .btn-group { display:flex; gap:10px; }
-        .btn-group button { flex:1; }
+.info-line{font-size:.62rem;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin-bottom:24px;line-height:1.75;}
+.info-line strong{color:var(--orange);font-weight:500;}
 
-        #go-btn-lv {
-            background:linear-gradient(180deg,#ff9920 0%,#ff6600 100%);
-            border:1px solid rgba(255,180,80,0.5); color:#1a0800;
-            font-family:'Orbitron',sans-serif; font-size:.72rem; font-weight:700;
-            letter-spacing:2px; text-transform:uppercase;
-            padding:14px 8px; cursor:pointer; border-radius:3px;
-            transition:all .25s cubic-bezier(.2,.9,.3,1);
-            box-shadow:0 4px 18px rgba(255,100,0,0.35),inset 0 1px 0 rgba(255,220,150,0.35);
-            line-height:1.3;
-        }
-        #go-btn-lv:hover:not(:disabled)  { transform:translateY(-1px); box-shadow:0 8px 24px rgba(255,100,0,0.5),inset 0 1px 0 rgba(255,220,150,0.5); }
-        #go-btn-lv:active:not(:disabled) { transform:translateY(0); }
-        #go-btn-lv:disabled { background:#2a1810; color:#6a5848; border-color:#3a2820; cursor:not-allowed; box-shadow:none; }
+#status{font-size:.68rem;letter-spacing:2px;text-transform:uppercase;color:var(--dim);
+    margin-bottom:18px;display:flex;align-items:center;justify-content:center;gap:8px;min-height:1.1em;font-weight:500;}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.85)}}
+#status.green .sdot{background:var(--green);box-shadow:0 0 12px var(--green-glow);}#status.green{color:var(--green);}
+#status.red .sdot{background:var(--red);box-shadow:0 0 12px var(--red-glow);animation:none;}#status.red{color:var(--red);}
+#status.amber .sdot{background:var(--orange);box-shadow:0 0 12px var(--orange-glow);}#status.amber{color:var(--orange-bright);}
 
-        #go-btn-wi {
-            background:linear-gradient(180deg,#25dd96 0%,#0faa68 100%);
-            border:1px solid rgba(50,220,140,0.5); color:#001a0e;
-            font-family:'Orbitron',sans-serif; font-size:.72rem; font-weight:700;
-            letter-spacing:2px; text-transform:uppercase;
-            padding:14px 8px; cursor:pointer; border-radius:3px;
-            transition:all .25s cubic-bezier(.2,.9,.3,1);
-            box-shadow:0 4px 18px rgba(0,180,100,0.3),inset 0 1px 0 rgba(180,255,220,0.3);
-            line-height:1.3;
-        }
-        #go-btn-wi:hover:not(:disabled)  { transform:translateY(-1px); box-shadow:0 8px 24px rgba(0,200,120,0.45),inset 0 1px 0 rgba(180,255,220,0.5); }
-        #go-btn-wi:active:not(:disabled) { transform:translateY(0); }
-        #go-btn-wi:disabled { background:#0a1a12; color:#2a4a38; border-color:#1a3028; cursor:not-allowed; box-shadow:none; }
+/* PoW progress */
+#pow-row{display:none;font-size:.55rem;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;
+  margin-bottom:14px;padding:8px 12px;border:1px solid rgba(255,140,0,.12);border-radius:4px;
+  background:rgba(0,0,0,.25);}
+#pow-row.show{display:flex;justify-content:space-between;align-items:center;}
+#pow-row .lbl{color:var(--muted);}
+#pow-row .val{color:var(--orange);font-family:'Orbitron',sans-serif;font-weight:600;}
 
-        .btn-or { display:flex; align-items:center; gap:6px; flex-shrink:0; }
-        .btn-or span { font-size:.45rem; letter-spacing:2px; color:var(--dim); text-transform:uppercase; }
-        .btn-or-line { width:1px; height:22px; background:rgba(255,140,0,0.15); }
+.btn-stack{display:flex;flex-direction:column;gap:11px;}
 
+.provider-btn{
+  position:relative;padding:15px 18px;cursor:pointer;border-radius:6px;
+  font-family:'Orbitron',sans-serif;font-size:.72rem;font-weight:700;
+  letter-spacing:2.2px;text-transform:uppercase;
+  transition:all .25s cubic-bezier(.2,.9,.3,1);
+  border:1px solid;display:flex;justify-content:space-between;align-items:center;gap:10px;
+  overflow:hidden;}
+.provider-btn::before{content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+  transform:translateX(-100%);transition:transform .6s;}
+.provider-btn:hover:not(:disabled)::before{transform:translateX(100%);}
+.provider-btn:hover:not(:disabled){transform:translateY(-2px);}
+.provider-btn:active:not(:disabled){transform:translateY(0);}
+.provider-btn:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3);}
+.provider-btn .left{display:flex;align-items:center;gap:11px;}
+.provider-btn .pdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;animation:btnDot 2s ease-in-out infinite;}
+@keyframes btnDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.82)}}
+.provider-btn .duration{font-size:.56rem;letter-spacing:1.5px;font-weight:600;opacity:.9;
+  padding:3px 9px;border-radius:11px;}
 
-        .footer { margin-top:24px; display:flex; justify-content:center; align-items:center; gap:10px; }
-        .fi { font-size:.45rem; letter-spacing:1.5px; color:#1a0e06; text-transform:uppercase; }
-        .fd { width:2px; height:2px; border-radius:50%; background:#1a0e06; }
-    </style>
+#go-btn-lv{background:linear-gradient(180deg,#ff9920 0%,#ff6600 100%);color:#1a0800;
+  border-color:rgba(255,180,80,.55);
+  box-shadow:0 4px 18px rgba(255,100,0,.4),inset 0 1px 0 rgba(255,220,150,.45);}
+#go-btn-lv:hover:not(:disabled){box-shadow:0 10px 30px rgba(255,100,0,.55),inset 0 1px 0 rgba(255,220,150,.6);}
+#go-btn-lv .pdot{background:#1a0800;box-shadow:0 0 6px #1a0800;}
+#go-btn-lv .duration{background:rgba(0,0,0,.28);color:#3a1500;}
+
+#go-btn-ll{background:linear-gradient(180deg,#b290ff 0%,#7a4dff 100%);color:#1a0033;
+  border-color:rgba(180,140,255,.55);
+  box-shadow:0 4px 18px rgba(120,80,255,.38),inset 0 1px 0 rgba(220,200,255,.45);}
+#go-btn-ll:hover:not(:disabled){box-shadow:0 10px 30px rgba(120,80,255,.55),inset 0 1px 0 rgba(220,200,255,.6);}
+#go-btn-ll .pdot{background:#1a0033;box-shadow:0 0 6px #1a0033;}
+#go-btn-ll .duration{background:rgba(0,0,0,.28);color:#1a0033;}
+
+#go-btn-wi{background:linear-gradient(180deg,#25dd96 0%,#0faa68 100%);color:#001a0e;
+  border-color:rgba(50,220,140,.55);
+  box-shadow:0 4px 18px rgba(0,180,100,.38),inset 0 1px 0 rgba(180,255,220,.4);}
+#go-btn-wi:hover:not(:disabled){box-shadow:0 10px 30px rgba(0,200,120,.55),inset 0 1px 0 rgba(180,255,220,.55);}
+#go-btn-wi .pdot{background:#001a0e;box-shadow:0 0 6px #001a0e;}
+#go-btn-wi .duration{background:rgba(0,0,0,.28);color:#001a0e;}
+
+/* Honeypot — hidden inputs that bots fill */
+.hp-trap{position:absolute;left:-9999px;opacity:0;height:0;width:0;pointer-events:none;}
+
+.footer{margin-top:26px;display:flex;justify-content:center;align-items:center;gap:11px;padding-top:18px;border-top:1px solid rgba(255,140,0,.10);}
+.fi{font-size:.46rem;letter-spacing:2px;color:#1a0e06;text-transform:uppercase;font-weight:500;}
+.fd{width:2.5px;height:2.5px;border-radius:50%;background:#1a0e06;}
+</style>
 </head>
 <body>
 
 <canvas id="lava-canvas"></canvas>
 <div class="atmos"></div>
+<div class="lava-river"></div>
+<div class="embers"></div>
 <div class="scanlines"></div>
+<div class="vignette"></div>
 
 <div class="panel">
-    <div class="c c-tl"></div><div class="c c-tr"></div>
-    <div class="c c-bl"></div><div class="c c-br"></div>
+<div class="c c-tl"></div><div class="c c-tr"></div>
+<div class="c c-bl"></div><div class="c c-br"></div>
 
-    <div class="logo-eyebrow">Access Portal</div>
-    <h1>REZURXLAB</h1>
-    <div class="logo-sub">Key Generation System</div>
-    <div class="divider"></div>
+<div class="logo-eyebrow">◆ Access Portal ◆</div>
+<div class="logo-wrap"><h1>REZURXLAB</h1></div>
+<div class="logo-sub">Key Generation System</div>
+<div class="divider"></div>
 
-    <div class="info-line">
-        Complete <strong>1 short ad</strong> to receive your<br>
-        <strong>24-hour access key</strong> — choose your provider
-    </div>
+<div class="info-line">
+Choose your provider. Complete <strong>1 short ad</strong>.<br>
+Receive your <strong>access key</strong> instantly.
+</div>
 
-    <div id="status"><span class="sdot"></span><span id="status-txt">Initializing...</span></div>
+<div id="status"><span class="sdot"></span><span id="status-txt">Initializing...</span></div>
+<div id="pow-row"><span class="lbl">Security Challenge</span><span class="val" id="pow-val">—</span></div>
 
-    <div class="btn-group">
-        <button id="go-btn-lv" type="button" disabled>Linkvertise</button>
-        <div class="btn-or"><div class="btn-or-line"></div><span>or</span><div class="btn-or-line"></div></div>
-        <button id="go-btn-wi" type="button" disabled>Work.ink</button>
-    </div>
+<div class="btn-stack">
+<button id="go-btn-lv" class="provider-btn" type="button" disabled>
+  <span class="left"><span class="pdot"></span><span>Linkvertise</span></span>
+  <span class="duration">6h Key</span>
+</button>
+<button id="go-btn-ll" class="provider-btn" type="button" disabled>
+  <span class="left"><span class="pdot"></span><span>LootLabs</span></span>
+  <span class="duration">10h Key</span>
+</button>
+<button id="go-btn-wi" class="provider-btn" type="button" disabled>
+  <span class="left"><span class="pdot"></span><span>Work.ink</span></span>
+  <span class="duration">14h Key</span>
+</button>
+</div>
 
+<!-- Honeypots -->
+<input class="hp-trap" name="website" tabindex="-1" autocomplete="off">
+<input class="hp-trap" name="email_confirm" tabindex="-1" autocomplete="off">
 
-    <div class="footer">
-        <span class="fi">AES-256</span><div class="fd"></div>
-        <span class="fi">HWID Lock</span><div class="fd"></div>
-        <span class="fi">V4.2</span>
-    </div>
+<div class="footer">
+<span class="fi">AES-256</span><div class="fd"></div>
+<span class="fi">PoW Locked</span><div class="fd"></div>
+<span class="fi">v3.1</span>
+</div>
 </div>
 
 <script>
 (() => {
-    'use strict';
+'use strict';
 
-    const API             = "https://rezurx-backend.onrender.com";
-    const WORKINK_URL     = "https://work.ink/2hdZ/key-system";
-    const SESSION_KEY     = 'rzx_session_v3';
-    const BIND_SECRET     = 'rzx_fp_bind_9x2';
+const API           = "https://rezurx-backend.onrender.com";
+const LOOTLABS_URL  = "https://loot-link.com/s?5cN9oCrm";
+const WORKINK_URL   = "https://work.ink/2hdZ/key-system";
+const SESSION_KEY   = 'rzx_session_v5';
+const CSRF_KEY      = 'rzx_csrf_v5';
+const SBLOB_KEY     = 'rzx_sblob_v5';
+const BIND_SECRET   = 'rzx_fp_bind_9x2';
 
-    const goBtnLv    = document.getElementById('go-btn-lv');
-    const goBtnWi    = document.getElementById('go-btn-wi');
-    const statusEl   = document.getElementById('status');
-    const statusTx   = document.getElementById('status-txt');
+// Frame-bust
+if (top !== self) { try { top.location = self.location; } catch(_) { document.body.innerHTML=''; } }
 
-    async function getFingerprint() {
-        const nav = navigator, scr = screen;
-        let canvasHash = 'nc';
-        try {
-            const cv = document.createElement('canvas');
-            cv.width = 180; cv.height = 40;
-            const cx = cv.getContext('2d');
-            cx.font = '13px Arial'; cx.fillStyle = '#ff8c00';
-            cx.fillText('RezurX🔥fp', 2, 20);
-            cx.fillStyle = 'rgba(0,200,100,0.7)'; cx.fillRect(8,26,60,8);
-            canvasHash = cv.toDataURL().slice(-48);
-        } catch (_) {}
-        const raw = [nav.userAgent,nav.language,nav.hardwareConcurrency||0,nav.maxTouchPoints||0,
-            scr.colorDepth,scr.width+'x'+scr.height,Intl.DateTimeFormat().resolvedOptions().timeZone,
-            nav.platform||'',canvasHash,BIND_SECRET].join('|');
-        const buf  = new TextEncoder().encode(raw);
-        const hash = await crypto.subtle.digest('SHA-256', buf);
-        return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+const goBtnLv  = document.getElementById('go-btn-lv');
+const goBtnLl  = document.getElementById('go-btn-ll');
+const goBtnWi  = document.getElementById('go-btn-wi');
+const statusEl = document.getElementById('status');
+const statusTx = document.getElementById('status-txt');
+const powRow   = document.getElementById('pow-row');
+const powVal   = document.getElementById('pow-val');
+
+async function getFingerprint(){
+  const nav=navigator,scr=screen;
+  let canvasHash='nc';
+  try{
+    const cv=document.createElement('canvas');cv.width=180;cv.height=40;
+    const cx=cv.getContext('2d');cx.font='13px Arial';cx.fillStyle='#ff8c00';
+    cx.fillText('RezurX🔥fp',2,20);cx.fillStyle='rgba(0,200,100,.7)';cx.fillRect(8,26,60,8);
+    canvasHash=cv.toDataURL().slice(-48);
+  }catch(_){}
+  const raw=[nav.userAgent,nav.language,nav.hardwareConcurrency||0,nav.maxTouchPoints||0,
+    scr.colorDepth,scr.width+'x'+scr.height,Intl.DateTimeFormat().resolvedOptions().timeZone,
+    nav.platform||'',canvasHash,BIND_SECRET].join('|');
+  const buf=new TextEncoder().encode(raw);
+  const hash=await crypto.subtle.digest('SHA-256',buf);
+  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function saveSession(token,fp,provider,csrf,sblob){
+  try{
+    localStorage.setItem(SESSION_KEY,JSON.stringify({token,fp,ts:Date.now(),provider}));
+    localStorage.setItem(CSRF_KEY,csrf);
+    localStorage.setItem(SBLOB_KEY,sblob);
+  }catch(e){console.error('storage',e);}
+}
+function setStatus(m,t=''){statusTx.textContent=m;statusEl.className=t;}
+function setBtns(d){goBtnLv.disabled=d;goBtnLl.disabled=d;goBtnWi.disabled=d;}
+async function fetchT(url,opts={},ms=25000){
+  const ctrl=new AbortController();const tid=setTimeout(()=>ctrl.abort(),ms);
+  try{return await fetch(url,{...opts,signal:ctrl.signal,mode:'cors',credentials:'omit'});}
+  finally{clearTimeout(tid);}
+}
+
+/* PoW solver */
+async function solvePow(){
+  const r=await fetchT(API+'/api/pow-challenge',{method:'GET',cache:'no-store'},20000);
+  if(!r.ok) throw new Error('Cannot fetch challenge');
+  const ch=await r.json();
+  const target=ch.bits;
+  const enc=new TextEncoder();
+  let nonce=0;
+  while(true){
+    const n=nonce.toString(16);
+    const data=enc.encode(`${ch.challenge}:${n}`);
+    const buf=await crypto.subtle.digest('SHA-256',data);
+    const arr=new Uint8Array(buf);
+    let z=0;
+    for(let i=0;i<arr.length;i++){
+      const b=arr[i];
+      if(b===0){z+=8;continue;}
+      for(let j=7;j>=0;j--){if((b>>j)&1){i=arr.length;break;}z++;}
+      break;
     }
+    if(z>=target){return{...ch,nonce:n};}
+    nonce++;
+    if(nonce%5000===0){powVal.textContent=nonce.toLocaleString();await new Promise(r=>setTimeout(r,0));}
+  }
+}
 
-    function saveSession(token, fp, provider) {
-        try { localStorage.setItem(SESSION_KEY, JSON.stringify({ token, fp, ts: Date.now(), provider })); }
-        catch (e) { console.error('[RezurX] Storage failed:', e); }
-    }
+async function init(){
+  setStatus('Waking server...','amber');setBtns(true);
+  try{
+    await fetchT(API+'/health',{method:'GET',cache:'no-store'},30000);
+    setStatus('● Solving security challenge','amber');
+    powRow.classList.add('show');
+    const t0=Date.now();
+    window.__rzx_pow=await solvePow();
+    const ms=Date.now()-t0;
+    powVal.textContent='✓ '+ms+'ms';
+    setStatus('● System Online','green');
+  }catch(e){
+    console.error(e);
+    setStatus('● Connection issue','red');
+    return;
+  }
+  setBtns(false);
+}
 
-    function setStatus(msg, type='') { statusTx.textContent = msg; statusEl.className = type; }
-    function setBtns(disabled, lvTxt, wiTxt) {
-        goBtnLv.textContent = lvTxt || 'Linkvertise';
-        goBtnWi.textContent = wiTxt || 'Work.ink';
-        goBtnLv.disabled = disabled;
-        goBtnWi.disabled = disabled;
-    }
+async function handleClick(provider){
+  setStatus('Generating session...','amber');setBtns(true);
+  try{
+    const fp=await getFingerprint();
+    const r=await fetchT(API+'/api/initiate-session',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fp,pow:window.__rzx_pow,website:'',email_confirm:''})
+    },20000);
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok||!data.token||!data.csrf||!data.session) throw new Error(data.error||'Session failed');
+    saveSession(data.token,fp,provider,data.csrf,data.session);
+    setStatus('● Redirecting...','green');
 
-    async function fetchT(url, opts={}, ms=15000) {
-        const ctrl = new AbortController();
-        const tid  = setTimeout(()=>ctrl.abort(), ms);
-        try { return await fetch(url, {...opts, signal:ctrl.signal, mode:'cors', credentials:'omit'}); }
-        finally { clearTimeout(tid); }
-    }
-
-
-    async function init() {
-        setStatus('Waking server...', 'amber');
-        setBtns(true, 'Connecting...', 'Connecting...');
-        try {
-            await fetchT(API + '/health', { method:'GET', cache:'no-store' }, 30000);
-            setStatus('● System Online', 'green');
-        } catch (_) {
-            setStatus('● Server Slow — Try Anyway', 'amber');
+    if(provider==='linkvertise'){
+      setTimeout(()=>{location.href='ad.html?token='+encodeURIComponent(data.token);},500);
+    } else if(provider==='lootlabs'){
+      try{
+        const target='https://rezurxshinn.github.io/RezurX-site/index.html';
+        const enc=await fetchT(API+'/api/lootlabs/encrypt',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','x-csrf-token':data.csrf},
+          body:JSON.stringify({url:target})
+        },10000);
+        const ed=await enc.json().catch(()=>({}));
+        if(enc.ok && ed.encrypted){
+          location.href=LOOTLABS_URL+(LOOTLABS_URL.includes('?')?'&':'?')+'data='+encodeURIComponent(ed.encrypted);
+          return;
         }
-        setBtns(false);
+      }catch(_){}
+      location.href=LOOTLABS_URL;
+    } else if(provider==='workink'){
+      setTimeout(()=>{location.href=WORKINK_URL;},500);
     }
+  }catch(err){
+    console.error(err);
+    setStatus('● '+(err.message||'Error'),'red');
+    setBtns(false);
+  }
+}
 
-    async function handleClick(provider) {
-        setStatus('Generating session token...', 'amber');
-        setBtns(true, 'Please Wait...', 'Please Wait...');
+goBtnLv.addEventListener('click',()=>handleClick('linkvertise'));
+goBtnLl.addEventListener('click',()=>handleClick('lootlabs'));
+goBtnWi.addEventListener('click',()=>handleClick('workink'));
 
-        try {
-            const fp  = await getFingerprint();
-            const res = await fetchT(API + '/api/initiate-session', {
-                method: 'POST',
-                headers: { 'Content-Type':'application/json', 'Accept':'application/json' },
-                body:   JSON.stringify({ fp }),
-            }, 20000);
+init();
 
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok || !data.token) throw new Error(data.error || 'Failed to create session');
-
-            saveSession(data.token, fp, provider);
-            setStatus('● Redirecting to ad...', 'green');
-
-            if (provider === 'linkvertise') {
-                setTimeout(() => {
-                    window.location.href = 'ad.html?token=' + encodeURIComponent(data.token);
-                }, 600);
-            } else {
-                setTimeout(() => { window.location.href = WORKINK_URL; }, 600);
-            }
-
-        } catch (err) {
-            console.error('[RezurX] Error:', err);
-            setStatus('● ' + (err.message || 'Error'), 'red');
-            setBtns(false);
-        }
+/* Lava */
+(function(){
+  const cv=document.getElementById('lava-canvas');const ctx=cv.getContext('2d');
+  function resize(){cv.width=innerWidth;cv.height=innerHeight;}
+  resize();addEventListener('resize',resize);
+  const pal=[[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0],[255,140,0],[200,50,0],[255,100,5]];
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+  function mk(init){
+    const c=pal[Math.floor(Math.random()*pal.length)],sp=cv.width*.30;
+    return{x:cv.width*.5+rnd(-sp,sp),y:init?rnd(-cv.height,0):rnd(-80,0),
+           vy:rnd(1.5,3.8),vx:rnd(-.8,.8),radius:rnd(4,15),tail:[],
+           maxTail:Math.floor(rnd(16,34)),r:c[0],g:c[1],b:c[2],
+           alpha:rnd(.55,.95),wobble:rnd(0,Math.PI*2),
+           wobbleSpd:rnd(.008,.05),wobbleAmp:rnd(.3,1.8)};
+  }
+  const drops=[];for(let i=0;i<120;i++)drops.push(mk(true));
+  function drawDrop(d){
+    const{x,y,radius:rd,r,g,b,alpha,tail}=d;
+    for(let i=0;i<tail.length;i++){
+      const t=tail[i],pct=i/tail.length,a=alpha*pct*.45,rad=rd*pct*.7;
+      if(rad<.5||a<.01)continue;
+      ctx.beginPath();ctx.arc(t.x,t.y,rad,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${r},${g},${b},${a})`;ctx.fill();
     }
-
-    goBtnLv.addEventListener('click', () => handleClick('linkvertise'));
-    goBtnWi.addEventListener('click', () => handleClick('workink'));
-
-
-    window.__rezurxDiag = function() {
-        try {
-            const raw = localStorage.getItem(SESSION_KEY);
-            console.log('═══ RezurX Diagnostic ═══');
-            if (raw) {
-                const d = JSON.parse(raw);
-                console.log('Token:   ', d.token?.slice(0,16)+'...');
-                console.log('Provider:', d.provider);
-                console.log('Age (s): ', Math.round((Date.now()-d.ts)/1000));
-            }
-        } catch (e) { console.error(e); }
-    };
-    console.log('[RezurX] Diagnostic: run __rezurxDiag()');
-
-    init();
-
-    /* ── Lava background ── */
-    (function () {
-        const cv  = document.getElementById('lava-canvas');
-        const ctx = cv.getContext('2d');
-        function resize() { cv.width = innerWidth; cv.height = innerHeight; }
-        resize(); window.addEventListener('resize', resize);
-        const pal = [[255,80,0],[255,120,10],[255,60,0],[220,40,0],[255,155,20],[180,30,0],[255,140,0],[200,50,0],[255,100,5]];
-        const rnd = (a,b) => a+Math.random()*(b-a);
-        function mk(init) {
-            const c=pal[Math.floor(Math.random()*pal.length)],sp=cv.width*.25;
-            return {x:cv.width*.5+rnd(-sp,sp),y:init?rnd(-cv.height,0):rnd(-80,0),vy:rnd(1.5,3.8),vx:rnd(-.8,.8),radius:rnd(4,14),tail:[],maxTail:Math.floor(rnd(14,32)),r:c[0],g:c[1],b:c[2],alpha:rnd(.5,.95),wobble:rnd(0,Math.PI*2),wobbleSpd:rnd(.008,.05),wobbleAmp:rnd(.3,1.8)};
-        }
-        const drops=[];
-        for(let i=0;i<100;i++) drops.push(mk(true));
-        function drawDrop(d) {
-            const {x,y,radius:rd,r,g,b,alpha,tail}=d;
-            for(let i=0;i<tail.length;i++){const t=tail[i],pct=i/tail.length,a=alpha*pct*.4,rad=rd*pct*.65;if(rad<.5||a<.01)continue;ctx.beginPath();ctx.arc(t.x,t.y,rad,0,Math.PI*2);ctx.fillStyle=`rgba(${r},${g},${b},${a})`;ctx.fill();}
-            const gr=ctx.createRadialGradient(x,y,0,x,y,rd*5);gr.addColorStop(0,`rgba(${r},${g},${b},${alpha*.45})`);gr.addColorStop(1,`rgba(${r},${g},${b},0)`);ctx.beginPath();ctx.arc(x,y,rd*5,0,Math.PI*2);ctx.fillStyle=gr;ctx.fill();
-            const gm=ctx.createRadialGradient(x-rd*.3,y-rd*.35,0,x,y,rd);gm.addColorStop(0,`rgba(255,220,140,${alpha*.9})`);gm.addColorStop(.35,`rgba(${r},${g},${b},${alpha})`);gm.addColorStop(1,`rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);ctx.beginPath();ctx.arc(x,y,rd,0,Math.PI*2);ctx.fillStyle=gm;ctx.fill();
-            ctx.beginPath();ctx.arc(x-rd*.3,y-rd*.32,rd*.25,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,240,${alpha*.7})`;ctx.fill();
-        }
-        function animate() {
-            ctx.clearRect(0,0,cv.width,cv.height);
-            for(const d of drops){d.wobble+=d.wobbleSpd;d.x+=Math.sin(d.wobble)*d.wobbleAmp+d.vx;d.y+=d.vy;d.tail.push({x:d.x,y:d.y});if(d.tail.length>d.maxTail)d.tail.shift();drawDrop(d);if(d.y-d.radius>cv.height+20){Object.assign(d,mk(false));d.tail=[];}}
-            requestAnimationFrame(animate);
-        }
-        animate();
-    })();
+    const gr=ctx.createRadialGradient(x,y,0,x,y,rd*5.8);
+    gr.addColorStop(0,`rgba(${r},${g},${b},${alpha*.5})`);
+    gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
+    ctx.beginPath();ctx.arc(x,y,rd*5.8,0,Math.PI*2);ctx.fillStyle=gr;ctx.fill();
+    const gm=ctx.createRadialGradient(x-rd*.3,y-rd*.35,0,x,y,rd);
+    gm.addColorStop(0,`rgba(255,235,170,${alpha*.95})`);
+    gm.addColorStop(.35,`rgba(${r},${g},${b},${alpha})`);
+    gm.addColorStop(1,`rgba(${Math.max(r-70,0)},${Math.max(g-50,0)},0,${alpha})`);
+    ctx.beginPath();ctx.arc(x,y,rd,0,Math.PI*2);ctx.fillStyle=gm;ctx.fill();
+    ctx.beginPath();ctx.arc(x-rd*.3,y-rd*.32,rd*.27,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,255,250,${alpha*.78})`;ctx.fill();
+  }
+  function animate(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    for(const d of drops){
+      d.wobble+=d.wobbleSpd;
+      d.x+=Math.sin(d.wobble)*d.wobbleAmp+d.vx;
+      d.y+=d.vy;d.tail.push({x:d.x,y:d.y});
+      if(d.tail.length>d.maxTail)d.tail.shift();
+      drawDrop(d);
+      if(d.y-d.radius>cv.height+20){Object.assign(d,mk(false));d.tail=[];}
+    }
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
 })();
 </script>
 </body>
